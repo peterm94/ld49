@@ -21,7 +21,7 @@ export class TileManager extends Entity
             {
                 const allTiles = caller.getScene().entities.filter(entity => entity.name == "tile");
                 const tileToDelete = Util.choose(...allTiles);
-                worldgen.addChild(new NoTile(tileToDelete.transform.x, tileToDelete.transform.y));
+                worldgen.addChild(new NoTile(tileToDelete.transform.x, tileToDelete.transform.y, true));
                 tileToDelete.destroy();
             }
         });
