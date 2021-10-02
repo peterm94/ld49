@@ -18,7 +18,7 @@ import {
 } from "lagom-engine";
 import {Boss} from "./Enemy/Boss/Boss";
 import {WorldGen} from "./World/WorldGen";
-import {Player, PlayerMover} from "./Player/Player";
+import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
 import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
@@ -179,6 +179,8 @@ class MainScene extends Scene
         this.addEntity(new AmmunitionPickup(400, 200));
 
         this.addEntity(new TileManager());
+        this.addSystem(new PlayerDropper());
+        this.addSystem(new PlayerResetter());
 
         this.addSystem(new GameStatusUpdater());
         this.addEntity(new WorldGen());

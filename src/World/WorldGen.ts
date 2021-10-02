@@ -1,6 +1,7 @@
 import {CollisionSystem, Component, Entity, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
+import { PlayerFalling } from "../Player/Player";
 
 const tile = new SpriteSheet(tileImg, 32, 20);
 
@@ -103,6 +104,15 @@ export class NoTile extends Entity
 
             coll.onTriggerEnter.register((caller, data) => {
                 // TODO In the hole
+                if (data.other.layer === Layers.player)
+                {
+                    if (data.other.getEntity().getComponent<PlayerFalling>(PlayerFalling))
+                    {
+                        // Already falling
+                        return;
+                    }
+                    data.other.getEntity().addComponent(new PlayerFalling(this.depth));
+                }
             });
         }
 

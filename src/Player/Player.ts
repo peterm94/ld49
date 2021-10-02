@@ -12,6 +12,7 @@ import {
     Sprite,
     SpriteSheet,
     System,
+    Util,
     Vector
 } from "lagom-engine";
 import {Layers} from "../Layers";
@@ -30,9 +31,13 @@ const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
 
 export class Player extends Entity
 {
+    initialX: number;
+    initialY: number;
     constructor(x: number, y: number)
     {
         super("player", x, y, Layers.player);
+        this.initialX = x;
+        this.initialY = y;
     }
 
     onAdded()
@@ -192,6 +197,66 @@ export class PlayerMover extends System
             newPosition.multiply(this.moveSpeed * delta / 1000);
             entity.transform.position.x += newPosition.x;
             entity.transform.position.y += newPosition.y;
+        });
+    }
+}
+
+
+export class PlayerFalling extends Component
+{
+    depth: number;
+    constructor(depth: number)
+    {
+        super();
+        this.depth = depth;
+    }
+}
+
+export class PlayerDropper extends System
+{
+    types = () => [PlayerFalling];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, playerFalling: PlayerFalling) => 
+        {
+            entity.transform.position.y += 100 * (delta / 1000);
+            // TODO get player going under the tile
+            // entity.depth = playerFalling.depth;
+        });
+    }
+}
+
+export class PlayerResetter extends System
+{
+    types = () => [PlayerFalling];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, playerFalling: PlayerFalling) => 
+        {
+            // TODO there's gotta be a way to read this from the gam
+            if (entity.transform.position.y < 430)
+            {
+                // Not fallen far enough yet
+                return;
+            }
+            const falling = entity.getComponent<PlayerFalling>(PlayerFalling);
+            if (falling)
+            {
+                entity.removeComponent(falling, true);
+                const worldgen = entity.getScene().getEntityWithName("worldgen");
+                if (worldgen)
+                {
+                    const allTiles = worldgen.children.filter(entity => entity.name == "tile");
+                    const spawnTile = Util.choose(...allTiles);
+
+                    entity.transform.x = spawnTile.transform.position.x;
+                    entity.transform.y = spawnTile.transform.position.y;
+                    // entity.depth = Layers.player;
+                }
+
+            }
         });
     }
 }
