@@ -1,4 +1,5 @@
 import {Game, Scene} from "lagom-engine";
+import {WorldGen} from "./World/WorldGen";
 
 export class LD49 extends Game
 {
@@ -14,5 +15,7 @@ class MainScene extends Scene
     onAdded()
     {
         super.onAdded();
+
+        this.addEntity(new WorldGen());
     }
 }
