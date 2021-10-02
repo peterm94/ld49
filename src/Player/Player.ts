@@ -1,12 +1,12 @@
 import {
-    AnimatedSprite,
+    AnimatedSprite, AnimatedSpriteController, AnimationEnd,
     CircleCollider,
     Collider,
     CollisionSystem,
     Component,
     Entity,
     Game,
-    Key,
+    Key, Log,
     RectCollider,
     RenderCircle,
     Sprite,
@@ -20,11 +20,13 @@ import {Ammunition} from "../Common/Ammunition";
 import {PickupCount} from "../Pickups/Pickup";
 import {GameStatus} from "../GameManagement/GameStatus";
 import beeSprite from '../Art/bee.png';
+import beeMoveSprite from '../Art/bee-move.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
+const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
 
 export class Player extends Entity
 {
@@ -37,9 +39,22 @@ export class Player extends Entity
     {
         super.onAdded();
 
+        this.addComponent(new AnimatedSpriteController(0, [
+            {
+                id: 0,
+                textures: bee.textureSliceFromRow(0, 0, 3),
+                config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
+
+            },
+            {
+                id: 1,
+                textures: bee_move.textureSliceFromRow(0, 0, 1),
+                config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
+
+            }
+        ]));
         this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
-        this.addComponent(new AnimatedSprite(bee.textureSliceFromRow(0, 0, 3),
-                          {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}));
+
         const health = this.addComponent(new Health(3, 3));
         const ammunition = this.addComponent(new Ammunition(100, 0));
 
@@ -136,11 +151,11 @@ export class PlayerMover extends System
     private readonly moveSpeed = 70;
     private readonly hexagonHeightRatio = 25 / 32;
 
-    types = () => [PlayerController];
+    types = () => [PlayerController, AnimatedSpriteController];
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, playerController: PlayerController) => {
+        this.runOnEntities((entity: Entity, playerController: PlayerController, spr: AnimatedSpriteController) => {
             const newPosition = new Vector(0, 0);
             if (Game.keyboard.isKeyDown(playerController.upKey))
             {
@@ -163,6 +178,15 @@ export class PlayerMover extends System
             if (newPosition.x !== 0 && newPosition.y !== 0)
             {
                 newPosition.multiply(0.707);
+            }
+
+            if (newPosition.x != 0 || newPosition.y != 0) {
+
+                spr.setAnimation(1);
+            }
+            else
+            {
+                spr.setAnimation(0);
             }
 
             newPosition.multiply(this.moveSpeed * delta / 1000);
