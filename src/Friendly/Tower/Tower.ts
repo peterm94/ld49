@@ -5,7 +5,7 @@ import {
     CollisionSystem,
     Component,
     Entity,
-    Log,
+    Log, MathUtil,
     RectCollider,
     RenderRect,
     SpriteSheet,
@@ -39,6 +39,13 @@ class Can extends Entity
         super("can", x, y);
     }
 
+    rotate<T>(arr: T[], amt: number): T[]
+    {
+        const last = arr.splice(arr.length - amt, amt);
+        arr.unshift(...last);
+        return arr;
+    }
+
     onAdded()
     {
         super.onAdded();
@@ -46,10 +53,31 @@ class Can extends Entity
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: [turretCan.texture(0, 0)],
-                config: {xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32}
+                textures: this.rotate(turretCan.textureSliceFromRow(0, 0, 32), MathUtil.randomRange(0, 32)),
+                config: {
+                    xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32,
+                    animationEndAction: AnimationEnd.LOOP,
+                    animationSpeed: 100
+                }
+            },
+            {
+                id: 1,
+                textures: turretCan.textureSliceFromRow(0, 33, 40),
+                config: {
+                    xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32,
+                    animationEndAction: AnimationEnd.STOP,
+                    animationSpeed: 70
+                }
             }
         ]));
+    }
+}
+
+class CanisterArray extends Component
+{
+    constructor(readonly canisters: Can[], public current: number = 0)
+    {
+        super();
     }
 }
 
@@ -88,19 +116,25 @@ export class Tower extends Entity
             }
         ]));
 
+        let cans: CanisterArray;
+
         if (this.flipped)
         {
-            this.addChild(new Can(28, 13, this.flipped));
-            this.addChild(new Can(32, 15, this.flipped));
-            this.addChild(new Can(36, 17, this.flipped));
-            this.addChild(new Can(40, 19, this.flipped));
+            cans = this.addComponent(new CanisterArray([
+                this.addChild(new Can(28, 13, this.flipped)),
+                this.addChild(new Can(32, 15, this.flipped)),
+                this.addChild(new Can(36, 17, this.flipped)),
+                this.addChild(new Can(40, 19, this.flipped))
+            ]));
         }
         else
         {
-            this.addChild(new Can(29, 13, this.flipped));
-            this.addChild(new Can(25, 15, this.flipped));
-            this.addChild(new Can(21, 17, this.flipped));
-            this.addChild(new Can(17, 19, this.flipped));
+            cans = this.addComponent(new CanisterArray([
+                this.addChild(new Can(29, 13, this.flipped)),
+                this.addChild(new Can(25, 15, this.flipped)),
+                this.addChild(new Can(21, 17, this.flipped)),
+                this.addChild(new Can(17, 19, this.flipped))
+            ]));
         }
 
         const health = this.addComponent(new Health(100, 100));
@@ -109,6 +143,12 @@ export class Tower extends Entity
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
         attackTimer.onTrigger.register(caller => {
             spr.setAnimation(1, true);
+            caller.getEntity().addComponent(new Timer(7 * 60, cans, false))
+                  .onTrigger.register((caller1, data) => {
+                data.canisters[data.current].getComponent<AnimatedSpriteController>(
+                    AnimatedSpriteController)!.setAnimation(1);
+                data.current = (data.current + 1) % 4;
+            });
             caller.getEntity().addComponent(new Timer(29 * 60, null, false)).onTrigger.register(caller1 => {
                 (caller1.getEntity() as Tower).fireShot(caller1, ammunition);
             });
