@@ -1,8 +1,8 @@
-import {Collider, CollisionSystem, Component, Entity, RectCollider, RenderRect, Timer} from "lagom-engine";
+import {Collider, CollisionSystem, Component, Entity, Log, RectCollider, RenderRect, Timer} from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {HealthBar} from "../../Common/HealthBar";
 import {Layers} from "../../Layers";
-import {TowerAttack} from "../../Friendly/Tower/TowerAttack";
+import {TowerBeeAttack} from "../../Friendly/Tower/TowerBeeAttack";
 import {Attack} from "../../Common/Attack";
 import {BossRocketAttack} from "./BossRocketAttack";
 
@@ -27,7 +27,9 @@ export class Boss extends Entity
         rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);
 
         const health = this.addComponent(new Health(1000, 1000));
-        this.addChild(new HealthBar("boss_health", 0, 0, Layers.boss, "Boss", 0, 55));
+
+        // TODO Big health bar at the top of the screen instead?
+        const healthBar = this.addChild(new HealthBar("boss_health", 0, 0, Layers.boss, 0, 0, 55));
 
         const collider = this.addComponent(
             new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
@@ -36,7 +38,7 @@ export class Boss extends Entity
                     width: width, height: height
                 }));
 
-        collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
+        collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health, healthBar));
     }
 
     instantiateRocketAttack(caller: Component)
@@ -47,17 +49,17 @@ export class Boss extends Entity
         const target = caller.getScene().getEntityWithName("player");
         if (!target)
         {
-            console.error("Tried to target something for a Boss attack, but nothing could be found.");
+            Log.error("Tried to target the Player for a Boss attack, but nothing could be found.");
             return;
         }
 
         caller.getScene().addEntity(new BossRocketAttack(x, y, Layers.bossAttack, target));
     }
 
-    getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health)
+    getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health, healthBar: HealthBar)
     {
         const other = data.other.getEntity();
-        if (other instanceof TowerAttack)
+        if (other instanceof TowerBeeAttack)
         {
             const attackDetails = other.getComponent<Attack>(Attack);
             if (attackDetails)
@@ -65,6 +67,7 @@ export class Boss extends Entity
                 health.removeHealth(attackDetails.getDamage());
                 other.destroy();
 
+                healthBar.remainingHealthPercentage = health.getPercentageRemaining();
                 if (health.isEmpty())
                 {
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a

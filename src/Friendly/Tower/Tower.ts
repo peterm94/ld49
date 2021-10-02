@@ -1,16 +1,16 @@
-import {CollisionSystem, Entity, RectCollider, RenderRect} from "lagom-engine";
+import {Collider, CollisionSystem, Component, Entity, Log, RectCollider, RenderRect, Timer} from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {Ammunition} from "../../Common/Ammunition";
 import {Layers} from "../../Layers";
 import {BossRocketAttack} from "../../Enemy/Boss/BossRocketAttack";
 import {Attack} from "../../Common/Attack";
-import {HealthBar} from "../../Common/HealthBar";
+import {TowerBeeAttack} from "./TowerBeeAttack";
 
 export class Tower extends Entity
 {
-    constructor(x: number, y: number)
+    constructor(name: string, x: number, y: number)
     {
-        super("tower", x, y, Layers.tower);
+        super("tower_1", x, y, Layers.tower);
     }
 
     onAdded()
@@ -19,12 +19,16 @@ export class Tower extends Entity
 
         const width = 10;
         const height = 25;
+        const fireRateS = 5;
+        const maxAmmo = 4;
 
         this.addComponent(new RenderRect(0, 0, width, height, 0xffffff, 0xffffff));
 
         const health = this.addComponent(new Health(100, 100));
-        this.addChild(new HealthBar("tower_health", 0, 0, Layers.tower, "Tower", 0, 30));
-        this.addComponent(new Ammunition(100, 50));
+        const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
+
+        const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
+        attackTimer.onTrigger.register(caller => this.fireShot(caller, ammunition));
 
         const collider = this.addComponent(
             new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
@@ -35,26 +39,51 @@ export class Tower extends Entity
                 })
         );
 
-        collider.onTriggerEnter.register((caller, data) => {
-            const other = data.other.getEntity();
-            if (other instanceof BossRocketAttack)
-            {
-                const attackDetails = other.getComponent<Attack>(Attack);
-                if (attackDetails)
-                {
-                    health.removeHealth(attackDetails.getDamage());
-                    other.destroy();
+        collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
+    }
 
-                    if (health.isEmpty())
-                    {
-                        // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
-                        //  destroyed tower instead?
-                    }
+    receiveDamage(caller: Collider, data: { other: Collider, result: unknown }, health: Health)
+    {
+        const other = data.other.getEntity();
+        if (other instanceof BossRocketAttack)
+        {
+            const attackDetails = other.getComponent<Attack>(Attack);
+            if (attackDetails)
+            {
+                health.removeHealth(attackDetails.getDamage());
+                other.destroy();
+
+                if (health.isEmpty())
+                {
+                    // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
+                    //  destroyed tower instead?
                 }
             }
-        });
+        }
+    }
+
+    fireShot(caller: Component, ammunition: Ammunition)
+    {
+        if (ammunition.getCurrentAmmo() <= 0)
+        {
+            return;
+        }
+
+        const x = caller.getEntity().transform.position.x;
+        const y = caller.getEntity().transform.position.y;
+
+        const target = caller.getScene().getEntityWithName("boss");
+        if (!target)
+        {
+            Log.error("Tried to target the Boss for a Tower attack, but nothing could be found.");
+            return;
+        }
+
+        caller.getScene().addEntity(new TowerBeeAttack(x, y, Layers.towerAttack, target));
+        ammunition.removeAmmo(1);
     }
 }
+
 
 export class DestroyedTower extends Entity
 {

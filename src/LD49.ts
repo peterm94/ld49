@@ -16,13 +16,14 @@ import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
 import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
 import {TileManager} from "./World/TileManager";
-import {ProjectileMover} from "./Enemy/Boss/BossRocketAttack";
 import {Tower} from "./Friendly/Tower/Tower";
+import {ProjectileMover} from "./Common/ProjectileMover";
 
 const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.player, Layers.hexagons);
 matrix.addCollision(Layers.player, Layers.pickup);
 matrix.addCollision(Layers.player, Layers.bossAttack);
+matrix.addCollision(Layers.towerAttack, Layers.boss);
 
 export class LD49 extends Game
 {
@@ -32,7 +33,7 @@ export class LD49 extends Game
 
         // TODO enable this before deploy
         // Log.logLevel = LogLevel.ERROR;
-        Log.logLevel = LogLevel.WARN;
+        Log.logLevel = LogLevel.INFO;
 
         this.setScene(new MainScene(this));
     }
@@ -46,7 +47,7 @@ class MainScene extends Scene
 
         // Global entities.
         this.addGUIEntity(new Diagnostics("white", 5, true));
-        this.addGUIEntity(new GameStatusDisplay(370, 200));
+        this.addGUIEntity(new GameStatusDisplay(320, 190));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         // this.addGlobalSystem(new DebugCollisionSystem(collSystem));
@@ -59,8 +60,8 @@ class MainScene extends Scene
         this.addEntity(new Player(30, 30));
 
         // Towers.
-        this.addEntity(new Tower(100, 100));
-        this.addEntity(new Tower(300, 100));
+        this.addEntity(new Tower("tower_1", 100, 100));
+        this.addEntity(new Tower("tower_2", 300, 100));
 
         // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));

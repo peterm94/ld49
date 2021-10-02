@@ -5,6 +5,7 @@ export enum Layers
     pickup,
     tower,
     player,
+    towerAttack,
     bossAttack,
     gameStatus,
 }
