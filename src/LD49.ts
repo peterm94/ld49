@@ -15,7 +15,7 @@ export class LD49 extends Game
 {
     constructor()
     {
-        super({width: 426, height: 240, resolution: 3, backgroundColor: 0x45283C});
+        super({width: 426, height: 240, resolution: 3, backgroundColor: 0x0d2b45});
         this.setScene(new MainScene(this));
     }
 }
@@ -28,7 +28,7 @@ class MainScene extends Scene
 
         // Global entities.
         this.addGUIEntity(new Diagnostics("red"));
-        this.addGUIEntity(new GameStatusDisplay(150, 50));
+        this.addGUIEntity(new GameStatusDisplay(370, 225));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));

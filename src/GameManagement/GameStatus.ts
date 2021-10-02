@@ -12,7 +12,7 @@ export class GameStatusDisplay extends Entity
         super.onAdded();
 
         const ammo = this.addComponent(new GameStatus(0));
-        const ammoLabel = new TextDisp(-30, 0, ammo.ammunition.toString(), {fill: 0x777777});
+        const ammoLabel = new TextDisp(0, 0, ammo.ammunition.toString(), {fontSize: 12, fill: 0x777777});
         this.addComponent(ammoLabel);
     }
 }
@@ -30,7 +30,7 @@ export class GameStatusUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: Entity, text: TextDisp, gameStatus: GameStatus) => {
-            text.pixiObj.text = `Ammunition: ${gameStatus.ammunition}`;
+            text.pixiObj.text = `Ammo: ${gameStatus.ammunition}`;
         });
     }
 
