@@ -4,7 +4,8 @@ import {
     Component,
     Entity,
     Game,
-    Key, RenderCircle,
+    Key,
+    RenderCircle,
     Sprite,
     SpriteSheet,
     System,
@@ -26,7 +27,7 @@ export class Player extends Entity
         super("player", x, y, Layers.player);
     }
 
-    onAdded(): void
+    onAdded()
     {
         super.onAdded();
 
@@ -34,7 +35,7 @@ export class Player extends Entity
         this.addComponent(new Sprite(bee.textureFromIndex(0), {xAnchor: 0.5, yAnchor: 0.5}));
         const ammunition = this.addComponent(new Ammunition(100, 0));
 
-        const playerCollider = this.addComponent(
+        const collider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {
                     layer: Layers.player,
@@ -42,17 +43,16 @@ export class Player extends Entity
                     yOff: 5
                 }));
 
-
         this.addComponent(new RenderCircle(0, 5, 2, 0xFF0000));
-        playerCollider.onTriggerEnter.register((caller, data) => {
-            const entity = data.other.getEntity();
-            if (entity instanceof AmmunitionPickup)
+        collider.onTriggerEnter.register((caller, data) => {
+            const other = data.other.getEntity();
+            if (other instanceof AmmunitionPickup)
             {
-                const pickupDetails = entity.getComponent<PickupCount>(PickupCount);
+                const pickupDetails = other.getComponent<PickupCount>(PickupCount);
                 if (pickupDetails)
                 {
                     ammunition.addAmmo(pickupDetails.amount);
-                    entity.destroy();
+                    other.destroy();
 
                     // Update the scoreboard.
                     const gameStatusDisplay = this.getScene().getEntityWithName("gameStatusDisplay");
@@ -80,7 +80,8 @@ export class PlayerControlled extends Component
 
 export class PlayerMover extends System
 {
-    private readonly moveSpeed = 50;
+    private readonly moveSpeed = 100;
+    private readonly hexagonHeightRatio = 15 / 32;
 
     types = () => [PlayerControlled];
 
@@ -90,11 +91,11 @@ export class PlayerMover extends System
             const newPosition = new Vector(0, 0);
             if (Game.keyboard.isKeyDown(playerControlled.upKey))
             {
-                newPosition.y += -1;
+                newPosition.y += -this.hexagonHeightRatio;
             }
             if (Game.keyboard.isKeyDown(playerControlled.downKey))
             {
-                newPosition.y += 1;
+                newPosition.y += this.hexagonHeightRatio;
             }
 
             if (Game.keyboard.isKeyDown(playerControlled.leftKey))

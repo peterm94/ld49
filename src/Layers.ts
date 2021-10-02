@@ -1,10 +1,10 @@
 export enum Layers
 {
-    pickup,
-    gameStatus,
+    boss,
     hexagons,
+    pickup,
     tower,
     player,
-    boss,
-    ball,
+    bossAttack,
+    gameStatus,
 }
