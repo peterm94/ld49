@@ -1,5 +1,12 @@
-import {Game, Scene} from "lagom-engine";
+import {CollisionMatrix, Game, Scene} from "lagom-engine";
+import {Boss} from "./Boss";
 import {WorldGen} from "./World/WorldGen";
+
+export enum Layers
+{
+    boss,
+    ball,
+}
 
 export class LD49 extends Game
 {
@@ -16,6 +23,10 @@ class MainScene extends Scene
     {
         super.onAdded();
 
+        const collisionMatrix = new CollisionMatrix();
+        collisionMatrix.addCollision(Layers.boss, Layers.ball);
+
         this.addEntity(new WorldGen());
+        this.addEntity(new Boss(this.camera.width - 150, 20));
     }
 }
