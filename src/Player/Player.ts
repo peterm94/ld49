@@ -7,12 +7,12 @@ import {GameStatus} from "../GameManagement/GameStatus";
 
 export class Player extends Entity
 {
-    private static width = 30;
-    private static height = 80;
+    private static width = 10;
+    private static height = 20;
 
     constructor(x: number, y: number)
     {
-        super("player", x, y);
+        super("player", x, y, Layers.player);
     }
 
     onAdded(): void
@@ -66,7 +66,7 @@ export class PlayerControlled extends Component
 
 export class PlayerMover extends System
 {
-    private readonly moveSpeed = 600;
+    private readonly moveSpeed = 50;
 
     types = () => [PlayerControlled];
 
