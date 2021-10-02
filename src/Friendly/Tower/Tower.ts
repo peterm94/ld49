@@ -66,7 +66,7 @@ class Can extends Entity
                 config: {
                     xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32,
                     animationEndAction: AnimationEnd.STOP,
-                    animationSpeed: 70
+                    animationSpeed: 120
                 }
             }
         ]));
@@ -143,7 +143,7 @@ export class Tower extends Entity
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
         attackTimer.onTrigger.register(caller => {
             spr.setAnimation(1, true);
-            caller.getEntity().addComponent(new Timer(7 * 60, cans, false))
+            caller.getEntity().addComponent(new Timer(1 * 60, cans, false))
                   .onTrigger.register((caller1, data) => {
                 data.canisters[data.current].getComponent<AnimatedSpriteController>(
                     AnimatedSpriteController)!.setAnimation(1);
