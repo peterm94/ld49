@@ -9,7 +9,7 @@ import {
     Key,
     LagomType,
     Observable,
-    RectCollider,
+    RectCollider, RenderPoly,
     RenderRect,
     Scene,
     System,
@@ -55,11 +55,47 @@ class MainScene extends Scene
         this.addEntity(new Ball(400, 200));
         const scoreboard = new Scoreboard(400, 50);
         this.addEntity(scoreboard);
-        this.addEntity(new Diagnostics("red"));
+        this.addEntity(new Diagnostics("red", 14,  true));
+        this.addEntity(new Boss(this.getGame().renderer.width / 2, 100));
 
         this.addSystem(new PlayerMover());
         this.addSystem(new BallMover());
         this.addSystem(new ScoreSystem(scoreboard.score));
+    }
+}
+
+
+class Health extends Component
+{
+    amount: number;
+    constructor(amount: number) {
+        super();
+        this.amount = amount;
+    }
+}
+
+class HealthBar extends Entity {
+    onAdded() {
+        super.onAdded();
+        this.addComponent(new TextDisp(20, 110, "Boss", {align: "center", fill: "red"}));
+
+    }
+}
+
+class Boss extends Entity
+{
+    constructor(x: number, y: number) {
+        super("Boss", x, y, -1);
+    }
+
+    onAdded() {
+        super.onAdded();
+
+        this.addComponent(new Health(1000));
+
+        this.addComponent(new RenderRect(0, 0, 100, 100, 0x0700ff, 0xff0000));
+        this.addComponent(new RenderRect(10, 10, 80, 80, 0x00ff00, 0xff0000));
+        this.addChild(new HealthBar("boss_health", 0, 0, -1));
     }
 }
 
