@@ -1,4 +1,12 @@
-import {CollisionMatrix, DebugCollisionSystem, Diagnostics, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
+import {
+    CollisionMatrix,
+    DebugCollisionSystem,
+    Diagnostics,
+    DiscreteCollisionSystem,
+    FrameTriggerSystem,
+    Game,
+    Scene
+} from "lagom-engine";
 import {Boss} from "./Boss";
 import {WorldGen} from "./World/WorldGen";
 import {Player, PlayerMover} from "./Player/Player";
@@ -32,6 +40,7 @@ class MainScene extends Scene
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        this.addGlobalSystem(new FrameTriggerSystem());
         this.addSystem(new PlayerMover());
 
         // Game entities.
