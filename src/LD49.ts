@@ -1,18 +1,20 @@
-import {CollisionMatrix, Game, Scene} from "lagom-engine";
+import {CollisionMatrix, DebugCollisionSystem, Diagnostics, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
 import {Boss} from "./Boss";
 import {WorldGen} from "./World/WorldGen";
+import {Player, PlayerMover} from "./Player/Player";
+import {Layers} from "./Layers";
+import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
+import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
 
-export enum Layers
-{
-    boss,
-    ball,
-}
+const matrix = new CollisionMatrix();
+matrix.addCollision(Layers.player, Layers.hexagons);
+matrix.addCollision(Layers.player, Layers.pickup);
 
 export class LD49 extends Game
 {
     constructor()
     {
-        super({width: 640, height: 360, resolution: 2, backgroundColor: 0x45283C});
+        super({width: 426, height: 240, resolution: 3, backgroundColor: 0x45283C});
         this.setScene(new MainScene(this));
     }
 }
@@ -23,6 +25,23 @@ class MainScene extends Scene
     {
         super.onAdded();
 
+        matrix.addCollision(Layers.player, Layers.pickup);
+        matrix.addCollision(Layers.boss, Layers.ball);
+        this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
+
+        // Global entities.
+        this.addEntity(new Diagnostics("red"));
+        this.addEntity(new GameStatusDisplay(150, 50));
+
+        const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
+        this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        this.addSystem(new PlayerMover());
+
+        // Game entities.
+        this.addEntity(new Player(30, 30));
+        this.addEntity(new AmmunitionPickup(400, 200));
+
+        this.addSystem(new GameStatusUpdater());
         const collisionMatrix = new CollisionMatrix();
         collisionMatrix.addCollision(Layers.boss, Layers.ball);
 
