@@ -1,4 +1,4 @@
-import {CollisionSystem, Component, Entity, Log, MathUtil, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
+import {CollisionSystem, Component, Entity, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 
@@ -15,22 +15,52 @@ export class WorldGen extends Entity
     {
         super.onAdded();
 
-        for (let i = 0; i < 8; i++)
-        {
-            for (let j = 0; j < 30; j++)
-            {
-                const offset = j % 2 == 0 ? 0 : 24;
+        const board: number[][] = [
+            [0, 1, 0, 0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 0, 0, 1, 0],
+            [1, 1, 1, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 0, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [1, 1, 1, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [1, 0, 1, 1, 1, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0, 0],
+        ];
 
-                if (MathUtil.randomRange(0, 100) > 85)
+        board.forEach((row, rowIndex) => {
+            const xOffset = rowIndex % 2 == 0 ? 0 : 24;
+            row.forEach((col, colIndex) => {
+                const yPos = rowIndex * 7;
+                const xPos = xOffset + colIndex * 48;
+                if (col)
                 {
-                    this.addChild(new NoTile(offset + i * 48, j * 7, false));
+                    this.addChild(new Tile(xPos, yPos));
                 }
                 else
                 {
-                    this.addChild(new Tile(offset + i * 48, j * 7));
+                    this.addChild(new NoTile(xPos, yPos, false));
                 }
-            }
-        }
+            });
+        });
     }
 }
 
@@ -80,18 +110,18 @@ export class NoTile extends Entity
         {
             this.addComponent(new Timer(10 * 1000, null, false))
                 .onTrigger.register((caller, data) => {
-                    const worldgen = caller.getScene().getEntityWithName("worldgen");
-                    if (!worldgen)
-                    {
-                        return;
-                    }
-                    const parent = caller.getEntity().parent;
-                    if (parent)
-                    {
-                        worldgen.addChild(new Tile(this.transform.x, this.transform.y));
-                        caller.getEntity().destroy();
-                    }
-                });
+                const worldgen = caller.getScene().getEntityWithName("worldgen");
+                if (!worldgen)
+                {
+                    return;
+                }
+                const parent = caller.getEntity().parent;
+                if (parent)
+                {
+                    worldgen.addChild(new Tile(this.transform.x, this.transform.y));
+                    caller.getEntity().destroy();
+                }
+            });
         }
     }
 }

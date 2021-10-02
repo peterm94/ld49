@@ -164,6 +164,7 @@ class MainScene extends Scene
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         // this.addGlobalSystem(new DebugCollisionSystem(collSystem));
 
+        // Entity movers.
         this.addSystem(new PlayerMover());
         this.addSystem(new ProjectileMover());
 
