@@ -1,10 +1,11 @@
 import {
     CollisionMatrix,
-    DebugCollisionSystem,
     Diagnostics,
     DiscreteCollisionSystem,
     FrameTriggerSystem,
     Game,
+    Log,
+    LogLevel,
     Scene,
     TimerSystem
 } from "lagom-engine";
@@ -28,6 +29,11 @@ export class LD49 extends Game
     constructor()
     {
         super({width: 426, height: 240, resolution: 3, backgroundColor: 0x0d2b45});
+
+        // TODO enable this before deploy
+        // Log.logLevel = LogLevel.ERROR;
+        Log.logLevel = LogLevel.WARN;
+
         this.setScene(new MainScene(this));
     }
 }
@@ -39,11 +45,11 @@ class MainScene extends Scene
         super.onAdded();
 
         // Global entities.
-        this.addGUIEntity(new Diagnostics("red"));
+        this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addGUIEntity(new GameStatusDisplay(370, 200));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
-        this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        // this.addGlobalSystem(new DebugCollisionSystem(collSystem));
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addSystem(new PlayerMover());
