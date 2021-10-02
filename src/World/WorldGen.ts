@@ -23,7 +23,7 @@ export class WorldGen extends Entity
 
                 if (MathUtil.randomRange(0, 100) > 85)
                 {
-                    this.addChild(new NoTile(offset + i * 48, j * 7));
+                    this.addChild(new NoTile(offset + i * 48, j * 7, false));
                 }
                 else
                 {
@@ -51,9 +51,12 @@ export class Tile extends Entity
 
 export class NoTile extends Entity
 {
-    constructor(x: number, y: number)
+    private regenerateTile: boolean;
+
+    constructor(x: number, y: number, willRegenerate: boolean)
     {
         super("notile", x, y, y);
+        this.regenerateTile = willRegenerate;
     }
 
     onAdded()
@@ -71,6 +74,25 @@ export class NoTile extends Entity
             coll.onTriggerEnter.register((caller, data) => {
                 // TODO In the hole
             });
+        }
+
+        if (this.regenerateTile)
+        {
+            this.addComponent(new Timer(1 * 1000, null, false))
+                .onTrigger.register((caller, data) => {
+                    const worldgen = caller.getScene().getEntityWithName("worldgen");
+                    if (!worldgen)
+                    {
+                        return;
+                    }
+                    const parent = caller.getEntity().parent;
+                    console.log(parent);
+                    if (parent)
+                    {
+                        worldgen.addChild(new Tile(this.transform.x, this.transform.y));
+                        caller.getEntity().destroy();
+                    }
+                });
         }
     }
 }
