@@ -1,8 +1,8 @@
-import {CircleCollider, CollisionSystem, Component, Entity, Sprite, SpriteSheet, System} from "lagom-engine";
-import tileImg from '../Art/hex-32-15.png';
+import {CircleCollider, CollisionSystem, Component, Entity, MathUtil, Sprite, SpriteSheet, System} from "lagom-engine";
+import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 
-const tile = new SpriteSheet(tileImg, 32, 15);
+const tile = new SpriteSheet(tileImg, 32, 20);
 
 export class WorldGen extends Entity
 {
@@ -21,6 +21,10 @@ export class WorldGen extends Entity
             {
                 const offset = j % 2 == 0 ? 0 : 24;
 
+                if (MathUtil.randomRange(0, 100) > 85)
+                {
+                    continue;
+                }
                 this.addChild(new Tile(offset + i * 48, j * 7));
             }
         }
@@ -31,7 +35,7 @@ export class Tile extends Entity
 {
     constructor(x: number, y: number)
     {
-        super("tile", x, y);
+        super("tile", x, y, y);
     }
 
     onAdded()

@@ -30,8 +30,8 @@ class MainScene extends Scene
         this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
 
         // Global entities.
-        this.addEntity(new Diagnostics("red"));
-        this.addEntity(new GameStatusDisplay(150, 50));
+        this.addGUIEntity(new Diagnostics("red"));
+        this.addGUIEntity(new GameStatusDisplay(150, 50));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));
@@ -42,9 +42,6 @@ class MainScene extends Scene
         this.addEntity(new AmmunitionPickup(400, 200));
 
         this.addSystem(new GameStatusUpdater());
-        const collisionMatrix = new CollisionMatrix();
-        collisionMatrix.addCollision(Layers.boss, Layers.ball);
-
         this.addEntity(new WorldGen());
         this.addEntity(new Boss(this.camera.width - 150, 20));
     }
