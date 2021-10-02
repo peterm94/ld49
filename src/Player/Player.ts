@@ -15,7 +15,7 @@ export class Player extends Entity
         super("player", x, y, Layers.player);
     }
 
-    onAdded(): void
+    onAdded()
     {
         super.onAdded();
 
@@ -23,22 +23,22 @@ export class Player extends Entity
         this.addComponent(new RenderRect(0, 0, Player.width, Player.height, 0xffffff, 0xffffff));
         const ammunition = this.addComponent(new Ammunition(100, 0));
 
-        const playerCollider = this.addComponent(
+        const collider = this.addComponent(
             new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {
                     layer: Layers.player,
                     height: Player.height, width: Player.width
                 }));
 
-        playerCollider.onTriggerEnter.register((caller, data) => {
-            const entity = data.other.getEntity();
-            if (entity instanceof AmmunitionPickup)
+        collider.onTriggerEnter.register((caller, data) => {
+            const other = data.other.getEntity();
+            if (other instanceof AmmunitionPickup)
             {
-                const pickupDetails = entity.getComponent<PickupCount>(PickupCount);
+                const pickupDetails = other.getComponent<PickupCount>(PickupCount);
                 if (pickupDetails)
                 {
                     ammunition.addAmmo(pickupDetails.amount);
-                    entity.destroy();
+                    other.destroy();
 
                     // Update the scoreboard.
                     const gameStatusDisplay = this.getScene().getEntityWithName("gameStatusDisplay");
@@ -67,6 +67,7 @@ export class PlayerControlled extends Component
 export class PlayerMover extends System
 {
     private readonly moveSpeed = 50;
+    private readonly hexagonHeightRatio = 15 / 32;
 
     types = () => [PlayerControlled];
 
@@ -77,11 +78,11 @@ export class PlayerMover extends System
             const newPosition = new Vector(0, 0);
             if (Game.keyboard.isKeyDown(playerControlled.upKey))
             {
-                newPosition.y += -1;
+                newPosition.y += -this.hexagonHeightRatio;
             }
             if (Game.keyboard.isKeyDown(playerControlled.downKey))
             {
-                newPosition.y += 1;
+                newPosition.y += this.hexagonHeightRatio;
             }
 
             if (Game.keyboard.isKeyDown(playerControlled.leftKey))
