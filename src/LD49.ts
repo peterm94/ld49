@@ -22,6 +22,7 @@ import {Tower} from "./Friendly/Tower/Tower";
 const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.player, Layers.hexagons);
 matrix.addCollision(Layers.player, Layers.pickup);
+matrix.addCollision(Layers.player, Layers.bossAttack);
 
 export class LD49 extends Game
 {
@@ -45,7 +46,7 @@ class MainScene extends Scene
 
         // Global entities.
         this.addGUIEntity(new Diagnostics("white", 5, true));
-        this.addGUIEntity(new GameStatusDisplay(370, 225));
+        this.addGUIEntity(new GameStatusDisplay(370, 200));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         // this.addGlobalSystem(new DebugCollisionSystem(collSystem));
@@ -59,7 +60,6 @@ class MainScene extends Scene
 
         // Towers.
         this.addEntity(new Tower(100, 100));
-        this.addEntity(new Tower(200, 100));
         this.addEntity(new Tower(300, 100));
 
         // Pickups.
