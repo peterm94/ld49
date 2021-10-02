@@ -68,7 +68,7 @@ export class Tower extends Entity
         const fireRateS = 5;
         const maxAmmo = 4;
 
-        this.addComponent(new AnimatedSpriteController(1, [
+        const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: turretSheet.textureSliceFromRow(0, 0, 0),
@@ -90,7 +90,13 @@ export class Tower extends Entity
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
 
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
-        attackTimer.onTrigger.register(caller => this.fireShot(caller, ammunition));
+        attackTimer.onTrigger.register(caller => {
+            // this.fireShot(this, ammunition);
+            spr.setAnimation(1, true);
+            caller.getEntity().addComponent(new Timer(29 * 60, null, false)).onTrigger.register(caller1 => {
+                (caller1.getEntity() as Tower).fireShot(caller1, ammunition);
+            });
+        });
 
         const collider = this.addComponent(
             new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
@@ -141,7 +147,7 @@ export class Tower extends Entity
             return;
         }
 
-        caller.getScene().addEntity(new TowerBeeAttack(x, y, Layers.towerAttack, target));
+        caller.getScene().addEntity(new TowerBeeAttack(x + 52, y + 12, Layers.towerAttack, target));
         ammunition.removeAmmo(1);
     }
 }
