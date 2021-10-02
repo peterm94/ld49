@@ -11,7 +11,7 @@ export class GameStatusDisplay extends Entity
     {
         super.onAdded();
 
-        const ammo = this.addComponent(new GameStatus(0));
+        const ammo = this.addComponent(new GameStatus());
         const ammoLabel = new TextDisp(0, 0, ammo.ammunition.toString(), {fontSize: 12, fill: 0x777777});
         this.addComponent(ammoLabel);
     }
@@ -19,7 +19,7 @@ export class GameStatusDisplay extends Entity
 
 export class GameStatus extends Component
 {
-    constructor(public ammunition: number)
+    constructor(public ammunition: number = 0, public playerHealth: number = 3)
     {
         super();
     }
@@ -30,7 +30,7 @@ export class GameStatusUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: Entity, text: TextDisp, gameStatus: GameStatus) => {
-            text.pixiObj.text = `Ammo: ${gameStatus.ammunition}`;
+            text.pixiObj.text = `Ammo: ${gameStatus.ammunition}\nHealth: ${gameStatus.playerHealth}`;
         });
     }
 

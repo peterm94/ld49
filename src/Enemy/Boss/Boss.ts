@@ -1,10 +1,10 @@
-import {Collider, CollisionSystem, Component, Entity, RectCollider, RenderRect, Timer, Util} from "lagom-engine";
+import {Collider, CollisionSystem, Component, Entity, RectCollider, RenderRect, Timer} from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {HealthBar} from "../../Common/HealthBar";
 import {Layers} from "../../Layers";
 import {TowerAttack} from "../../Friendly/Tower/TowerAttack";
 import {Attack} from "../../Common/Attack";
-import {BossAttack} from "./BossAttack";
+import {BossRocketAttack} from "./BossRocketAttack";
 
 export class Boss extends Entity
 {
@@ -23,8 +23,8 @@ export class Boss extends Entity
         this.addComponent(new RenderRect(0, 0, width, height, 0x0700ff, 0xff0000));
         this.addComponent(new RenderRect(5, 5, 40, 40, 0x00ff00, 0xff0000));
 
-        const attackTimer = this.addComponent(new Timer(1000, null, true));
-        attackTimer.onTrigger.register(this.instantiateAttack);
+        const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
+        rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);
 
         const health = this.addComponent(new Health(1000, 1000));
         this.addChild(new HealthBar("boss_health", 0, 0, Layers.boss, "Boss", 0, 55));
@@ -39,29 +39,19 @@ export class Boss extends Entity
         collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
     }
 
-    instantiateAttack(caller: Component)
+    instantiateRocketAttack(caller: Component)
     {
         const x = caller.getEntity().transform.position.x;
         const y = caller.getEntity().transform.position.y;
 
-        const possibleTargets = caller.getScene().entities.filter((entity) => entity.name === "tower");
-        let target: Entity | null;
-        if (possibleTargets)
-        {
-            target = Util.choose(...possibleTargets);
-        }
-        else
-        {
-            target = caller.getScene().getEntityWithName("player");
-        }
-
-        if (target === null)
+        const target = caller.getScene().getEntityWithName("player");
+        if (!target)
         {
             console.error("Tried to target something for a Boss attack, but nothing could be found.");
             return;
         }
 
-        caller.getScene().addEntity(new BossAttack(x, y, Layers.bossAttack, target));
+        caller.getScene().addEntity(new BossRocketAttack(x, y, Layers.bossAttack, target));
     }
 
     getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health)
