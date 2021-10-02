@@ -6,7 +6,7 @@ export class TileManager extends Entity
 {
     constructor()
     {
-        super("worldgen", 0, 0, Layers.hexagons);
+        super("tilemgr", 0, 0, Layers.hexagons);
     }
 
     onAdded()
@@ -16,7 +16,6 @@ export class TileManager extends Entity
         .onTrigger
         .register((caller, data) => {
             const worldgen = caller.getScene().getEntityWithName("worldgen");
-            // console.log(worldgen);
             if (worldgen)
             {
                 const allTiles = caller.getScene().entities.filter(entity => entity.name == "tile");
