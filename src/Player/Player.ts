@@ -1,10 +1,10 @@
 import {
+    CircleCollider,
     CollisionSystem,
     Component,
     Entity,
     Game,
-    Key,
-    RectCollider,
+    Key, RenderCircle,
     Sprite,
     SpriteSheet,
     System,
@@ -21,9 +21,6 @@ const bee = new SpriteSheet(beeSprite, 64, 64);
 
 export class Player extends Entity
 {
-    private static width = 24;
-    private static height = 24;
-
     constructor(x: number, y: number)
     {
         super("player", x, y, Layers.player);
@@ -34,18 +31,19 @@ export class Player extends Entity
         super.onAdded();
 
         this.addComponent(new PlayerControlled(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
-        this.addComponent(new Sprite(bee.textureFromIndex(0), {xOffset: -16, yOffset: -16}));
+        this.addComponent(new Sprite(bee.textureFromIndex(0), {xAnchor: 0.5, yAnchor: 0.5}));
         const ammunition = this.addComponent(new Ammunition(100, 0));
 
         const playerCollider = this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {
                     layer: Layers.player,
-                    height: 10,
-                    yOff: 10,
-                    width: Player.width
+                    radius: 1,
+                    yOff: 5
                 }));
 
+
+        this.addComponent(new RenderCircle(0, 5, 2, 0xFF0000));
         playerCollider.onTriggerEnter.register((caller, data) => {
             const entity = data.other.getEntity();
             if (entity instanceof AmmunitionPickup)

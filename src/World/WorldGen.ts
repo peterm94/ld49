@@ -1,14 +1,4 @@
-import {
-    CollisionSystem,
-    Component,
-    Entity,
-    Log,
-    MathUtil,
-    PolyCollider,
-    Sprite,
-    SpriteSheet,
-    System
-} from "lagom-engine";
+import {CollisionSystem, Component, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, System} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 
@@ -74,13 +64,12 @@ export class NoTile extends Entity
         {
             const coll = this.addComponent(new PolyCollider(global, {
                 layer: Layers.hexagons,
-                points: [[7, 1], [24, 1], [30, 7], [24, 13], [7, 13], [1, 7]]
+                // points: [[7, 1], [24, 1], [30, 7], [24, 13], [7, 13], [1, 7]]
+                points: [[11, 4], [19, 4], [22, 7], [19, 10], [11, 10], [8, 7]]
             }));
 
             coll.onTriggerEnter.register((caller, data) => {
-                Log.error("COLLISION");
-                // data.other.getEntity().transform.x -= data.result.overlap_x * data.result.overlap;
-                // data.other.getEntity().transform.y -= data.result.overlap_y * data.result.overlap;
+                // TODO In the hole
             });
         }
     }
