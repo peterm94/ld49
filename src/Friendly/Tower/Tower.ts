@@ -91,10 +91,12 @@ export class Tower extends Entity
 
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
         attackTimer.onTrigger.register(caller => {
-            // this.fireShot(this, ammunition);
             spr.setAnimation(1, true);
             caller.getEntity().addComponent(new Timer(29 * 60, null, false)).onTrigger.register(caller1 => {
                 (caller1.getEntity() as Tower).fireShot(caller1, ammunition);
+            });
+            caller.getEntity().addComponent(new Timer(39 * 60, spr)).onTrigger.register((caller1, data) => {
+                data.setAnimation(0);
             });
         });
 
