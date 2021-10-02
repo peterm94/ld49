@@ -12,7 +12,7 @@ export class TileManager extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Timer(10 * 1000, null, false))
+        this.addComponent(new Timer(10 * 1000, null, true))
         .onTrigger
         .register((caller, data) => {
             const worldgen = caller.getScene().getEntityWithName("worldgen");
