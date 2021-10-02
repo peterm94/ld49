@@ -14,7 +14,8 @@ import {Player, PlayerMover} from "./Player/Player";
 import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
 import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
-import { TileManager } from "./World/TileManager";
+import {TileManager} from "./World/TileManager";
+import {ProjectileMover} from "./Enemy/Boss/BossRocketAttack";
 import {Tower} from "./Friendly/Tower/Tower";
 
 const matrix = new CollisionMatrix();
@@ -45,16 +46,19 @@ class MainScene extends Scene
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addSystem(new PlayerMover());
+        this.addSystem(new ProjectileMover());
 
         // Game entities.
         this.addEntity(new Player(30, 30));
 
         // Towers.
         this.addEntity(new Tower(100, 100));
+        this.addEntity(new Tower(200, 100));
+        this.addEntity(new Tower(300, 100));
 
         // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));
-        
+
         this.addEntity(new TileManager());
 
         this.addSystem(new GameStatusUpdater());

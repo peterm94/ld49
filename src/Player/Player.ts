@@ -31,7 +31,7 @@ export class Player extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new PlayerControlled(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
+        this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
         this.addComponent(new Sprite(bee.textureFromIndex(0), {xAnchor: 0.5, yAnchor: 0.5}));
         const ammunition = this.addComponent(new Ammunition(100, 0));
 
@@ -70,7 +70,7 @@ export class Player extends Entity
     }
 }
 
-export class PlayerControlled extends Component
+export class PlayerController extends Component
 {
     constructor(public upKey: Key, public downKey: Key, public leftKey: Key, public rightKey: Key)
     {
@@ -83,26 +83,26 @@ export class PlayerMover extends System
     private readonly moveSpeed = 100;
     private readonly hexagonHeightRatio = 15 / 32;
 
-    types = () => [PlayerControlled];
+    types = () => [PlayerController];
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, playerControlled: PlayerControlled) => {
+        this.runOnEntities((entity: Entity, playerController: PlayerController) => {
             const newPosition = new Vector(0, 0);
-            if (Game.keyboard.isKeyDown(playerControlled.upKey))
+            if (Game.keyboard.isKeyDown(playerController.upKey))
             {
                 newPosition.y += -this.hexagonHeightRatio;
             }
-            if (Game.keyboard.isKeyDown(playerControlled.downKey))
+            if (Game.keyboard.isKeyDown(playerController.downKey))
             {
                 newPosition.y += this.hexagonHeightRatio;
             }
 
-            if (Game.keyboard.isKeyDown(playerControlled.leftKey))
+            if (Game.keyboard.isKeyDown(playerController.leftKey))
             {
                 newPosition.x += -1;
             }
-            if (Game.keyboard.isKeyDown(playerControlled.rightKey))
+            if (Game.keyboard.isKeyDown(playerController.rightKey))
             {
                 newPosition.x += 1;
             }
