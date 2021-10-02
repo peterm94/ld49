@@ -1,15 +1,25 @@
-import {CollisionMatrix, DebugCollisionSystem, Diagnostics, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
-import {Boss} from "./Boss";
+import {
+    CollisionMatrix,
+    DebugCollisionSystem,
+    Diagnostics,
+    DiscreteCollisionSystem,
+    FrameTriggerSystem,
+    Game,
+    Scene,
+    TimerSystem
+} from "lagom-engine";
+import {Boss} from "./Enemy/Boss/Boss";
 import {WorldGen} from "./World/WorldGen";
 import {Player, PlayerMover} from "./Player/Player";
 import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
 import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
+import { TileManager } from "./World/TileManager";
+import {Tower} from "./Friendly/Tower/Tower";
 
 const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.player, Layers.hexagons);
 matrix.addCollision(Layers.player, Layers.pickup);
-matrix.addCollision(Layers.boss, Layers.ball);
 
 export class LD49 extends Game
 {
@@ -32,11 +42,20 @@ class MainScene extends Scene
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        this.addGlobalSystem(new FrameTriggerSystem());
+        this.addGlobalSystem(new TimerSystem());
         this.addSystem(new PlayerMover());
 
         // Game entities.
         this.addEntity(new Player(30, 30));
+
+        // Towers.
+        this.addEntity(new Tower(100, 100));
+
+        // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));
+        
+        this.addEntity(new TileManager());
 
         this.addSystem(new GameStatusUpdater());
         this.addEntity(new WorldGen());
