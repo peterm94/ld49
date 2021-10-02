@@ -4,5 +4,7 @@ export enum Layers
     gameStatus,
     hexagons,
     tower,
-    player
+    player,
+    boss,
+    ball,
 }
