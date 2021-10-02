@@ -34,7 +34,7 @@ const turretCan = new SpriteSheet(turretCanSpr, 7, 9);
 
 class Can extends Entity
 {
-    constructor(x: number, y: number)
+    constructor(x: number, y: number, readonly flipped: boolean)
     {
         super("can", x, y);
     }
@@ -46,7 +46,8 @@ class Can extends Entity
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: [turretCan.texture(0, 0)]
+                textures: [turretCan.texture(0, 0)],
+                config: {xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32}
             }
         ]));
     }
@@ -54,7 +55,7 @@ class Can extends Entity
 
 export class Tower extends Entity
 {
-    constructor(name: string, x: number, y: number)
+    constructor(name: string, x: number, y: number, readonly flipped: boolean)
     {
         super("tower_1", x, y, Layers.tower);
     }
@@ -72,19 +73,35 @@ export class Tower extends Entity
             {
                 id: 0,
                 textures: turretSheet.textureSliceFromRow(0, 0, 0),
-                config: {animationEndAction: AnimationEnd.STOP}
+                config: {
+                    animationEndAction: AnimationEnd.STOP, xScale: this.flipped ? -1 : 1,
+                    xAnchor: 0.5, yAnchor: 0.5
+                }
             },
             {
                 id: 1,
                 textures: turretSheet.textureSliceFromRow(0, 1, 38),
-                config: {animationEndAction: AnimationEnd.STOP, animationSpeed: 60}
+                config: {
+                    animationEndAction: AnimationEnd.STOP, animationSpeed: 60, xScale: this.flipped ? -1 : 1,
+                    xAnchor: 0.5, yAnchor: 0.5
+                }
             }
         ]));
 
-        this.addChild(new Can(29, 13));
-        this.addChild(new Can(25, 15));
-        this.addChild(new Can(21, 17));
-        this.addChild(new Can(17, 19));
+        if (this.flipped)
+        {
+            this.addChild(new Can(28, 13, this.flipped));
+            this.addChild(new Can(32, 15, this.flipped));
+            this.addChild(new Can(36, 17, this.flipped));
+            this.addChild(new Can(40, 19, this.flipped));
+        }
+        else
+        {
+            this.addChild(new Can(29, 13, this.flipped));
+            this.addChild(new Can(25, 15, this.flipped));
+            this.addChild(new Can(21, 17, this.flipped));
+            this.addChild(new Can(17, 19, this.flipped));
+        }
 
         const health = this.addComponent(new Health(100, 100));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
@@ -149,7 +166,14 @@ export class Tower extends Entity
             return;
         }
 
-        caller.getScene().addEntity(new TowerBeeAttack(x + 52, y + 12, Layers.towerAttack, target));
+        if (this.flipped)
+        {
+            caller.getScene().addEntity(new TowerBeeAttack(x + 11 - 32, y + 12 - 32, Layers.towerAttack, target));
+        }
+        else
+        {
+            caller.getScene().addEntity(new TowerBeeAttack(x + 52 - 32, y + 12 - 32, Layers.towerAttack, target));
+        }
         ammunition.removeAmmo(1);
     }
 }
