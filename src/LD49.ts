@@ -1,6 +1,8 @@
-import {CollisionMatrix, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
-import {WorldGen} from "./World/WorldGen";
+import {CollisionMatrix, Diagnostics, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
 import {Player, PlayerMover} from "./Player/Player";
+import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
+import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
+import {Layers} from "./Layers";
 
 const matrix = new CollisionMatrix();
 
@@ -19,10 +21,21 @@ class MainScene extends Scene
     {
         super.onAdded();
 
+        matrix.addCollision(Layers.player, Layers.pickup);
         this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
+
+        // Global entities.
+        this.addEntity(new Diagnostics("red"));
+        this.addEntity(new GameStatusDisplay(150, 50));
+
         this.addSystem(new PlayerMover());
 
+        // Game entities.
         this.addEntity(new Player(30, 30));
-        this.addEntity(new WorldGen());
+        this.addEntity(new AmmunitionPickup(400, 200));
+
+        // System controls.
+        this.addSystem(new PlayerMover());
+        this.addSystem(new GameStatusUpdater());
     }
 }
