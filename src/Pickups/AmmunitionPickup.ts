@@ -4,9 +4,11 @@ import {PickupCount} from "./Pickup";
 
 import honeySprite1 from '../Art/honey1.png';
 import honeySprite2 from '../Art/honey2.png';
+import honeySprite3 from '../Art/honey3.png';
 
 const honey1 = new SpriteSheet(honeySprite1, 18, 16);
 const honey2 = new SpriteSheet(honeySprite2, 18, 16);
+const honey3 = new SpriteSheet(honeySprite3, 18, 16);
 
 
 export class AmmunitionPickup extends Entity
@@ -20,7 +22,7 @@ export class AmmunitionPickup extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new AnimatedSprite(Util.choose(honey1, honey2).textureSliceFromRow(0, 0, 7),
+        this.addComponent(new AnimatedSprite(Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7),
             {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP}));
         this.addComponent(new PickupCount(10));
 
