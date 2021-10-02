@@ -4,9 +4,9 @@ import {Layers} from "../../Layers";
 
 export class BossAttack extends Entity
 {
-    constructor(x: number, y: number)
+    constructor(x: number, y: number, z: number, readonly target: Entity)
     {
-        super("bossAttack", x, y);
+        super("bossAttack", x, y, z);
     }
 
     onAdded()

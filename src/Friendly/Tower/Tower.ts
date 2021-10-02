@@ -10,7 +10,7 @@ export class Tower extends Entity
 {
     constructor(x: number, y: number)
     {
-        super("tower", x, y, 10);
+        super("tower", x, y, Layers.tower);
     }
 
     onAdded()
@@ -23,7 +23,7 @@ export class Tower extends Entity
         this.addComponent(new RenderRect(0, 0, width, height, 0xffffff, 0xffffff));
 
         const health = this.addComponent(new Health(100, 100));
-        this.addChild(new HealthBar("tower_health", 0, 0, 2, "Tower", 0, 30));
+        this.addChild(new HealthBar("tower_health", 0, 0, Layers.tower, "Tower", 0, 30));
         this.addComponent(new Ammunition(100, 50));
 
         const collider = this.addComponent(

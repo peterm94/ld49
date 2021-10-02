@@ -4,7 +4,8 @@ import {
     Component,
     Entity,
     Game,
-    Key, RenderCircle,
+    Key,
+    RenderCircle,
     Sprite,
     SpriteSheet,
     System,
@@ -79,7 +80,7 @@ export class PlayerControlled extends Component
 
 export class PlayerMover extends System
 {
-    private readonly moveSpeed = 50;
+    private readonly moveSpeed = 100;
     private readonly hexagonHeightRatio = 15 / 32;
 
     types = () => [PlayerControlled];

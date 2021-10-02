@@ -6,7 +6,7 @@ export class AmmunitionPickup extends Entity
 {
     constructor(x: number, y: number)
     {
-        super("ammunitionPickup", x, y);
+        super("ammunitionPickup", x, y, Layers.pickup);
     }
 
     onAdded(): void
