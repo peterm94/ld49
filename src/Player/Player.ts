@@ -1,4 +1,5 @@
 import {
+    AnimatedSprite,
     CircleCollider,
     Collider,
     CollisionSystem,
@@ -37,7 +38,8 @@ export class Player extends Entity
         super.onAdded();
 
         this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
-        this.addComponent(new Sprite(bee.textureFromIndex(0), {xAnchor: 0.5, yAnchor: 0.5}));
+        this.addComponent(new AnimatedSprite(bee.textureSliceFromRow(0, 0, 3),
+                          {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}));
         const health = this.addComponent(new Health(3, 3));
         const ammunition = this.addComponent(new Ammunition(100, 0));
 
