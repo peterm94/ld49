@@ -28,7 +28,7 @@ class MainScene extends Scene
 
         // Global entities.
         this.addGUIEntity(new Diagnostics("red"));
-        this.addGUIEntity(new GameStatusDisplay(150, 50));
+        this.addGUIEntity(new GameStatusDisplay(370, 225));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));
