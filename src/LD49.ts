@@ -29,7 +29,10 @@ import {ProjectileMover} from "./Common/ProjectileMover";
 import titleScreenImg from "./Art/title.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 
-const titleScreen = new SpriteSheet(titleScreenImg, 426, 240);
+const screenWidth = 426;
+const screenHeight = 240;
+
+const titleScreen = new SpriteSheet(titleScreenImg, screenWidth, screenHeight);
 
 
 const matrix = new CollisionMatrix();
@@ -46,7 +49,7 @@ export class LD49 extends Game
 
     constructor()
     {
-        super({width: 426, height: 240, resolution: 3, backgroundColor: 0x0d2b45});
+        super({width: screenWidth, height: screenHeight, resolution: 3, backgroundColor: 0x0d2b45});
 
         // TODO enable this before deploy
         // Log.logLevel = LogLevel.ERROR;
@@ -172,8 +175,8 @@ class MainScene extends Scene
         this.addEntity(new Player(30, 30));
 
         // Towers.
-        this.addEntity(new Tower("tower_1", 100, 100, false));
-        this.addEntity(new Tower("tower_2", 300, 100, true));
+        this.addEntity(new Tower("tower_1", screenWidth / 3, 100, false));
+        this.addEntity(new Tower("tower_2", screenWidth / 3 * 2, 100, true));
 
         // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));
@@ -181,9 +184,18 @@ class MainScene extends Scene
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());
-
         this.addSystem(new GameStatusUpdater());
-        this.addEntity(new WorldGen());
+
+        // World generation.
+        // Figure out the empty space between the board and the end of the screen, half it, and we get a centered board!
+        const centeredX = (screenWidth - WorldGen.getBoardWidth()) / 2;
+
+        // Float the hexagon toward the bottom, buffer 7px so that we can see the edge of the bottom row.
+        const totalTileHeight = WorldGen.getBoardHeight() + 7;
+        const worldStartY = screenHeight - totalTileHeight;
+        this.addEntity(new WorldGen(centeredX, worldStartY));
+
+        // Enemies.
         this.addEntity(new Boss(this.camera.width - 150, 20));
     }
 }

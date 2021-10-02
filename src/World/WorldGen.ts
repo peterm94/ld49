@@ -1,63 +1,97 @@
 import {CollisionSystem, Component, Entity, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
-import { PlayerFalling } from "../Player/Player";
+import {PlayerFalling} from "../Player/Player";
 
-const tile = new SpriteSheet(tileImg, 32, 20);
+export const tileSpriteWidth = 32;
+export const tileSpriteHeight = 20;
+
+const tile = new SpriteSheet(tileImg, tileSpriteWidth, tileSpriteHeight);
 
 export class WorldGen extends Entity
 {
-    constructor()
+    public static board: number[][] = [
+        [1, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 1,],
+        [1, 1, 0, 0, 1, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [1, 0, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 0,],
+        [1, 1, 1, 1, 1, 0,],
+        [0, 1, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 0, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [0, 1, 1, 1, 1, 1,],
+        [0, 1, 1, 1, 1, 0,],
+        [1, 1, 1, 1, 1, 0,],
+        [1, 1, 0, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 1,],
+        [0, 1, 1, 1, 1, 0,],
+        [0, 0, 1, 1, 1, 0,],
+        [0, 1, 1, 1, 1, 1,],
+        [0, 1, 1, 1, 1, 0,],
+    ];
+
+    constructor(x: number, y: number)
     {
-        super("worldgen", 0, 0, Layers.hexagons);
+        super("worldgen", x, y, Layers.hexagons);
+    }
+
+    /**
+     * The board is made up of a number of groups of sprites which are 2 hexagons wide.
+     * Each of the hexagons are 32px wide, but we offset since they're hexagonal and we need to slot them together.
+     * Due to the offset, the smooshed sprite width is 25px * 2 = 50px.
+     * We use 24px as the offset elsewhere because we want the edge pixels to overlap as it's smoother.
+     */
+    static getBoardWidth()
+    {
+        return 50 * WorldGen.board[0].length;
+    }
+
+    /**
+     * The board is made up of hexagon sprites which have a visible face height of 15px.
+     * The hexagons also have visible edges, which are 5px high.
+     * Since each group of hexagons is actually two columns, and we stagger each hexagon on the x, the actual
+     * distance on the y per hexagon is half of the hexagon face height.
+     */
+    static getBoardHeight()
+    {
+        return 7.5 * WorldGen.board.length;
     }
 
     onAdded()
     {
         super.onAdded();
 
-        const board: number[][] = [
-            [0, 1, 0, 0, 0, 0, 1, 0],
-            [0, 1, 0, 0, 0, 0, 1, 0],
-            [1, 1, 1, 0, 0, 0, 1, 1],
-            [1, 1, 1, 0, 0, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 0, 1, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 0, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [1, 1, 1, 0, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [1, 0, 1, 1, 1, 1, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [0, 0, 1, 1, 1, 1, 0, 0],
-            [0, 0, 0, 1, 1, 0, 0, 0],
-        ];
+        // How far to move each staggered hexagon to the right in order for it to slot nicely into the previous tile.
+        const tileStaggeredOffsetX = 24;
 
-        board.forEach((row, rowIndex) => {
-            const xOffset = rowIndex % 2 == 0 ? 0 : 24;
+        // Stagger each row of the board.
+        WorldGen.board.forEach((row, rowIndex) => {
+
+            // Every second row should be shifted to the right so that the hexagons slot together.
+            const xOffset = rowIndex % 2 == 0 ? 0 : tileStaggeredOffsetX;
             row.forEach((col, colIndex) => {
+
+                // Each row should be shifted down by half the height of the hexagon.
+                // Half (not full) height because we're offsetting each row too so it only moves down half each
+                // iteration.
                 const yPos = rowIndex * 7;
+
+                // Shift right as required, and offset so we can emulate tiling each entry from left to right.
                 const xPos = xOffset + colIndex * 48;
-                if (col)
+                if (col === 1)
                 {
                     this.addChild(new Tile(xPos, yPos));
                 }
                 else
                 {
+                    // We don't want explicitly missing tiles to come back again.
                     this.addChild(new NoTile(xPos, yPos, false));
                 }
             });
@@ -82,12 +116,10 @@ export class Tile extends Entity
 
 export class NoTile extends Entity
 {
-    private regenerateTile: boolean;
 
-    constructor(x: number, y: number, willRegenerate: boolean)
+    constructor(x: number, y: number, private readonly regenerateTile: boolean)
     {
         super("notile", x, y, y);
-        this.regenerateTile = willRegenerate;
     }
 
     onAdded()
@@ -119,7 +151,7 @@ export class NoTile extends Entity
         if (this.regenerateTile)
         {
             this.addComponent(new Timer(10 * 1000, null, false))
-                .onTrigger.register((caller, data) => {
+                .onTrigger.register(caller => {
                 const worldgen = caller.getScene().getEntityWithName("worldgen");
                 if (!worldgen)
                 {
