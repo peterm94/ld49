@@ -10,6 +10,7 @@ const game = new LD49();
 const App = () => (
     <div style={{display: "flex", height: "100%", alignItems: "center", justifyContent: "center"}}>
         <LagomGameComponent game={game}/>
+        <canvas id={"detect-render"} width={"426"} height={"240"} style={{border:"black", borderStyle:"solid"}}/>
     </div>
 );
 

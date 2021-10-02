@@ -1,4 +1,4 @@
-import {CircleCollider, CollisionSystem, Entity, Sprite, SpriteSheet} from "lagom-engine";
+import {CircleCollider, CollisionSystem, Component, Entity, Sprite, SpriteSheet, System} from "lagom-engine";
 import tileImg from '../Art/hex-32-15.png';
 import {Layers} from "../Layers";
 
@@ -41,7 +41,25 @@ export class Tile extends Entity
         const global = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
         if (global instanceof CollisionSystem)
         {
-            this.addComponent(new CircleCollider(global, {layer: Layers.hexagons, radius: 10}));
+            this.addComponent(new CircleCollider(global, {layer: Layers.hexagons, radius: 5}));
         }
+    }
+}
+
+export class RemoveTile extends Component
+{
+}
+
+
+export class TileRemover extends System
+{
+    types = () => [Sprite, RemoveTile];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, sprite: Sprite, rem: RemoveTile) => {
+            sprite.applyConfig({alpha: 0.5});
+            rem.destroy();
+        });
     }
 }

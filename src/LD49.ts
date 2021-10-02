@@ -1,8 +1,10 @@
-import {CollisionMatrix, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
+import {CollisionMatrix, DebugCollisionSystem, DiscreteCollisionSystem, Game, Scene} from "lagom-engine";
 import {WorldGen} from "./World/WorldGen";
 import {Player, PlayerMover} from "./Player/Player";
+import {Layers} from "./Layers";
 
 const matrix = new CollisionMatrix();
+matrix.addCollision(Layers.player, Layers.hexagons);
 
 export class LD49 extends Game
 {
@@ -19,7 +21,8 @@ class MainScene extends Scene
     {
         super.onAdded();
 
-        this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
+        const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
+        this.addGlobalSystem(new DebugCollisionSystem(collSystem));
         this.addSystem(new PlayerMover());
 
         this.addEntity(new Player(30, 30));
