@@ -2,7 +2,7 @@ import {CollisionSystem, Entity, RectCollider, RenderRect} from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {Ammunition} from "../../Common/Ammunition";
 import {Layers} from "../../Layers";
-import {BossAttack} from "../../Enemy/Boss/BossAttack";
+import {BossRocketAttack} from "../../Enemy/Boss/BossRocketAttack";
 import {Attack} from "../../Common/Attack";
 import {HealthBar} from "../../Common/HealthBar";
 
@@ -37,7 +37,7 @@ export class Tower extends Entity
 
         collider.onTriggerEnter.register((caller, data) => {
             const other = data.other.getEntity();
-            if (other instanceof BossAttack)
+            if (other instanceof BossRocketAttack)
             {
                 const attackDetails = other.getComponent<Attack>(Attack);
                 if (attackDetails)
