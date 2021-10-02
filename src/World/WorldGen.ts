@@ -78,7 +78,7 @@ export class NoTile extends Entity
 
         if (this.regenerateTile)
         {
-            this.addComponent(new Timer(1 * 1000, null, false))
+            this.addComponent(new Timer(10 * 1000, null, false))
                 .onTrigger.register((caller, data) => {
                     const worldgen = caller.getScene().getEntityWithName("worldgen");
                     if (!worldgen)
