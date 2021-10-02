@@ -1,6 +1,6 @@
-import {CollisionSystem, Component, Entity, LagomGameComponent, MathUtil, PolyCollider, Sprite, SpriteSheet, System, Timer, Util} from "lagom-engine";
-import { Layers } from "../Layers";
-import { NoTile } from "./WorldGen";
+import {Entity, Log, Sprite, Timer, Util} from "lagom-engine";
+import {Layers} from "../Layers";
+import {NoTile} from "./WorldGen";
 
 export class TileManager extends Entity
 {
@@ -12,26 +12,43 @@ export class TileManager extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Timer(10 * 1000, null, true))
+        const frequencyToRemoveSeconds = 10;
+        const seethroughTileLifeSeconds = 2;
+        const seethroughTileAlpha = 0.5;
+
+        this.addComponent(new Timer(frequencyToRemoveSeconds * 1000, null, true))
             .onTrigger
-            .register((caller, data) => {
+            .register((caller) => {
                 const worldgen = caller.getScene().getEntityWithName("worldgen");
                 if (worldgen)
                 {
-                    const allTiles = worldgen.children.filter(entity => entity.name == "tile");
+                    const allTiles = worldgen.children.filter(entity => entity.name === "tile");
+                    if (!allTiles.length)
+                    {
+                        Log.error("Tried to destroy a tile, but no tiles could be found!");
+                        return;
+                    }
                     const tileToDelete = Util.choose(...allTiles);
-                    // Tile goes seethru before it disappears
-                    tileToDelete.getComponent<Sprite>(Sprite)?.applyConfig({alpha: 0.5});
-                    tileToDelete.addComponent(new Timer(2 * 1000, null, false))
-                                .onTrigger.register((caller, data) =>
-                                {
-                                    const worldgen = caller.getScene().getEntityWithName("worldgen");
-                                    if (worldgen)
-                                    {
-                                        worldgen.addChild(new NoTile(caller.parent.transform.x, caller.parent.transform.y, true));
-                                        caller.parent.destroy();
-                                    }
-                                });
+
+                    // Tile goes seethru before it disappears.
+                    const tileSprite = tileToDelete.getComponent<Sprite>(Sprite);
+
+                    if (tileSprite == null)
+                    {
+                        Log.error("Couldn't get the sprite for the tile to delete.");
+                        return;
+                    }
+
+                    tileSprite.applyConfig({alpha: seethroughTileAlpha});
+                    tileToDelete.addComponent(new Timer(seethroughTileLifeSeconds * 1000, null, false))
+                                .onTrigger.register((caller) => {
+                        const worldgen = caller.getScene().getEntityWithName("worldgen");
+                        if (worldgen)
+                        {
+                            worldgen.addChild(new NoTile(caller.parent.transform.x, caller.parent.transform.y, true));
+                            caller.parent.destroy();
+                        }
+                    });
                 }
             });
     }

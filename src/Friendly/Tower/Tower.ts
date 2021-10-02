@@ -5,7 +5,8 @@ import {
     CollisionSystem,
     Component,
     Entity,
-    Log, MathUtil,
+    Log,
+    MathUtil,
     RectCollider,
     RenderRect,
     SpriteSheet,
@@ -117,7 +118,6 @@ export class Tower extends Entity
         ]));
 
         let cans: CanisterArray;
-
         if (this.flipped)
         {
             cans = this.addComponent(new CanisterArray([

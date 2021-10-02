@@ -53,7 +53,7 @@ export class LD49 extends Game
 
         // TODO enable this before deploy
         // Log.logLevel = LogLevel.ERROR;
-        Log.logLevel = LogLevel.INFO;
+        Log.logLevel = LogLevel.DEBUG;
 
         this.setScene(new MainScene(this));
     }
@@ -174,9 +174,9 @@ class MainScene extends Scene
         // Game entities.
         this.addEntity(new Player(30, 30));
 
-        // Towers.
-        this.addEntity(new Tower("tower_1", screenWidth / 3, 100, false));
-        this.addEntity(new Tower("tower_2", screenWidth / 3 * 2, 100, true));
+        // Towers. Should be placed in the middle of a hexagon which will always be there.
+        this.addEntity(new Tower("tower_1", screenWidth / 3 - 15, 100, false));
+        this.addEntity(new Tower("tower_2", screenWidth / 3 * 2 - 13, 100, true));
 
         // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));

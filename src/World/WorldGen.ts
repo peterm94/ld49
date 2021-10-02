@@ -1,4 +1,14 @@
-import {CollisionSystem, Component, Entity, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
+import {
+    CollisionSystem,
+    Component,
+    Entity,
+    MathUtil,
+    PolyCollider,
+    Sprite,
+    SpriteSheet,
+    System,
+    Timer
+} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 import {PlayerFalling} from "../Player/Player";
@@ -87,7 +97,11 @@ export class WorldGen extends Entity
                 const xPos = xOffset + colIndex * 48;
                 if (col === 1)
                 {
-                    this.addChild(new Tile(xPos, yPos));
+                    // Decide whether to elevate, raise, or lower the hexagon.
+                    const heightOffset = MathUtil.randomRange(-1, 2);
+                    // Bit dodgy, but we don't want the tile that our gun is on to ever be destroyed randomly.
+                    const isTowerHexagon = (rowIndex === 6 && colIndex === 1) || (rowIndex === 6 && colIndex === 4);
+                    this.addChild(new Tile(xPos, yPos + heightOffset, isTowerHexagon));
                 }
                 else
                 {
@@ -101,9 +115,9 @@ export class WorldGen extends Entity
 
 export class Tile extends Entity
 {
-    constructor(x: number, y: number)
+    constructor(x: number, y: number, private readonly indestructible = false)
     {
-        super("tile", x, y, y);
+        super("tile" + (indestructible ? "_indestructible" : ""), x, y, y);
     }
 
     onAdded()
