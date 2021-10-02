@@ -27,7 +27,9 @@ export class Player extends Entity
             new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {
                     layer: Layers.player,
-                    height: Player.height, width: Player.width
+                    height: 10,
+                    yOff: 10,
+                    width: Player.width
                 }));
 
         playerCollider.onTriggerEnter.register((caller, data) => {
@@ -72,8 +74,7 @@ export class PlayerMover extends System
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity,
-                            playerControlled: PlayerControlled) => {
+        this.runOnEntities((entity: Entity, playerControlled: PlayerControlled) => {
             const newPosition = new Vector(0, 0);
             if (Game.keyboard.isKeyDown(playerControlled.upKey))
             {

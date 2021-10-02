@@ -1,4 +1,14 @@
-import {CircleCollider, CollisionSystem, Component, Entity, MathUtil, Sprite, SpriteSheet, System} from "lagom-engine";
+import {
+    CollisionSystem,
+    Component,
+    Entity,
+    Log,
+    MathUtil,
+    PolyCollider,
+    Sprite,
+    SpriteSheet,
+    System
+} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 
@@ -23,9 +33,12 @@ export class WorldGen extends Entity
 
                 if (MathUtil.randomRange(0, 100) > 85)
                 {
-                    continue;
+                    this.addChild(new NoTile(offset + i * 48, j * 7));
                 }
-                this.addChild(new Tile(offset + i * 48, j * 7));
+                else
+                {
+                    this.addChild(new Tile(offset + i * 48, j * 7));
+                }
             }
         }
     }
@@ -42,10 +55,33 @@ export class Tile extends Entity
     {
         super.onAdded();
         this.addComponent(new Sprite(tile.textureFromIndex(0)));
+
+    }
+}
+
+export class NoTile extends Entity
+{
+    constructor(x: number, y: number)
+    {
+        super("tile", x, y, y);
+    }
+
+    onAdded()
+    {
+        super.onAdded();
         const global = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
         if (global instanceof CollisionSystem)
         {
-            this.addComponent(new CircleCollider(global, {layer: Layers.hexagons, radius: 5}));
+            const coll = this.addComponent(new PolyCollider(global, {
+                layer: Layers.hexagons,
+                points: [[7, 1], [24, 1], [30, 7], [24, 13], [7, 13], [1, 7]]
+            }));
+
+            coll.onTriggerEnter.register((caller, data) => {
+                Log.error("COLLISION");
+                // data.other.getEntity().transform.x -= data.result.overlap_x * data.result.overlap;
+                // data.other.getEntity().transform.y -= data.result.overlap_y * data.result.overlap;
+            });
         }
     }
 }
