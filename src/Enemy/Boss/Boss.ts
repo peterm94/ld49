@@ -23,7 +23,7 @@ export class Boss extends Entity
         this.addComponent(new RenderRect(0, 0, width, height, 0x0700ff, 0xff0000));
         this.addComponent(new RenderRect(5, 5, 40, 40, 0x00ff00, 0xff0000));
 
-        const rocketAttackTimer = this.addComponent(new Timer(10 * 1000, null, true));
+        const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
         rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);
 
         const health = this.addComponent(new Health(1000, 1000));
