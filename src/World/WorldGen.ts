@@ -1,4 +1,4 @@
-import {CollisionSystem, Component, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
+import {CollisionSystem, Component, Entity, Log, MathUtil, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 
@@ -86,7 +86,6 @@ export class NoTile extends Entity
                         return;
                     }
                     const parent = caller.getEntity().parent;
-                    console.log(parent);
                     if (parent)
                     {
                         worldgen.addChild(new Tile(this.transform.x, this.transform.y));
