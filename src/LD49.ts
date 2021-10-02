@@ -172,8 +172,8 @@ class MainScene extends Scene
         this.addEntity(new Player(30, 30));
 
         // Towers.
-        this.addEntity(new Tower("tower_1", 100, 100));
-        this.addEntity(new Tower("tower_2", 300, 100));
+        this.addEntity(new Tower("tower_1", 100, 100, false));
+        this.addEntity(new Tower("tower_2", 300, 100, true));
 
         // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));

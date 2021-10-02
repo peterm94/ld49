@@ -50,7 +50,6 @@ export class Player extends Entity
                     yOff: 5
                 }));
 
-        this.addComponent(new RenderCircle(0, 5, 2, 0xFF0000));
         movementCollider.onTriggerEnter.register((c, d) => this.registerPickup(c, d, ammunition));
 
         // Handle getting hit.
