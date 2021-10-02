@@ -3,6 +3,7 @@ import {
     DebugCollisionSystem,
     Diagnostics,
     DiscreteCollisionSystem,
+    FrameTriggerSystem,
     Game,
     Scene,
     TimerSystem
@@ -40,6 +41,7 @@ class MainScene extends Scene
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addSystem(new PlayerMover());
 
