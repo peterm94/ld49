@@ -24,8 +24,6 @@ class MainScene extends Scene
     {
         super.onAdded();
 
-        this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
-
         // Global entities.
         this.addGUIEntity(new Diagnostics("red"));
         this.addGUIEntity(new GameStatusDisplay(150, 50));
