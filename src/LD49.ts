@@ -24,12 +24,11 @@ class MainScene extends Scene
     {
         super.onAdded();
 
-        matrix.addCollision(Layers.player, Layers.pickup);
         this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
 
         // Global entities.
-        this.addEntity(new Diagnostics("red"));
-        this.addEntity(new GameStatusDisplay(150, 50));
+        this.addGUIEntity(new Diagnostics("red"));
+        this.addGUIEntity(new GameStatusDisplay(150, 50));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         this.addGlobalSystem(new DebugCollisionSystem(collSystem));
