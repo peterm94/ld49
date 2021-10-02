@@ -80,8 +80,8 @@ export class PlayerControlled extends Component
 
 export class PlayerMover extends System
 {
-    private readonly moveSpeed = 100;
-    private readonly hexagonHeightRatio = 15 / 32;
+    private readonly moveSpeed = 70;
+    private readonly hexagonHeightRatio = 25 / 32;
 
     types = () => [PlayerControlled];
 
@@ -91,7 +91,7 @@ export class PlayerMover extends System
             const newPosition = new Vector(0, 0);
             if (Game.keyboard.isKeyDown(playerControlled.upKey))
             {
-                newPosition.y += -this.hexagonHeightRatio;
+                newPosition.y -= this.hexagonHeightRatio;
             }
             if (Game.keyboard.isKeyDown(playerControlled.downKey))
             {
@@ -100,14 +100,19 @@ export class PlayerMover extends System
 
             if (Game.keyboard.isKeyDown(playerControlled.leftKey))
             {
-                newPosition.x += -1;
+                newPosition.x -= 1;
             }
             if (Game.keyboard.isKeyDown(playerControlled.rightKey))
             {
                 newPosition.x += 1;
             }
 
-            newPosition.normalize().multiply(this.moveSpeed * delta / 1000);
+            if (newPosition.x !== 0 && newPosition.y !== 0)
+            {
+                newPosition.multiply(0.707);
+            }
+
+            newPosition.multiply(this.moveSpeed * delta / 1000);
             entity.transform.position.x += newPosition.x;
             entity.transform.position.y += newPosition.y;
         });
