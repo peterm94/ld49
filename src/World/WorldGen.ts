@@ -1,4 +1,4 @@
-import {CollisionSystem, Component, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, System} from "lagom-engine";
+import {CollisionSystem, Component, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, System, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 
@@ -45,7 +45,7 @@ export class Tile extends Entity
     {
         super.onAdded();
         this.addComponent(new Sprite(tile.textureFromIndex(0)));
-
+        this.addComponent(new TileComponent());
     }
 }
 
@@ -53,7 +53,7 @@ export class NoTile extends Entity
 {
     constructor(x: number, y: number)
     {
-        super("tile", x, y, y);
+        super("notile", x, y, y);
     }
 
     onAdded()
@@ -73,6 +73,10 @@ export class NoTile extends Entity
             });
         }
     }
+}
+
+export class TileComponent extends Component
+{
 }
 
 export class RemoveTile extends Component
