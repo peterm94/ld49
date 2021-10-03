@@ -163,6 +163,7 @@ export class Tower extends Entity
             if (ammunition.getCurrentAmmo() > 0)
             {
                 spr.setAnimation(1, true);
+                (this.scene.getEntityWithName("audio") as SoundManager).playSound("towerShoot");
             }
         });
 

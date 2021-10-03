@@ -42,6 +42,7 @@ import refill3 from "./Sound/refill_3.wav";
 import refill4 from "./Sound/refill_4.wav";
 import squelch from "./Sound/squelch.wav";
 import {BackgroundBees} from "./World/WorkerBees";
+import towerShootWav from "./Sound/towerShoot.wav";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -79,6 +80,7 @@ export class LD49 extends Game
         LD49.audioAtlas.load("refill_2", refill2).volume(0.5);
         LD49.audioAtlas.load("refill_3", refill3).volume(0.5);
         LD49.audioAtlas.load("refill_4", refill4).volume(0.5);
+        LD49.audioAtlas.load("towerShoot", towerShootWav).volume(0.3);
 
         this.setScene(new MainScene(this));
     }
