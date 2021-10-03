@@ -12,9 +12,7 @@ import {
     Log,
     LogLevel,
     Scene,
-    ScreenShake,
     ScreenShaker,
-    SpriteSheet,
     Timer,
     TimerSystem
 } from "lagom-engine";
@@ -27,20 +25,22 @@ import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
 import {ProjectileMover} from "./Common/ProjectileMover";
 
-import titleScreenImg from "./Art/splash/start.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
-import {viewCollisionSystem} from "./index";
+import {titleScreen, viewCollisionSystem} from "./index";
 import {AmmunitionStatusDisplay} from "./GameManagement/AmmunitionStatus";
 import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 
 import bearRoarWav from "./Sound/roar.wav";
+import explosionWav from "./Sound/explosion.wav";
+import rocketNoiseWav from "./Sound/rocket_noise.wav";
+import crackWav from "./Sound/crack.wav";
+import voopWav from "./Sound/voop.wav";
+import pickupWav from "./Sound/pickup.wav";
+import {BackgroundBees} from "./World/WorkerBees";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
-
-const titleScreen = new SpriteSheet(titleScreenImg, screenWidth, screenHeight);
-
 
 const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.playerGround, Layers.hexagons);
@@ -65,6 +65,11 @@ export class LD49 extends Game
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.5);
         LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
+        LD49.audioAtlas.load("rocketExplosion", explosionWav).volume(0.3);
+        LD49.audioAtlas.load("rocketNoise", rocketNoiseWav).volume(0.1);
+        LD49.audioAtlas.load("crack", crackWav).volume(0.5);
+        LD49.audioAtlas.load("voop", voopWav).volume(0.3);
+        LD49.audioAtlas.load("pickup", pickupWav).volume(0.8);
 
         this.setScene(new MainScene(this));
     }
@@ -240,7 +245,7 @@ class MainScene extends Scene
 
         // Pickups.
         this.addEntity(new AmmunitionSpawner());
-
+        this.addEntity(new BackgroundBees());
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());

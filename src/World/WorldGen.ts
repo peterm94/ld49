@@ -1,6 +1,7 @@
 import {CollisionSystem, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
+import {SoundManager} from "../SoundManager/SoundManager";
 import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
 import {Health} from "../Common/Health";
 import {Ammunition} from "../Common/Ammunition";
@@ -251,8 +252,8 @@ export class NoTile extends Entity
                 return;
             }
 
-            const offset = MathUtil.randomRange(-1, 2);
-            worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y - offset, offset));
+            (this.scene.getEntityWithName("audio") as SoundManager).playSound("voop");
+            worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y, 0));
             caller.getEntity().destroy();
         });
     }

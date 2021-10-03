@@ -1,5 +1,6 @@
 import {Component, Entity, Log, MathUtil, Scene, Sprite, Timer, Util} from "lagom-engine";
 import {NoTile} from "./WorldGen";
+import {SoundManager} from "../SoundManager/SoundManager";
 
 export class TileDestroyer extends Component
 {
@@ -49,6 +50,7 @@ export class TileDestroyer extends Component
                 tile.addComponent(new Timer(startTimeBufferMs, null, false))
                     .onTrigger.register((_) => {
                     tileSprite.applyConfig({alpha: seethroughTileAlpha});
+                    (this.getScene().getEntityWithName("audio") as SoundManager).playSound("crack");
 
                     tile.addComponent(new Timer(seethroughDurationMs, null, false))
                         .onTrigger.register((seethroughCaller) => {
