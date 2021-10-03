@@ -6,8 +6,9 @@ import {
     CollisionSystem,
     Component,
     Entity,
+    Log,
     MathUtil,
-   Scene,
+    Scene,
     ScreenShake,
     SpriteSheet,
     Timer,
@@ -27,7 +28,7 @@ import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
 import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
 import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
-import {LD49} from "../../LD49";
+import {BossPhase, BossPhases} from "./BossPhase";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -48,6 +49,8 @@ export class Boss extends Entity
     onAdded()
     {
         super.onAdded();
+        const health = this.addComponent(new Health(80, 80));
+        const bossPhase = this.addComponent(new BossPhase(BossPhases.PHASE_1));
 
         const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
         const earsSpr = ears.addComponent(new AnimatedSpriteController(0, [
@@ -121,9 +124,29 @@ export class Boss extends Entity
         const mouth = this.addChild(new Entity("mouth", 0, 0, Layers.boss));
 
         const addRoarTimer = () => {
-            mouth.addComponent(new Timer(MathUtil.randomRange(2_000, 10_000), roarSpr, false)).onTrigger
+            let timeBetweenAttacks = 2_000;
+            if (bossPhase.currentPhase === BossPhases.PHASE_2)
+            {
+                timeBetweenAttacks = MathUtil.randomRange(2_000, 10_000);
+            }
+            else if (bossPhase.currentPhase === BossPhases.PHASE_3)
+            {
+                timeBetweenAttacks = MathUtil.randomRange(2_000, 8_000);
+            }
+            else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
+            {
+                timeBetweenAttacks = MathUtil.randomRange(4_000, 8_000);
+            }
+            mouth.addComponent(new Timer(timeBetweenAttacks, roarSpr, false)).onTrigger
                  .register((caller, data) => {
-                     data.setAnimation(RoarAnimStates.START_ROAR);
+                     if (bossPhase.currentPhase <= BossPhases.PHASE_2 && bossPhase.currentPhase !== BossPhases.DEAD)
+                     {
+                         data.setAnimation(RoarAnimStates.START_ROAR);
+                     }
+                     else
+                     {
+                         addRoarTimer();
+                     }
                  });
         };
 
@@ -148,19 +171,21 @@ export class Boss extends Entity
                     yAnchor: 0.5,
                     xAnchor: 0.5,
                     animationEndEvent: () => {
+                        // Big difficulty shift for the final phase.
+                        const bigRoar = bossPhase.currentPhase === BossPhases.FINAL_PHASE;
+                        const roarLengthMs = bigRoar ? 4000 : 3000;
+                        const roarIntensity = bigRoar ? 0.5 : 0.3;
+                        const numberOfTiles = bigRoar ? 40 : 15;
+
                         // Pause the ears for the roar duration.
                         earsSpr.nextTriggerTime += 3000;
-                        roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
+                        roarSpr.getEntity().addComponent(new ScreenShake(roarIntensity, roarLengthMs));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
 
                         (this.scene.getEntityWithName("audio") as SoundManager)
-                            .playSound((this.firstRoar) ? "bearRoar" : "bearRoarQuiet");
+                            .playSound((bigRoar) ? "bearRoar" : "bearRoarQuiet");
 
-                        if (this.firstRoar) {
-                            this.firstRoar = false;
-                        }
-
-                        this.dropTiles(2000, this.getScene());
+                        this.dropTiles(roarLengthMs, numberOfTiles, this.getScene());
                     }
                 }
             },
@@ -202,10 +227,42 @@ export class Boss extends Entity
 
         addRoarTimer();
 
-        const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
-        rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);
+        const addRocketTimer = () => {
+            let timeBetweenAttacks = 5;
+            if (bossPhase.currentPhase === BossPhases.PHASE_2)
+            {
+                timeBetweenAttacks = 4;
+            }
+            else if (bossPhase.currentPhase === BossPhases.PHASE_3)
+            {
+                timeBetweenAttacks = 3;
+            }
+            else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
+            {
+                timeBetweenAttacks = 2;
+            }
+            this.addComponent(new Timer(timeBetweenAttacks * 1000, null)).onTrigger.register((caller) => {
+                if (bossPhase.currentPhase <= BossPhases.PHASE_1 && bossPhase.currentPhase !== BossPhases.DEAD)
+                {
+                    // Amp up the difficulty when the boss's hp is low, double rockets!
+                    if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
+                    {
+                        this.instantiateRocketAttack(caller, true);
+                        this.instantiateRocketAttack(caller, false);
+                    }
+                    else
+                    {
+                        // Pick a random side.
+                        const clawSide = Util.choose(true, false);
+                        this.instantiateRocketAttack(caller, clawSide);
+                    }
+                }
+                addRocketTimer();
+            });
+        };
 
-        const health = this.addComponent(new Health(100, 100));
+        addRocketTimer();
+
 
         const collider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem), {
@@ -213,33 +270,32 @@ export class Boss extends Entity
                 radius: 20
             }));
 
-        collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
+        collider.onTriggerEnter.register((c, d) => this.receiveAttack(c, d, health, bossPhase));
 
         this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
         this.getScene().addSystem(new FadeInSystem());
         this.getScene().addSystem(new FadeOutSystem());
     }
 
-    instantiateRocketAttack(caller: Component)
+    instantiateRocketAttack(caller: Component, clawSide: boolean)
     {
-        const clawSide = Util.choose(true, false);
         if (clawSide)
         {
             const x = MathUtil.randomRange(66, 122);
             const y = MathUtil.randomRange(17, 34);
-            const tilt = ((x-66) / (122 - 66)) * 0.45;
+            const tilt = ((x - 66) / (122 - 66)) * 0.45;
             caller.getScene().addEntity(new BearHand(x, y, false, tilt));
         }
         else
         {
             const x = MathUtil.randomRange(296, 360);
             const y = MathUtil.randomRange(22, 28);
-            const tilt = ((x-296) / (360 - 296)) * 0.45;
+            const tilt = ((x - 296) / (360 - 296)) * 0.45;
             caller.getScene().addEntity(new BearHand(x, y, true, -tilt));
         }
     }
 
-    getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health)
+    receiveAttack(caller: Collider, data: { other: Collider; result: unknown }, health: Health, bossPhase: BossPhase)
     {
         const other = data.other.getEntity();
         if (other instanceof TowerBeeAttack)
@@ -250,16 +306,17 @@ export class Boss extends Entity
                 health.removeHealth(attackDetails.getDamage());
                 other.destroy();
 
-                if (health.isEmpty())
+                bossPhase.updatePhase(health.getPercentageRemaining());
+                if (bossPhase.currentPhase === BossPhases.DEAD)
                 {
-                    // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
-                    //  destroyed tower instead?
+                    // TODO Destroy the Boss? Death animation? Win screen?
+                    Log.error("Boss is dead!");
                 }
             }
         }
     }
 
-    dropTiles(timeWindowMs: number, scene: Scene)
+    dropTiles(timeWindowMs: number, numberOfTiles: number, scene: Scene)
     {
         const tileManager = scene.getEntityWithName("tilemgr");
 
@@ -269,7 +326,7 @@ export class Boss extends Entity
 
             if (thig)
             {
-                thig.removeRandomTilesOverTime(scene, timeWindowMs, 15);
+                thig.removeRandomTilesOverTime(scene, timeWindowMs, numberOfTiles);
             }
         }
     }

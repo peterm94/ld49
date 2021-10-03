@@ -252,9 +252,8 @@ export class NoTile extends Entity
                 return;
             }
 
-            const offset = MathUtil.randomRange(-1, 2);
             (this.scene.getEntityWithName("audio") as SoundManager).playSound("voop");
-            worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y - offset, offset));
+            worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y, 0));
             caller.getEntity().destroy();
         });
     }

@@ -105,7 +105,6 @@ export class Player extends Entity
                 })
         );
 
-
         hitCollider.onTriggerEnter.register((c, d) => this.registerHit(c, d, health));
     }
 
