@@ -69,7 +69,7 @@ export class Player extends Entity
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
             }
         ]));
-        this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
+        this.addComponent(new PlayerController());
 
         const health = this.addComponent(new Health(maxHealth, maxHealth));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
@@ -105,6 +105,11 @@ export class Player extends Entity
 
     registerPickup(caller: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
     {
+        if (caller.getEntity().getComponent(PlayerFalling))
+        {
+            // Player is falling, no honey
+            return;
+        }
         const other = data.other.getEntity();
         if (other instanceof AmmunitionPickup)
         {
@@ -170,10 +175,10 @@ export class Player extends Entity
 
 export class PlayerController extends Component
 {
-    constructor(public upKey: Key, public downKey: Key, public leftKey: Key, public rightKey: Key)
-    {
-        super();
-    }
+    public upKey = Key.KeyW;
+    public downKey = Key.KeyS;
+    public leftKey = Key.KeyA;
+    public rightKey = Key.KeyD;
 }
 
 export class PlayerMover extends System
@@ -272,6 +277,7 @@ export class PlayerResetter extends System
             if (falling)
             {
                 entity.removeComponent(falling, true);
+                entity.addComponent(new PlayerController());
                 const playerSpawns = entity.getScene().entities.filter(entity => entity.name === "player_spawn");
                 if (playerSpawns.length)
                 {

@@ -12,7 +12,7 @@ import {
 } from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
-import {GroundCount, PlayerFalling} from "../Player/Player";
+import {PlayerController, GroundCount, PlayerFalling} from "../Player/Player";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -227,6 +227,11 @@ export class NoTile extends Entity
                                 return;
                             }
                             data.other.getEntity().addComponent(new PlayerFalling(this.depth));
+                            const controller = data.other.getEntity().getComponent(PlayerController);
+                            if(controller)
+                            {
+                                data.other.getEntity().removeComponent(controller, true);
+                            }
                         }
                     }
                 }
