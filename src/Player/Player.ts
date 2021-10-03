@@ -96,6 +96,11 @@ export class Player extends Entity
 
     registerPickup(caller: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
     {
+        if (caller.getEntity().getComponent(PlayerFalling))
+        {
+            // Player is falling, no honey
+            return;
+        }
         const other = data.other.getEntity();
         if (other instanceof AmmunitionPickup)
         {
