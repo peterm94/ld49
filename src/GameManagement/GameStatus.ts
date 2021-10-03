@@ -1,14 +1,15 @@
 import {Component, Entity, Sprite, SpriteSheet, System, TextDisp} from "lagom-engine";
 
 import bearHealthSpr from "../Art/bear-health.png";
+import {Health} from "../Common/Health";
 
 const bearHealth = new SpriteSheet(bearHealthSpr, 50, 200);
 
-export class GameStatusDisplay extends Entity
+export class BearStatus extends Entity
 {
-    constructor(x: number, y: number)
+    constructor(x: number, y: number, readonly health: Health)
     {
-        super("gameStatusDisplay", x, y);
+        super("bosshp", x, y);
     }
 
     onAdded(): void
@@ -22,8 +23,10 @@ export class GameStatusDisplay extends Entity
             this.addComponent(new Sprite(bearHealth.textureFromPoints(70, 181, 11, 1), {xOffset: 20, yOffset: 23})),
             this.addComponent(new Sprite(bearHealth.textureFromPoints(120, 182, 11, 1), {xOffset: 20, yOffset: 22})),
             this.addComponent(
-                new Sprite(bearHealth.textureFromPoints(120, 182, 11, 1), {xOffset: 20, yOffset: 22 + 160}))
+                new Sprite(bearHealth.textureFromPoints(120, 182, 11, 1), {xOffset: 20, yOffset: 22 + 160})),
+            this.health
         ));
+        this.getScene().addSystem(new BossHealthUpdater());
     }
 }
 
@@ -35,35 +38,20 @@ export class GameStatus extends Component
     }
 }
 
-class HpBits extends Component
+export class HpBits extends Component
 {
-    constructor(readonly bar: Sprite, readonly barTop: Sprite, readonly barButt: Sprite)
+    constructor(readonly bar: Sprite, readonly barTop: Sprite, readonly barButt: Sprite, readonly bossHp: Health)
     {
         super();
     }
 }
 
-export class GameStatusUpdater extends System
-{
-    update(delta: number): void
-    {
-        this.runOnEntities((entity: Entity, text: TextDisp, gameStatus: GameStatus) => {
-            text.pixiObj.text = `Ammo: ${gameStatus.ammunition}\n` +
-                `Health: ${gameStatus.playerHealth}\n` +
-                `Boss Health: ${gameStatus.bossHealth.toFixed(0)}%`;
-        });
-    }
-
-    types = () => [TextDisp, GameStatus];
-}
-
-
 export class BossHealthUpdater extends System
 {
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, hpBits: HpBits, gameStatus: GameStatus) => {
-            const hpPercentage = gameStatus.bossHealth / 100;
+        this.runOnEntities((entity: Entity, hpBits: HpBits) => {
+            const hpPercentage = hpBits.bossHp.getHealth() / hpBits.bossHp.getMaxHealth();
 
             // Max bar size is 160px.
             const stretch = hpPercentage * 159;
@@ -74,5 +62,5 @@ export class BossHealthUpdater extends System
         });
     }
 
-    types = () => [HpBits, GameStatus];
+    types = () => [HpBits];
 }
