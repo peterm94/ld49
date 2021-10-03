@@ -196,6 +196,6 @@ class MainScene extends Scene
         this.addEntity(new WorldGen(centeredX, worldStartY));
 
         // Enemies.
-        this.addEntity(new Boss(this.camera.width - 150, 20));
+        this.addEntity(new Boss(this.camera.width / 2, 55));
     }
 }
