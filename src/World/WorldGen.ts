@@ -70,7 +70,7 @@ export class WorldGen extends Entity
     static getBoardWidth(): number
     {
         // Account for the additional invisible row we need because our hexagons need to be created in columns of two.
-        const actualBoardWidth = WorldGen.board.length - 0.5;
+        const actualBoardWidth = WorldGen.board[0].length - 0.5;
         return 50 * (actualBoardWidth);
     }
 
