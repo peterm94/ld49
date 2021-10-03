@@ -84,9 +84,9 @@ class CanisterArray extends Component
 
 export class Tower extends Entity
 {
-    constructor(name: string, x: number, y: number, readonly flipped: boolean)
+    constructor(x: number, y: number, readonly flipped: boolean)
     {
-        super("tower_1", x, y, Layers.tower);
+        super("tower", x, y, Layers.tower);
     }
 
     onAdded()

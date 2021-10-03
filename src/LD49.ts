@@ -17,7 +17,7 @@ import {
     TimerSystem
 } from "lagom-engine";
 import {Boss} from "./Enemy/Boss/Boss";
-import {WorldGen} from "./World/WorldGen";
+import {tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
 import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
@@ -28,6 +28,7 @@ import {ProjectileMover} from "./Common/ProjectileMover";
 
 import titleScreenImg from "./Art/title.png";
 import {SoundManager} from "./SoundManager/SoundManager";
+import {SpawnPoint} from "./Common/SpawnPoint";
 
 const screenWidth = 426;
 const screenHeight = 240;
@@ -53,7 +54,7 @@ export class LD49 extends Game
 
         // TODO enable this before deploy
         // Log.logLevel = LogLevel.ERROR;
-        Log.logLevel = LogLevel.DEBUG;
+        Log.logLevel = LogLevel.INFO;
 
         this.setScene(new MainScene(this));
     }
@@ -167,16 +168,52 @@ class MainScene extends Scene
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         // this.addGlobalSystem(new DebugCollisionSystem(collSystem));
 
+        // World generation.
+        // Figure out the empty space between the board and the end of the screen, half it, and we get a centered board!
+        const worldStartX = (screenWidth - WorldGen.getBoardWidth()) / 2;
+
+        // Where entities are spawned on the board.
+        // Each entry is the column index (left to right) and row index (top to bottom) in that column that the entity
+        // should end up on.
+        const towerSpawnTiles = [[1, 6], [4, 6]];
+        const playerSpawnTiles = [[3, 12]];
+        const ammunitionSpawnTiles = [[3, 13], [0, 0]];
+
+        // Float the hexagon toward the bottom, buffer 7px so that we can see the edge of the bottom row.
+        const totalTileHeight = WorldGen.getBoardHeight() + 7;
+        const worldStartY = screenHeight - totalTileHeight;
+        this.addEntity(new WorldGen(worldStartX, worldStartY, towerSpawnTiles, playerSpawnTiles, ammunitionSpawnTiles));
+
+        // Create any entities that are tied to the board.
+        this.entities.forEach((entity) => {
+            const tileGlobalPos = entity.transform.getGlobalPosition(undefined, true);
+            const offsetFromTop = Math.floor(tileSurfaceHeight / 2) - 2;
+            const offsetFromLeft = tileSpriteWidth / 2;
+
+            const tileCenterX = tileGlobalPos.x + offsetFromLeft;
+            const tileCenterY = tileGlobalPos.y + offsetFromTop;
+            switch (entity.name)
+            {
+                case "tile_tower_spawn":
+
+                    // Sprites are flipped depending on what side of the screen they're on.
+                    const flipped = tileGlobalPos.x > screenWidth / 2;
+                    this.addEntity(new Tower(tileCenterX, tileCenterY, flipped));
+                    break;
+                case "tile_player_spawn":
+                    this.addEntity(new SpawnPoint("player_spawn", tileCenterX, tileCenterY));
+                    break;
+                case "tile_ammunition_spawn":
+                    this.addEntity(new AmmunitionPickup(tileCenterX, tileCenterY));
+            }
+        });
+
         // Entity movers.
         this.addSystem(new PlayerMover());
         this.addSystem(new ProjectileMover());
 
         // Game entities.
         this.addEntity(new Player(30, 30));
-
-        // Towers. Should be placed in the middle of a hexagon which will always be there.
-        this.addEntity(new Tower("tower_1", screenWidth / 3 - 15, 100, false));
-        this.addEntity(new Tower("tower_2", screenWidth / 3 * 2 - 13, 100, true));
 
         // Pickups.
         this.addEntity(new AmmunitionPickup(400, 200));
@@ -185,15 +222,6 @@ class MainScene extends Scene
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());
         this.addSystem(new GameStatusUpdater());
-
-        // World generation.
-        // Figure out the empty space between the board and the end of the screen, half it, and we get a centered board!
-        const centeredX = (screenWidth - WorldGen.getBoardWidth()) / 2;
-
-        // Float the hexagon toward the bottom, buffer 7px so that we can see the edge of the bottom row.
-        const totalTileHeight = WorldGen.getBoardHeight() + 7;
-        const worldStartY = screenHeight - totalTileHeight;
-        this.addEntity(new WorldGen(centeredX, worldStartY));
 
         // Enemies.
         this.addEntity(new Boss(this.camera.width - 150, 20));
