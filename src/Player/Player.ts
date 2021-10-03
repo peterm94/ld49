@@ -23,7 +23,7 @@ import beeSprite from '../Art/bee.png';
 import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
-import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";
+import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
 import {screenHeight} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 
@@ -157,6 +157,7 @@ export class Player extends Entity
             {
                 health.removeHealth(attackDetails.getDamage());
                 other.destroy();
+                this.getScene().addEntity(new BossRocketExplosion(this.transform.x, this.transform.y));
 
                 // Update the scoreboard.
                 const gameStatusDisplay = this.getScene().getEntityWithName("gameStatusDisplay");
