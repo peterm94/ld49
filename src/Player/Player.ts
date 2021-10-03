@@ -25,6 +25,7 @@ import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";
 import {screenHeight} from "../LD49";
+import {Tower} from "../Friendly/Tower/Tower";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -114,6 +115,20 @@ export class Player extends Entity
                         gameStatus.ammunition = ammunition.getCurrentAmmo();
                     }
                 }
+            }
+        }
+    }
+
+    registerTowerReload(collider: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
+    {
+        const other = data.other.getEntity();
+        if (other instanceof Tower)
+        {
+            const towerAmmunition = other.getComponent<Ammunition>(Ammunition);
+            if (towerAmmunition)
+            {
+                const ammoUsed = towerAmmunition.addAmmo(ammunition.getCurrentAmmo());
+                ammunition.removeAmmo(ammoUsed);
             }
         }
     }

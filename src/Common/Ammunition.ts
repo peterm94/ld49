@@ -9,13 +9,15 @@ export class Ammunition extends Component
 
     getCurrentAmmo = (): number => this.currentAmmo;
 
-    addAmmo(amount: number): void
+    addAmmo(amount: number): number
     {
+        const usedAmmo = this.maxAmmo - this.currentAmmo;
         this.currentAmmo += amount;
         if (this.currentAmmo > this.maxAmmo)
         {
             this.currentAmmo = this.maxAmmo;
         }
+        return usedAmmo;
     }
 
     removeAmmo(amount: number): void

@@ -42,6 +42,7 @@ const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.playerGround, Layers.hexagons);
 matrix.addCollision(Layers.playerGround, Layers.pickup);
 matrix.addCollision(Layers.player, Layers.bossAttack);
+matrix.addCollision(Layers.player, Layers.tower);
 matrix.addCollision(Layers.towerAttack, Layers.boss);
 
 export class LD49 extends Game
