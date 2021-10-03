@@ -18,7 +18,7 @@ export class GameStatusDisplay extends Entity
 
 export class GameStatus extends Component
 {
-    constructor(public ammunition: number = 0, public playerHealth: number = 3, public bossHealth: number = 100)
+    constructor(public bossHealth: number = 100)
     {
         super();
     }
@@ -29,9 +29,7 @@ export class GameStatusUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: Entity, text: TextDisp, gameStatus: GameStatus) => {
-            text.pixiObj.text = `Ammo: ${gameStatus.ammunition}\n` +
-                `Health: ${gameStatus.playerHealth}\n` +
-                `Boss Health: ${gameStatus.bossHealth.toFixed(0)}%`;
+            text.pixiObj.text = `Boss Health: ${gameStatus.bossHealth.toFixed(0)}%`;
         });
     }
 

@@ -31,6 +31,8 @@ import titleScreenImg from "./Art/title.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
 import {viewCollisionSystem} from "./index";
+import {AmmunitionStatusDisplay, AmmunitionStatusUpdater} from "./GameManagement/AmmunitionStatus";
+import {HealthStatusDisplay, HealthStatusUpdater} from "./GameManagement/HealthStatus";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -167,6 +169,8 @@ class MainScene extends Scene
         // Global entities.
         this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addGUIEntity(new GameStatusDisplay(320, 190));
+        this.addGUIEntity(new AmmunitionStatusDisplay(20, screenHeight - 20));
+        this.addGUIEntity(new HealthStatusDisplay(screenWidth - 20, 20));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         if (viewCollisionSystem)
@@ -236,6 +240,8 @@ class MainScene extends Scene
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());
         this.addSystem(new GameStatusUpdater());
+        this.addSystem(new AmmunitionStatusUpdater());
+        this.addSystem(new HealthStatusUpdater());
 
         // Enemies.
         this.addEntity(new Boss(this.camera.width / 2, 55));
