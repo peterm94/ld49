@@ -19,6 +19,8 @@ export class AmmunitionStatusDisplay extends Entity
         this.addComponent(new AmmunitionStatus());
         this.addChild(new AmmunitionGUIEntry("ammunitionGUI", 0, 0));
         this.addChild(new AmmunitionGUIEntry("ammunitionGUI", 0, -32));
+
+        this.getScene().addSystem(new AmmunitionStatusUpdater());
     }
 }
 
@@ -63,7 +65,7 @@ export class AmmunitionStatus extends Component
     }
 }
 
-export class AmmunitionStatusUpdater extends System
+class AmmunitionStatusUpdater extends System
 {
     update(delta: number): void
     {

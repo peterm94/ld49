@@ -7,7 +7,8 @@ import {
     Component,
     Entity,
     Log,
-    MathUtil, ScreenShake,
+    MathUtil,
+    ScreenShake,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -22,7 +23,7 @@ import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
 import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
 import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
-import {BearStatus} from "../../GameManagement/GameStatus";
+import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -198,7 +199,7 @@ export class Boss extends Entity
 
         collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
 
-        this.getScene().addGUIEntity(new BearStatus(10, 30, health));
+        this.getScene().addGUIEntity(new BossStatusDisplay(10, 30, health));
     }
 
     instantiateRocketAttack(caller: Component)

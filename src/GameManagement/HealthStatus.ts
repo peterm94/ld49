@@ -18,6 +18,8 @@ export class HealthStatusDisplay extends Entity
         this.addChild(new HealthGUIEntry("healthGUI", 0, 0));
         this.addChild(new HealthGUIEntry("healthGUI", 0, 32));
         this.addChild(new HealthGUIEntry("healthGUI", 0, 64));
+
+        this.getScene().addSystem(new HealthStatusUpdater());
     }
 }
 
@@ -64,7 +66,7 @@ export class HealthStatus extends Component
     }
 }
 
-export class HealthStatusUpdater extends System
+class HealthStatusUpdater extends System
 {
     update(delta: number): void
     {
