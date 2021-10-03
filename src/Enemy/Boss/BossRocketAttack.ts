@@ -14,6 +14,7 @@ import {Layers} from "../../Layers";
 import {AttackMovement} from "../../Common/AttackMovement";
 import bearRocketSprite from "../../Art/bear-rocket.png";
 import rockExplosion from "../../Art/bear-rocket-explosion.png";
+import {SoundManager} from "../../SoundManager/SoundManager";
 
 const rocket = new SpriteSheet(bearRocketSprite, 32, 32);
 const rocketExplosion = new SpriteSheet(rockExplosion, 32, 32);
@@ -57,6 +58,8 @@ export class BossRocketAttack extends Entity
 
         const endOfLife = this.addComponent(new Timer(lifeDurationSec * 1000, null));
 
+        (this.scene.getEntityWithName("audio") as SoundManager).playSound("rocketNoise");
+
         endOfLife.onTrigger.register((caller) => {
             caller.getEntity().destroy();
         });
@@ -84,5 +87,6 @@ export class BossRocketExplosion extends Entity
                 animationEndEvent: () => this.destroy()
             }
         }]));
+        (this.scene.getEntityWithName("audio") as SoundManager).playSound("rocketExplosion");
     }
 }

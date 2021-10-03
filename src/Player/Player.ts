@@ -23,11 +23,12 @@ import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
-import {ScreenCard, screenHeight, screenWidth} from "../LD49";
+import {LD49, ScreenCard, screenHeight, screenWidth} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
 import {HealthStatus} from "../GameManagement/HealthStatus";
 import endScreenImg from "../Art/splash/game-over.png";
+import {SoundManager} from "../SoundManager/SoundManager";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -144,6 +145,7 @@ export class Player extends Entity
             {
                 ammunition.addAmmo(pickupDetails.amount);
                 other.destroy();
+                (this.scene.getEntityWithName("audio") as SoundManager).playSound("pickup");
 
                 // Update the scoreboard.
                 const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
@@ -184,6 +186,8 @@ export class Player extends Entity
             {
                 health.removeHealth(attackDetails.getDamage());
                 other.destroy();
+                // TODO end the rocket noise sound
+                LD49.audioAtlas.get("rocketNoise")?.stop();
                 this.getScene().addEntity(new BossRocketExplosion(this.transform.x, this.transform.y));
 
                 // Update the scoreboard.

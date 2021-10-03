@@ -1,6 +1,7 @@
 import {Entity, Log, Sprite, Timer, Util} from "lagom-engine";
 import {Layers} from "../Layers";
 import {NoTile} from "./WorldGen";
+import {SoundManager} from "../SoundManager/SoundManager";
 
 export class TileManager extends Entity
 {
@@ -40,6 +41,7 @@ export class TileManager extends Entity
                     }
 
                     tileSprite.applyConfig({alpha: seethroughTileAlpha});
+                    (this.scene.getEntityWithName("audio") as SoundManager).playSound("crack");
                     tileToDelete.addComponent(new Timer(seethroughTileLifeSeconds * 1000, null, false))
                                 .onTrigger.register((caller) => {
                         const worldgen = caller.getScene().getEntityWithName("worldgen");

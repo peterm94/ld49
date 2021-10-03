@@ -12,6 +12,7 @@ import {
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 import {GroundCount, PlayerController, PlayerFalling} from "../Player/Player";
+import {SoundManager} from "../SoundManager/SoundManager";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -230,6 +231,7 @@ export class NoTile extends Entity
                 if (parent)
                 {
                     const offset = MathUtil.randomRange(-1, 2);
+                    (this.scene.getEntityWithName("audio") as SoundManager).playSound("voop");
                     worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y - offset, offset));
                     caller.getEntity().destroy();
                 }
