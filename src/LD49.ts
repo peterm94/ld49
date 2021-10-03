@@ -4,7 +4,6 @@ import {
     CollisionMatrix,
     Component,
     DebugCollisionSystem,
-    Diagnostics,
     DiscreteCollisionSystem,
     Entity,
     FrameTriggerSystem,
@@ -13,6 +12,7 @@ import {
     Log,
     LogLevel,
     Scene,
+    ScreenShake,
     ScreenShaker,
     SpriteSheet,
     Timer,
@@ -164,7 +164,7 @@ class MainScene extends Scene
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ClickListener());
-        this.addGlobalSystem(new ScreenShaker());
+        this.addGlobalSystem(new ScreenShaker(screenWidth / 2, screenHeight / 2));
         this.addGUIEntity(new SoundManager());
     }
 
@@ -172,7 +172,7 @@ class MainScene extends Scene
     {
 
         // Global entities.
-        this.addGUIEntity(new Diagnostics("white", 5, true));
+        // this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addGUIEntity(new AmmunitionStatusDisplay(screenWidth - 20, screenHeight - 20));
         this.addGUIEntity(new HealthStatusDisplay(screenWidth - 20, 20));
 
