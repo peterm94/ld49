@@ -98,26 +98,6 @@ export class Tower extends Entity
         const fireRateS = 5;
         const maxAmmo = 4;
 
-        let cans: CanisterArray;
-        if (this.flipped)
-        {
-            cans = this.addComponent(new CanisterArray([
-                this.addChild(new Can(28, 13, this.flipped)),
-                this.addChild(new Can(32, 15, this.flipped)),
-                this.addChild(new Can(36, 17, this.flipped)),
-                this.addChild(new Can(40, 19, this.flipped))
-            ]));
-        }
-        else
-        {
-            cans = this.addComponent(new CanisterArray([
-                this.addChild(new Can(29, 13, this.flipped)),
-                this.addChild(new Can(25, 15, this.flipped)),
-                this.addChild(new Can(21, 17, this.flipped)),
-                this.addChild(new Can(17, 19, this.flipped))
-            ]));
-        }
-
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -154,6 +134,27 @@ export class Tower extends Entity
                 }
             }
         ]));
+
+        let cans: CanisterArray;
+        if (this.flipped)
+        {
+            cans = this.addComponent(new CanisterArray([
+                this.addChild(new Can(28, 13, this.flipped)),
+                this.addChild(new Can(32, 15, this.flipped)),
+                this.addChild(new Can(36, 17, this.flipped)),
+                this.addChild(new Can(40, 19, this.flipped))
+            ]));
+        }
+        else
+        {
+            cans = this.addComponent(new CanisterArray([
+                this.addChild(new Can(29, 13, this.flipped)),
+                this.addChild(new Can(25, 15, this.flipped)),
+                this.addChild(new Can(21, 17, this.flipped)),
+                this.addChild(new Can(17, 19, this.flipped))
+            ]));
+        }
+
 
         const health = this.addComponent(new Health(100, 100));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
