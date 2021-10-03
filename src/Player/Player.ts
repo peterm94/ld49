@@ -1,15 +1,14 @@
 import {
-    AnimatedSprite, AnimatedSpriteController, AnimationEnd,
+    AnimatedSpriteController,
     CircleCollider,
     Collider,
     CollisionSystem,
     Component,
     Entity,
     Game,
-    Key, Log,
+    Key,
+    Log,
     RectCollider,
-    RenderCircle,
-    Sprite,
     SpriteSheet,
     System,
     Util,
@@ -25,6 +24,7 @@ import beeMoveSprite from '../Art/bee-move.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";
+import {screenHeight} from "../LD49";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -33,6 +33,7 @@ export class Player extends Entity
 {
     initialX: number;
     initialY: number;
+
     constructor(x: number, y: number)
     {
         super("player", x, y, Layers.player);
@@ -185,7 +186,8 @@ export class PlayerMover extends System
                 newPosition.multiply(0.707);
             }
 
-            if (newPosition.x != 0 || newPosition.y != 0) {
+            if (newPosition.x != 0 || newPosition.y != 0)
+            {
 
                 spr.setAnimation(1);
             }
@@ -205,6 +207,7 @@ export class PlayerMover extends System
 export class PlayerFalling extends Component
 {
     depth: number;
+
     constructor(depth: number)
     {
         super();
@@ -218,9 +221,9 @@ export class PlayerDropper extends System
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, playerFalling: PlayerFalling) => 
+        this.runOnEntities((entity: Entity, playerFalling: PlayerFalling) =>
         {
-            entity.transform.position.y += 100 * (delta / 1000);
+            entity.transform.position.y += 200 * (delta / 1000);
             // TODO get player going under the tile
             // entity.depth = playerFalling.depth;
         });
@@ -233,10 +236,10 @@ export class PlayerResetter extends System
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, playerFalling: PlayerFalling) => 
+        this.runOnEntities((entity: Entity, playerFalling: PlayerFalling) =>
         {
-            // TODO there's gotta be a way to read this from the gam
-            if (entity.transform.position.y < 430)
+            // TODO there's gotta be a way to read this from the game
+            if (entity.transform.position.y < screenHeight + 40)
             {
                 // Not fallen far enough yet
                 return;
@@ -245,15 +248,18 @@ export class PlayerResetter extends System
             if (falling)
             {
                 entity.removeComponent(falling, true);
-                const worldgen = entity.getScene().getEntityWithName("worldgen");
-                if (worldgen)
+                const playerSpawns = entity.getScene().entities.filter(entity => entity.name === "player_spawn");
+                if (playerSpawns.length)
                 {
-                    const allTiles = worldgen.children.filter(entity => entity.name == "tile");
-                    const spawnTilePosition = Util.choose(...allTiles).transform.getGlobalPosition();
+                    const spawnPoint = Util.choose(...playerSpawns).transform.getGlobalPosition();
 
-                    entity.transform.x = spawnTilePosition.x;
-                    entity.transform.y = spawnTilePosition.y;
+                    entity.transform.x = spawnPoint.x;
+                    entity.transform.y = spawnPoint.y;
                     // entity.depth = Layers.player;
+                }
+                else
+                {
+                    Log.error("Tried to respawn a player but no spawn points exist.");
                 }
 
             }

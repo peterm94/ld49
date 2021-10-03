@@ -25,30 +25,34 @@ const tileStaggeredOffsetX = 24;
 export class WorldGen extends Entity
 {
     public static board: number[][] = [
-        [1, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 0, 1,],
-        [1, 1, 0, 0, 1, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [1, 0, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 0,],
-        [1, 1, 1, 1, 1, 0,],
-        [0, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 0, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [0, 1, 1, 1, 1, 1,],
-        [0, 1, 1, 1, 1, 0,],
-        [1, 1, 1, 1, 1, 0,],
-        [1, 1, 0, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 1,],
-        [0, 1, 1, 1, 1, 0,],
-        [0, 0, 1, 1, 1, 0,],
-        [0, 1, 1, 1, 1, 1,],
-        [0, 1, 1, 1, 1, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 1, 0, 0, 0, 0, 1, 0,],
+        [1, 1, 0, 0, 0, 0, 1, 0,],
+        [0, 1, 0, 0, 0, 0, 1, 0,],
+        [1, 1, 1, 0, 0, 1, 1, 0,],
+        [0, 1, 1, 1, 0, 1, 1, 0,],
+        [1, 1, 0, 1, 1, 1, 1, 0,],
+        [0, 1, 1, 1, 1, 1, 0, 0,],
+        [1, 1, 1, 1, 1, 1, 0, 0,],
+        [0, 0, 1, 1, 1, 1, 1, 0,],
+        [1, 1, 1, 1, 1, 1, 1, 0,],
+        [0, 1, 1, 1, 1, 1, 1, 0,],
+        [1, 1, 1, 1, 1, 1, 1, 0,],
+        [0, 0, 1, 1, 1, 1, 1, 0,],
+        [0, 0, 1, 1, 1, 1, 0, 0,],
+        [0, 1, 1, 1, 1, 1, 0, 0,],
+        [1, 1, 1, 0, 1, 1, 1, 0,],
+        [0, 1, 1, 1, 1, 1, 1, 0,],
+        [1, 1, 1, 1, 1, 1, 1, 0,],
+        [0, 1, 1, 1, 1, 1, 1, 0,],
+        [1, 1, 1, 1, 1, 1, 1, 0,],
+        [0, 0, 1, 1, 1, 1, 0, 0,],
+        [0, 0, 0, 1, 1, 1, 0, 0,],
+        [0, 0, 1, 1, 1, 1, 1, 0,],
+        [0, 0, 1, 1, 1, 1, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0,],
     ];
 
     constructor(x: number, y: number, readonly towerTilePos: number[][], readonly playerSpawnTilePos: number[][],
@@ -65,7 +69,9 @@ export class WorldGen extends Entity
      */
     static getBoardWidth(): number
     {
-        return 50 * WorldGen.board[0].length;
+        // Account for the additional invisible row we need because our hexagons need to be created in columns of two.
+        const actualBoardWidth = WorldGen.board[0].length - 0.5;
+        return 50 * (actualBoardWidth);
     }
 
     /**
@@ -112,10 +118,6 @@ export class WorldGen extends Entity
                         ([col, row]) => colIndex === col && rowIndex === row
                     );
 
-                    const isAmmunitionSpawn = this.ammunitionSpawnTiles.some(
-                        ([col, row]) => colIndex === col && rowIndex === row
-                    );
-
                     if (isTowerHex)
                     {
                         title = "tile_tower_spawn";
@@ -124,10 +126,6 @@ export class WorldGen extends Entity
                     else if (isPlayerSpawn)
                     {
                         title = "tile_player_spawn";
-                    }
-                    else if (isAmmunitionSpawn)
-                    {
-                        title = "tile_ammunition_spawn";
                     }
 
                     this.addChild(new Tile(title, xPos, yPos - heightOffset));
