@@ -169,7 +169,7 @@ export class Tower extends Entity
 
         const collider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {layer: Layers.tower, radius: 15}));
+                {layer: Layers.tower, radius: 10}));
 
         collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition, cans));
         collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
