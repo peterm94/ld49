@@ -1,7 +1,8 @@
 import {
     AudioAtlas,
     CollisionMatrix,
-    Component, DebugCollisionSystem,
+    Component,
+    DebugCollisionSystem,
     Diagnostics,
     DiscreteCollisionSystem,
     Entity,
@@ -21,7 +22,7 @@ import {tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
 import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
-import {AmmunitionPickup, AmmunitionSpawner} from "./Pickups/AmmunitionPickup";
+import {AmmunitionSpawner} from "./Pickups/AmmunitionPickup";
 import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
 import {ProjectileMover} from "./Common/ProjectileMover";
@@ -29,9 +30,10 @@ import {ProjectileMover} from "./Common/ProjectileMover";
 import titleScreenImg from "./Art/title.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
+import {viewCollisionSystem} from "./index";
 
-const screenWidth = 426;
-const screenHeight = 240;
+export const screenWidth = 426;
+export const screenHeight = 240;
 
 const titleScreen = new SpriteSheet(titleScreenImg, screenWidth, screenHeight);
 
@@ -166,7 +168,10 @@ class MainScene extends Scene
         this.addGUIEntity(new GameStatusDisplay(320, 190));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
-        // this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        if (viewCollisionSystem)
+        {
+            this.addGlobalSystem(new DebugCollisionSystem(collSystem));
+        }
 
         // World generation.
         // Figure out the empty space between the board and the end of the screen, half it, and we get a centered board!
@@ -203,8 +208,6 @@ class MainScene extends Scene
                 case "tile_player_spawn":
                     this.addEntity(new SpawnPoint("player_spawn", tileCenterX, tileCenterY));
                     break;
-                case "tile_ammunition_spawn":
-                    this.addEntity(new AmmunitionPickup(tileCenterX, tileCenterY));
             }
         });
 
@@ -213,7 +216,17 @@ class MainScene extends Scene
         this.addSystem(new ProjectileMover());
 
         // Game entities.
-        this.addEntity(new Player(30, 30));
+        const playerSpawn = this.getEntityWithName("player_spawn");
+        if (playerSpawn)
+        {
+            const spawnPosition = playerSpawn.transform.getGlobalPosition();
+            this.addEntity(
+                new Player(spawnPosition.x, spawnPosition.y));
+        }
+        else
+        {
+            Log.error("No player spawns exist, can't spawn a player.");
+        }
 
         // Pickups.
         this.addEntity(new AmmunitionSpawner());
