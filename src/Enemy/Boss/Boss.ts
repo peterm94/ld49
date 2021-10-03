@@ -189,7 +189,7 @@ export class Boss extends Entity
         const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
         rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);
 
-        const health = this.addComponent(new Health(1000, 1000));
+        const health = this.addComponent(new Health(100, 100));
 
         const collider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem), {
@@ -199,7 +199,7 @@ export class Boss extends Entity
 
         collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
 
-        this.getScene().addGUIEntity(new BossStatusDisplay(10, 30, health));
+        this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
     }
 
     instantiateRocketAttack(caller: Component)

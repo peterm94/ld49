@@ -55,7 +55,7 @@ export class Player extends Entity
     {
         super.onAdded();
         const maxHealth = 3;
-        const maxAmmo = 2;
+        const maxAmmo = 3;
 
         this.addComponent(new GroundCount(0));
         this.addComponent(new AnimatedSpriteController(0, [
