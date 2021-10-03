@@ -2,10 +2,10 @@ import {
     AnimatedSprite,
     AnimatedSpriteController,
     AnimationEnd,
+    CircleCollider,
     CollisionSystem,
     Entity,
     MathUtil,
-    RectCollider,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -39,7 +39,7 @@ export class BossRocketAttack extends Entity
             this.target.transform.getGlobalPosition().x, this.target.transform.getGlobalPosition().y);
 
         this.addComponent(new AnimatedSprite(rocket.textureSliceFromRow(0, 0, 3),
-                         {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 90, rotation: targetDir + MathUtil.degToRad(270)}));
+            {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 90, rotation: targetDir + MathUtil.degToRad(270)}));
         this.addComponent(new Attack(damage));
         this.addComponent(
             new AttackMovement(
@@ -49,11 +49,8 @@ export class BossRocketAttack extends Entity
                 speed));
 
         this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    layer: Layers.bossAttack,
-                    height: 5, width: 5
-                }));
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
+                {layer: Layers.bossAttack, radius: 5}));
 
         const endOfLife = this.addComponent(new Timer(lifeDurationSec * 1000, null));
 
@@ -65,16 +62,18 @@ export class BossRocketAttack extends Entity
 
 export class BossRocketExplosion extends Entity
 {
-    constructor(x: number, y: number) {
+    constructor(x: number, y: number)
+    {
         super("rocket_explosions", x, y, Layers.bossAttack);
     }
 
-    onAdded() {
+    onAdded()
+    {
         super.onAdded();
 
         this.addComponent(new AnimatedSpriteController(0, [{
             id: 0,
-            textures:rocketExplosion.textureSliceFromRow(0, 0, 7),
+            textures: rocketExplosion.textureSliceFromRow(0, 0, 7),
             config: {
                 xAnchor: 0.5,
                 yAnchor: 0.5,
