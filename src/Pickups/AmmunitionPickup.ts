@@ -1,4 +1,4 @@
-import {AnimatedSprite, AnimationEnd, CollisionSystem, Entity, RectCollider, SpriteSheet, Util} from "lagom-engine";
+import {AnimatedSprite, AnimationEnd, CollisionSystem, Entity, RectCollider, SpriteSheet, Timer, Util} from "lagom-engine";
 import {Layers} from "../Layers";
 import {PickupCount} from "./Pickup";
 
@@ -32,5 +32,34 @@ export class AmmunitionPickup extends Entity
                     xOff: 0, yOff: 0, layer: Layers.pickup, rotation: 0,
                     height: 10, width: 10
                 }));
+    }
+}
+
+
+export class AmmunitionSpawner extends Entity
+{
+    constructor()
+    {
+        super("ammunitionSpawner",  0, 0);
+    }
+
+    onAdded(): void
+    {
+        super.onAdded();
+        const ammoSpawnFrequencySeconds = 10;
+
+        const timer =  new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
+        timer.onTrigger.register((caller) => {
+            const scene = caller.getScene();
+            const worldgen = scene.getEntityWithName("worldgen");
+            if (!worldgen)
+            {
+                return;
+            }
+            const allTiles = worldgen.children.filter(entity => entity.name == "tile");
+            const ammoSpawnTilePos = Util.choose(...allTiles).transform.getGlobalPosition();
+            scene.addEntity(new AmmunitionPickup(ammoSpawnTilePos.x, ammoSpawnTilePos.y));
+        });
+        this.addComponent(timer);
     }
 }
