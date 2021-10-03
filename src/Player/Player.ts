@@ -25,6 +25,7 @@ import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";
 import {screenHeight} from "../LD49";
+import {Tower} from "../Friendly/Tower/Tower";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -44,25 +45,25 @@ export class Player extends Entity
     onAdded()
     {
         super.onAdded();
+        const maxHealth = 3;
+        const maxAmmo = 2;
 
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: bee.textureSliceFromRow(0, 0, 3),
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
-
             },
             {
                 id: 1,
                 textures: bee_move.textureSliceFromRow(0, 0, 1),
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
-
             }
         ]));
         this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
 
-        const health = this.addComponent(new Health(3, 3));
-        const ammunition = this.addComponent(new Ammunition(100, 0));
+        const health = this.addComponent(new Health(maxHealth, maxHealth));
+        const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
 
         // Handle moving into things.
         const movementCollider = this.addComponent(
@@ -114,6 +115,20 @@ export class Player extends Entity
                         gameStatus.ammunition = ammunition.getCurrentAmmo();
                     }
                 }
+            }
+        }
+    }
+
+    registerTowerReload(collider: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
+    {
+        const other = data.other.getEntity();
+        if (other instanceof Tower)
+        {
+            const towerAmmunition = other.getComponent<Ammunition>(Ammunition);
+            if (towerAmmunition)
+            {
+                const ammoUsed = towerAmmunition.addAmmo(ammunition.getCurrentAmmo());
+                ammunition.removeAmmo(ammoUsed);
             }
         }
     }

@@ -26,6 +26,7 @@ import turretSpr from "../../Art/turret.png";
 // 33 - 40 drain
 // 40 empty idle
 import turretCanSpr from "../../Art/turret-canister.png";
+import {Player} from "../../Player/Player";
 
 // containers 17,19 21,17, 25,15, 29,13
 
@@ -169,6 +170,7 @@ export class Tower extends Entity
                 })
         );
 
+        collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition));
         collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
     }
 
@@ -188,6 +190,20 @@ export class Tower extends Entity
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
                     //  destroyed tower instead?
                 }
+            }
+        }
+    }
+
+    receiveAmmo(collider: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
+    {
+        const other = data.other.getEntity();
+        if (other instanceof Player)
+        {
+            const playerAmmo = other.getComponent<Ammunition>(Ammunition);
+            if (playerAmmo)
+            {
+                const ammoUsed = ammunition.addAmmo(playerAmmo.getCurrentAmmo());
+                playerAmmo.removeAmmo(ammoUsed);
             }
         }
     }
