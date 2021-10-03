@@ -44,25 +44,25 @@ export class Player extends Entity
     onAdded()
     {
         super.onAdded();
+        const maxHealth = 3;
+        const maxAmmo = 2;
 
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: bee.textureSliceFromRow(0, 0, 3),
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
-
             },
             {
                 id: 1,
                 textures: bee_move.textureSliceFromRow(0, 0, 1),
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
-
             }
         ]));
         this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
 
-        const health = this.addComponent(new Health(3, 3));
-        const ammunition = this.addComponent(new Ammunition(100, 0));
+        const health = this.addComponent(new Health(maxHealth, maxHealth));
+        const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
 
         // Handle moving into things.
         const movementCollider = this.addComponent(
