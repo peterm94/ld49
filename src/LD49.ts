@@ -32,6 +32,8 @@ import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
 import {viewCollisionSystem} from "./index";
 
+import bearRoarWav from "./Sound/roar.wav";
+
 export const screenWidth = 426;
 export const screenHeight = 240;
 
@@ -58,6 +60,8 @@ export class LD49 extends Game
         // TODO enable this before deploy
         // Log.logLevel = LogLevel.ERROR;
         Log.logLevel = LogLevel.INFO;
+
+        LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.5);
 
         this.setScene(new MainScene(this));
     }

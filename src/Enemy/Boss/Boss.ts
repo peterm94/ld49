@@ -23,6 +23,7 @@ import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
 import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
 import {BearStatus} from "../../GameManagement/GameStatus";
+import {SoundManager} from "../../SoundManager/SoundManager";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -144,6 +145,7 @@ export class Boss extends Entity
                         earsSpr.nextTriggerTime += 3000;
                         roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
+                        (this.scene.getEntityWithName("audio") as SoundManager).playSound("bearRoar");
                     }
                 }
             },
