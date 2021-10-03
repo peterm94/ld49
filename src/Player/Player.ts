@@ -30,6 +30,14 @@ import {Tower} from "../Friendly/Tower/Tower";
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
 
+export class GroundCount extends Component
+{
+    constructor(public groundCount: number)
+    {
+        super();
+    }
+}
+
 export class Player extends Entity
 {
     initialX: number;
@@ -48,6 +56,7 @@ export class Player extends Entity
         const maxHealth = 3;
         const maxAmmo = 2;
 
+        this.addComponent(new GroundCount(0));
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
