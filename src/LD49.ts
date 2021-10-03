@@ -1,7 +1,7 @@
 import {
     AudioAtlas,
     CollisionMatrix,
-    Component,
+    Component, DebugCollisionSystem,
     Diagnostics,
     DiscreteCollisionSystem,
     Entity,
@@ -36,8 +36,8 @@ const titleScreen = new SpriteSheet(titleScreenImg, screenWidth, screenHeight);
 
 
 const matrix = new CollisionMatrix();
-matrix.addCollision(Layers.player, Layers.hexagons);
-matrix.addCollision(Layers.player, Layers.pickup);
+matrix.addCollision(Layers.playerGround, Layers.hexagons);
+matrix.addCollision(Layers.playerGround, Layers.pickup);
 matrix.addCollision(Layers.player, Layers.bossAttack);
 matrix.addCollision(Layers.towerAttack, Layers.boss);
 

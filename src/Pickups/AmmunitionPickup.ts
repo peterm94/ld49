@@ -1,4 +1,13 @@
-import {AnimatedSprite, AnimationEnd, CollisionSystem, Entity, RectCollider, SpriteSheet, Timer, Util} from "lagom-engine";
+import {
+    AnimatedSprite,
+    AnimationEnd,
+    CircleCollider,
+    CollisionSystem,
+    Entity,
+    SpriteSheet,
+    Timer,
+    Util
+} from "lagom-engine";
 import {Layers} from "../Layers";
 import {PickupCount} from "./Pickup";
 
@@ -23,15 +32,12 @@ export class AmmunitionPickup extends Entity
         super.onAdded();
 
         this.addComponent(new AnimatedSprite(Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7),
-            {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP}));
+            {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP, xAnchor: 0.5, yAnchor: 0.5}));
         this.addComponent(new PickupCount(10));
 
         this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    xOff: 0, yOff: 0, layer: Layers.pickup, rotation: 0,
-                    height: 10, width: 10
-                }));
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
+                {layer: Layers.pickup, radius: 8}));
     }
 }
 
@@ -40,7 +46,7 @@ export class AmmunitionSpawner extends Entity
 {
     constructor()
     {
-        super("ammunitionSpawner",  0, 0);
+        super("ammunitionSpawner", 0, 0);
     }
 
     onAdded(): void
@@ -48,7 +54,7 @@ export class AmmunitionSpawner extends Entity
         super.onAdded();
         const ammoSpawnFrequencySeconds = 10;
 
-        const timer =  new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
+        const timer = new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
         timer.onTrigger.register((caller) => {
             const scene = caller.getScene();
             const worldgen = scene.getEntityWithName("worldgen");

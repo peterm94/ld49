@@ -67,7 +67,7 @@ export class Player extends Entity
         const movementCollider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {
-                    layer: Layers.player,
+                    layer: Layers.playerGround,
                     radius: 1,
                     yOff: 5
                 }));

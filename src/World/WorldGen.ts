@@ -150,7 +150,7 @@ export class NoTile extends Entity
 
             coll.onTriggerEnter.register((caller, data) => {
                 // TODO In the hole
-                if (data.other.layer === Layers.player)
+                if (data.other.layer === Layers.playerGround)
                 {
                     if (data.other.getEntity().getComponent<PlayerFalling>(PlayerFalling))
                     {
