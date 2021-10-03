@@ -27,10 +27,9 @@ import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
 import {ProjectileMover} from "./Common/ProjectileMover";
 
-import titleScreenImg from "./Art/splash/start.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
-import {viewCollisionSystem} from "./index";
+import {titleScreen, viewCollisionSystem} from "./index";
 import {AmmunitionStatusDisplay} from "./GameManagement/AmmunitionStatus";
 import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 
@@ -43,9 +42,6 @@ import pickupWav from "./Sound/pickup.wav";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
-
-const titleScreen = new SpriteSheet(titleScreenImg, screenWidth, screenHeight);
-
 
 const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.playerGround, Layers.hexagons);
