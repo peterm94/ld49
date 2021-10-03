@@ -12,7 +12,7 @@ export class Health extends Component
         return this.currentHealth <= this.maxHealth;
     }
 
-    getHealth()
+    getCurrentHealth()
     {
         return this.currentHealth;
     }
