@@ -14,6 +14,7 @@ import {PickupCount} from "./Pickup";
 import honeySprite1 from '../Art/honey1.png';
 import honeySprite2 from '../Art/honey2.png';
 import honeySprite3 from '../Art/honey3.png';
+import {tileSpriteWidth, tileSurfaceHeight} from "../World/WorldGen";
 
 const honey1 = new SpriteSheet(honeySprite1, 18, 16);
 const honey2 = new SpriteSheet(honeySprite2, 18, 16);
@@ -43,8 +44,8 @@ export class AmmunitionPickup extends Entity
 
         this.addComponent(new Timer(deleteTimeSeconds * 1000, null, false))
             .onTrigger.register((caller, data) => {
-                caller.parent.destroy();
-            });
+            caller.parent.destroy();
+        });
     }
 }
 
@@ -59,7 +60,7 @@ export class AmmunitionSpawner extends Entity
     onAdded(): void
     {
         super.onAdded();
-        const ammoSpawnFrequencySeconds = 10;
+        const ammoSpawnFrequencySeconds = 3;
 
         const timer = new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
         timer.onTrigger.register((caller) => {
@@ -70,8 +71,16 @@ export class AmmunitionSpawner extends Entity
                 return;
             }
             const allTiles = worldgen.children.filter(entity => entity.name == "tile");
-            const ammoSpawnTilePos = Util.choose(...allTiles).transform.getGlobalPosition();
-            scene.addEntity(new AmmunitionPickup(ammoSpawnTilePos.x, ammoSpawnTilePos.y));
+            const entity = Util.choose(...allTiles);
+
+            const tileGlobalPos = entity.transform.getGlobalPosition(undefined, true);
+            const offsetFromTop = Math.floor(tileSurfaceHeight / 2) - 2;
+            const offsetFromLeft = tileSpriteWidth / 2;
+
+            const tileCenterX = tileGlobalPos.x + offsetFromLeft;
+            const tileCenterY = tileGlobalPos.y + offsetFromTop;
+
+            scene.addEntity(new AmmunitionPickup(tileCenterX, tileCenterY));
         });
         this.addComponent(timer);
     }

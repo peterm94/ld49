@@ -6,24 +6,27 @@ import {
     CollisionSystem,
     Component,
     Entity,
-    Log,
-    MathUtil, ScreenShake,
+    MathUtil,
+   Scene,
+    ScreenShake,
     SpriteSheet,
-    Timer
+    Timer,
+    Util
 } from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {Layers} from "../../Layers";
 import {TowerBeeAttack} from "../../Friendly/Tower/TowerBeeAttack";
 import {Attack} from "../../Common/Attack";
-import {BossRocketAttack} from "./BossRocketAttack";
 
 import earIdleSprite from "../../Art/bear-sheets/ear-idle.png";
 import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
 import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
 import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
-import {BearStatus} from "../../GameManagement/GameStatus";
+import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
+import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
+import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
 import {LD49} from "../../LD49";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
@@ -118,9 +121,9 @@ export class Boss extends Entity
         const mouth = this.addChild(new Entity("mouth", 0, 0, Layers.boss));
 
         const addRoarTimer = () => {
-            mouth.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), roarSpr, false)).onTrigger
+            mouth.addComponent(new Timer(MathUtil.randomRange(2_000, 10_000), roarSpr, false)).onTrigger
                  .register((caller, data) => {
-                     data.setAnimation(1);
+                     data.setAnimation(RoarAnimStates.START_ROAR);
                  });
         };
 
@@ -156,6 +159,8 @@ export class Boss extends Entity
                         if (this.firstRoar) {
                             this.firstRoar = false;
                         }
+
+                        this.dropTiles(2000, this.getScene());
                     }
                 }
             },
@@ -210,22 +215,28 @@ export class Boss extends Entity
 
         collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
 
-        this.getScene().addGUIEntity(new BearStatus(0, 30, health));
+        this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
+        this.getScene().addSystem(new FadeInSystem());
+        this.getScene().addSystem(new FadeOutSystem());
     }
 
     instantiateRocketAttack(caller: Component)
     {
-        const x = caller.getEntity().transform.position.x;
-        const y = caller.getEntity().transform.position.y;
-
-        const target = caller.getScene().getEntityWithName("player");
-        if (!target)
+        const clawSide = Util.choose(true, false);
+        if (clawSide)
         {
-            Log.error("Tried to target the Player for a Boss attack, but nothing could be found.");
-            return;
+            const x = MathUtil.randomRange(66, 122);
+            const y = MathUtil.randomRange(17, 34);
+            const tilt = ((x-66) / (122 - 66)) * 0.45;
+            caller.getScene().addEntity(new BearHand(x, y, false, tilt));
         }
-
-        caller.getScene().addEntity(new BossRocketAttack(x, y, Layers.bossAttack, target));
+        else
+        {
+            const x = MathUtil.randomRange(296, 360);
+            const y = MathUtil.randomRange(22, 28);
+            const tilt = ((x-296) / (360 - 296)) * 0.45;
+            caller.getScene().addEntity(new BearHand(x, y, true, -tilt));
+        }
     }
 
     getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health)
@@ -244,6 +255,21 @@ export class Boss extends Entity
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
                     //  destroyed tower instead?
                 }
+            }
+        }
+    }
+
+    dropTiles(timeWindowMs: number, scene: Scene)
+    {
+        const tileManager = scene.getEntityWithName("tilemgr");
+
+        if (tileManager)
+        {
+            const thig = tileManager.getComponent<TileDestroyer>(TileDestroyer);
+
+            if (thig)
+            {
+                thig.removeRandomTilesOverTime(scene, timeWindowMs, 15);
             }
         }
     }

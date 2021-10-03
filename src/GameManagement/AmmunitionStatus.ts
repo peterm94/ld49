@@ -20,6 +20,8 @@ export class AmmunitionStatusDisplay extends Entity
         this.addChild(new AmmunitionGUIEntry("ammunitionGUI", 0, 0));
         this.addChild(new AmmunitionGUIEntry("ammunitionGUI", -24, -15));
         this.addChild(new AmmunitionGUIEntry("ammunitionGUI", 0, -31));
+
+        this.getScene().addSystem(new AmmunitionStatusUpdater());
     }
 }
 
