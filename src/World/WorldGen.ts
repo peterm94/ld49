@@ -11,7 +11,7 @@ import {
 } from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
-import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
+import {GroundCount, PlayerController, PlayerFalling} from "../Player/Player";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -183,6 +183,22 @@ export class Tile extends Entity
                     if (gc !== null)
                     {
                         gc.groundCount--;
+
+                        if (gc.groundCount === 0)
+                        {
+                            if (other.getEntity().getComponent<PlayerFalling>(PlayerFalling))
+                            {
+                                // Already falling
+                                return;
+                            }
+                            other.getEntity().addComponent(new PlayerFalling(this.depth));
+                            other.getEntity().depth = Layers.playerFalling;
+                            const controller = other.getEntity().getComponent(PlayerController);
+                            if (controller)
+                            {
+                                other.getEntity().removeComponent(controller, true);
+                            }
+                        }
                     }
                 }
             });
@@ -201,45 +217,6 @@ export class NoTile extends Entity
     onAdded()
     {
         super.onAdded();
-        const global = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
-        if (global instanceof CollisionSystem)
-        {
-            const coll = this.addComponent(new PolyCollider(global, {
-                layer: Layers.hexagons,
-                points: [[7, 1], [24, 1], [30, 7], [24, 13], [7, 13], [1, 7]]
-                // points: [[11, 4], [19, 4], [22, 7], [19, 10], [11, 10], [8, 7]]
-            }));
-
-            coll.onTrigger.register((caller, data) => {
-
-                const other = data.other.getEntity();
-                // TODO In the hole
-                if (!(other instanceof Player))
-                {
-                    return;
-                }
-
-                const gc = other.getComponent<GroundCount>(GroundCount);
-                if (gc !== null)
-                {
-                    if (gc.groundCount === 0)
-                    {
-                        if (other.getComponent<PlayerFalling>(PlayerFalling))
-                        {
-                            // Already falling
-                            return;
-                        }
-                        other.addComponent(new PlayerFalling(this.depth));
-                        other.depth = Layers.playerFalling;
-                        const controller = other.getComponent(PlayerController);
-                        if (controller)
-                        {
-                            other.removeComponent(controller, true);
-                        }
-                    }
-                }
-            });
-        }
 
         if (this.regenerateTile)
         {

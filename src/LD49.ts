@@ -1,9 +1,9 @@
 import {
+    AnimatedSprite,
     AudioAtlas,
     CollisionMatrix,
     Component,
     DebugCollisionSystem,
-    Diagnostics,
     DiscreteCollisionSystem,
     Entity,
     FrameTriggerSystem,
@@ -12,8 +12,8 @@ import {
     Log,
     LogLevel,
     Scene,
+    ScreenShake,
     ScreenShaker,
-    Sprite,
     SpriteSheet,
     Timer,
     TimerSystem
@@ -27,12 +27,14 @@ import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
 import {ProjectileMover} from "./Common/ProjectileMover";
 
-import titleScreenImg from "./Art/title.png";
+import titleScreenImg from "./Art/splash/start.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
 import {viewCollisionSystem} from "./index";
 import {AmmunitionStatusDisplay} from "./GameManagement/AmmunitionStatus";
 import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
+
+import bearRoarWav from "./Sound/roar.wav";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -61,6 +63,9 @@ export class LD49 extends Game
         // Log.logLevel = LogLevel.ERROR;
         Log.logLevel = LogLevel.INFO;
 
+        LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.5);
+        LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
+
         this.setScene(new MainScene(this));
     }
 }
@@ -76,7 +81,7 @@ export class ScreenCard extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new Sprite(this.texture));
+        this.addComponent(new AnimatedSprite(this.texture, {animationSpeed: 650}));
 
         // Game reload. Skip to gameplay.
         if (!MainScene.firstLoad && this.clickAction === 0)
@@ -156,11 +161,11 @@ class MainScene extends Scene
     {
         super.onAdded();
 
-        this.addGUIEntity(new ScreenCard(titleScreen.textureFromIndex(0), 0));
+        this.addGUIEntity(new ScreenCard(titleScreen.textureSliceFromSheet(), 0));
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ClickListener());
-        this.addGlobalSystem(new ScreenShaker());
+        this.addGlobalSystem(new ScreenShaker(screenWidth / 2, screenHeight / 2));
         this.addGUIEntity(new SoundManager());
     }
 
@@ -168,7 +173,7 @@ class MainScene extends Scene
     {
 
         // Global entities.
-        this.addGUIEntity(new Diagnostics("white", 5, true));
+        // this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addGUIEntity(new AmmunitionStatusDisplay(screenWidth - 20, screenHeight - 20));
         this.addGUIEntity(new HealthStatusDisplay(screenWidth - 20, 20));
 

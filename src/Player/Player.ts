@@ -23,13 +23,15 @@ import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
-import {screenHeight} from "../LD49";
+import {ScreenCard, screenHeight, screenWidth} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
 import {HealthStatus} from "../GameManagement/HealthStatus";
+import endScreenImg from "../Art/splash/game-over.png";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
+const endScreen = new SpriteSheet(endScreenImg, screenWidth, screenHeight);
 
 export class GroundCount extends Component
 {
@@ -194,6 +196,11 @@ export class Player extends Entity
                         healthStatus.currentHealth = health.getCurrentHealth();
                         healthStatus.maxHealth = health.getMaxHealth();
                     }
+                }
+
+                if (health.getCurrentHealth() == 0) {
+                    Log.error("DEAD");
+                    // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
                 }
             }
         }
