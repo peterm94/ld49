@@ -67,7 +67,7 @@ export class Player extends Entity
         const movementCollider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {
-                    layer: Layers.player,
+                    layer: Layers.playerGround,
                     radius: 1,
                     yOff: 5
                 }));
@@ -249,10 +249,10 @@ export class PlayerResetter extends System
                 if (worldgen)
                 {
                     const allTiles = worldgen.children.filter(entity => entity.name == "tile");
-                    const spawnTile = Util.choose(...allTiles);
+                    const spawnTilePosition = Util.choose(...allTiles).transform.getGlobalPosition();
 
-                    entity.transform.x = spawnTile.transform.position.x;
-                    entity.transform.y = spawnTile.transform.position.y;
+                    entity.transform.x = spawnTilePosition.x;
+                    entity.transform.y = spawnTilePosition.y;
                     // entity.depth = Layers.player;
                 }
 
