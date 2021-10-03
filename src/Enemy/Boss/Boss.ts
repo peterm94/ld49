@@ -7,7 +7,7 @@ import {
     Component,
     Entity,
     Log,
-    MathUtil,
+    MathUtil, ScreenShake,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -142,6 +142,7 @@ export class Boss extends Entity
                     animationEndEvent: () => {
                         // Pause the ears for the roar duration.
                         earsSpr.nextTriggerTime += 3000;
+                        roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
                     }
                 }

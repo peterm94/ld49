@@ -12,6 +12,7 @@ import {
     Log,
     LogLevel,
     Scene,
+    ScreenShaker,
     Sprite,
     SpriteSheet,
     Timer,
@@ -21,7 +22,6 @@ import {Boss} from "./Enemy/Boss/Boss";
 import {tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
 import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
-import {BossHealthUpdater} from "./GameManagement/GameStatus";
 import {AmmunitionSpawner} from "./Pickups/AmmunitionPickup";
 import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
@@ -158,6 +158,7 @@ class MainScene extends Scene
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ClickListener());
+        this.addGlobalSystem(new ScreenShaker());
         this.addGUIEntity(new SoundManager());
     }
 
