@@ -94,8 +94,6 @@ export class Tower extends Entity
     {
         super.onAdded();
 
-        const width = 10;
-        const height = 25;
         const fireRateS = 5;
         const maxAmmo = 4;
 

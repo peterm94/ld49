@@ -2,7 +2,6 @@ import {
     CollisionSystem,
     Component,
     Entity,
-    Log,
     MathUtil,
     PolyCollider,
     Sprite,
@@ -12,7 +11,7 @@ import {
 } from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
-import {PlayerController, GroundCount, PlayerFalling} from "../Player/Player";
+import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -194,7 +193,7 @@ export class Tile extends Entity
 export class NoTile extends Entity
 {
 
-    constructor(x: number, y: number, private readonly regenerateTile: boolean)
+    constructor(x: number, y: number, private readonly regenerateTile: boolean, readonly secondsBeforeRegen = 10)
     {
         super("notile", x, y, y);
     }
@@ -213,25 +212,29 @@ export class NoTile extends Entity
 
             coll.onTrigger.register((caller, data) => {
 
+                const other = data.other.getEntity();
                 // TODO In the hole
-                if (data.other.layer === Layers.playerGround)
+                if (!(other instanceof Player))
                 {
-                    const gc = data.other.getEntity().getComponent<GroundCount>(GroundCount);
-                    if (gc !== null)
+                    return;
+                }
+
+                const gc = other.getComponent<GroundCount>(GroundCount);
+                if (gc !== null)
+                {
+                    if (gc.groundCount === 0)
                     {
-                        if (gc.groundCount === 0)
+                        if (other.getComponent<PlayerFalling>(PlayerFalling))
                         {
-                            if (data.other.getEntity().getComponent<PlayerFalling>(PlayerFalling))
-                            {
-                                // Already falling
-                                return;
-                            }
-                            data.other.getEntity().addComponent(new PlayerFalling(this.depth));
-                            const controller = data.other.getEntity().getComponent(PlayerController);
-                            if(controller)
-                            {
-                                data.other.getEntity().removeComponent(controller, true);
-                            }
+                            // Already falling
+                            return;
+                        }
+                        other.addComponent(new PlayerFalling(this.depth));
+                        other.depth = Layers.playerFalling;
+                        const controller = other.getComponent(PlayerController);
+                        if (controller)
+                        {
+                            other.removeComponent(controller, true);
                         }
                     }
                 }
@@ -240,7 +243,7 @@ export class NoTile extends Entity
 
         if (this.regenerateTile)
         {
-            this.addComponent(new Timer(10 * 1000, null, false))
+            this.addComponent(new Timer(this.secondsBeforeRegen * 1000, null, false))
                 .onTrigger.register(caller => {
                 const worldgen = caller.getScene().getEntityWithName("worldgen");
                 if (!worldgen)

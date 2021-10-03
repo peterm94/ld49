@@ -8,6 +8,7 @@ import {
     Entity,
     Log,
     MathUtil,
+    Scene,
     ScreenShake,
     SpriteSheet,
     Timer
@@ -24,6 +25,7 @@ import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
 import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
 import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
+import {TileDestroyer} from "../../World/TileDestroyer";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -114,9 +116,9 @@ export class Boss extends Entity
         const mouth = this.addChild(new Entity("mouth", 0, 0, Layers.boss));
 
         const addRoarTimer = () => {
-            mouth.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), roarSpr, false)).onTrigger
+            mouth.addComponent(new Timer(MathUtil.randomRange(2_000, 10_000), roarSpr, false)).onTrigger
                  .register((caller, data) => {
-                     data.setAnimation(1);
+                     data.setAnimation(RoarAnimStates.START_ROAR);
                  });
         };
 
@@ -145,6 +147,7 @@ export class Boss extends Entity
                         earsSpr.nextTriggerTime += 3000;
                         roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
+                        this.dropTiles(2000, this.getScene());
                     }
                 }
             },
@@ -233,6 +236,21 @@ export class Boss extends Entity
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
                     //  destroyed tower instead?
                 }
+            }
+        }
+    }
+
+    dropTiles(timeWindowMs: number, scene: Scene)
+    {
+        const tileManager = scene.getEntityWithName("tilemgr");
+
+        if (tileManager)
+        {
+            const thig = tileManager.getComponent<TileDestroyer>(TileDestroyer);
+
+            if (thig)
+            {
+                thig.removeRandomTilesOverTime(scene, timeWindowMs, 15);
             }
         }
     }
