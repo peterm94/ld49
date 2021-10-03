@@ -24,6 +24,7 @@ import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
 import {BearStatus} from "../../GameManagement/GameStatus";
 import {SoundManager} from "../../SoundManager/SoundManager";
+import {LD49} from "../../LD49";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -33,9 +34,12 @@ const mouthRoar = new SpriteSheet(mouthRoarSprite, 196, 128);
 
 export class Boss extends Entity
 {
+    private firstRoar: boolean;
+
     constructor(x: number, y: number)
     {
         super("boss", x, y, Layers.boss);
+        this.firstRoar = true;
     }
 
     onAdded()
@@ -145,7 +149,13 @@ export class Boss extends Entity
                         earsSpr.nextTriggerTime += 3000;
                         roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
-                        (this.scene.getEntityWithName("audio") as SoundManager).playSound("bearRoar");
+
+                        (this.scene.getEntityWithName("audio") as SoundManager)
+                            .playSound((this.firstRoar) ? "bearRoar" : "bearRoarQuiet");
+
+                        if (this.firstRoar) {
+                            this.firstRoar = false;
+                        }
                     }
                 }
             },

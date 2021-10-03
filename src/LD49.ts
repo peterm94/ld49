@@ -64,6 +64,7 @@ export class LD49 extends Game
         Log.logLevel = LogLevel.INFO;
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.5);
+        LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
 
         this.setScene(new MainScene(this));
     }
