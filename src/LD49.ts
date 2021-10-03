@@ -36,7 +36,11 @@ import explosionWav from "./Sound/explosion.wav";
 import rocketNoiseWav from "./Sound/rocket_noise.wav";
 import crackWav from "./Sound/crack.wav";
 import voopWav from "./Sound/voop.wav";
-import pickupWav from "./Sound/pickup.wav";
+import refill1 from "./Sound/refill_1.wav";
+import refill2 from "./Sound/refill_2.wav";
+import refill3 from "./Sound/refill_3.wav";
+import refill4 from "./Sound/refill_4.wav";
+import squelch from "./Sound/squelch.wav";
 import {BackgroundBees} from "./World/WorkerBees";
 
 export const screenWidth = 426;
@@ -63,13 +67,18 @@ export class LD49 extends Game
         // Log.logLevel = LogLevel.ERROR;
         Log.logLevel = LogLevel.INFO;
 
-        LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.5);
+        LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.6);
         LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
         LD49.audioAtlas.load("rocketExplosion", explosionWav).volume(0.3);
         LD49.audioAtlas.load("rocketNoise", rocketNoiseWav).volume(0.1);
-        LD49.audioAtlas.load("crack", crackWav).volume(0.5);
-        LD49.audioAtlas.load("voop", voopWav).volume(0.3);
-        LD49.audioAtlas.load("pickup", pickupWav).volume(0.8);
+        LD49.audioAtlas.load("fallThroughFloor", rocketNoiseWav).volume(0.1);
+        LD49.audioAtlas.load("crack", crackWav).volume(0.3);
+        LD49.audioAtlas.load("voop", voopWav).volume(0.1);
+        LD49.audioAtlas.load("pickup", squelch).volume(0.3);
+        LD49.audioAtlas.load("refill_1", refill1).volume(0.5);
+        LD49.audioAtlas.load("refill_2", refill2).volume(0.5);
+        LD49.audioAtlas.load("refill_3", refill3).volume(0.5);
+        LD49.audioAtlas.load("refill_4", refill4).volume(0.5);
 
         this.setScene(new MainScene(this));
     }

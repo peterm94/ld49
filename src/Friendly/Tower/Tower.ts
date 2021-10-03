@@ -27,6 +27,7 @@ import turretSpr from "../../Art/turret.png";
 // 40 empty idle
 import turretCanSpr from "../../Art/turret-canister.png";
 import {Player, PlayerFalling} from "../../Player/Player";
+import {SoundManager} from "../../SoundManager/SoundManager";
 
 // containers 17,19 21,17, 25,15, 29,13
 
@@ -228,6 +229,8 @@ export class Tower extends Entity
                     {
                         Log.error("Tried to replenish the ammo cartridge but no animator was found");
                     }
+
+                    (this.scene.getEntityWithName("audio") as SoundManager).playSound("refill_" + ammoUsed);
                 }
             }
         }

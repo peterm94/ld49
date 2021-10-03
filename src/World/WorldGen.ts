@@ -201,6 +201,7 @@ export class Tile extends Entity
                 return;
             }
 
+            (this.scene.getEntityWithName("audio") as SoundManager).playSound("fallThroughFloor");
             player.addComponent(new PlayerFalling(this.depth));
             player.depth = Layers.playerFalling;
             const controller = player.getComponent(PlayerController);
