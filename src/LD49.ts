@@ -12,9 +12,7 @@ import {
     Log,
     LogLevel,
     Scene,
-    ScreenShake,
     ScreenShaker,
-    SpriteSheet,
     Timer,
     TimerSystem
 } from "lagom-engine";
@@ -39,6 +37,7 @@ import rocketNoiseWav from "./Sound/rocket_noise.wav";
 import crackWav from "./Sound/crack.wav";
 import voopWav from "./Sound/voop.wav";
 import pickupWav from "./Sound/pickup.wav";
+import {BackgroundBees} from "./World/WorkerBees";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -246,7 +245,7 @@ class MainScene extends Scene
 
         // Pickups.
         this.addEntity(new AmmunitionSpawner());
-
+        this.addEntity(new BackgroundBees());
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());
