@@ -27,6 +27,7 @@ import turretSpr from "../../Art/turret.png";
 // 40 empty idle
 import turretCanSpr from "../../Art/turret-canister.png";
 import {Player, PlayerFalling} from "../../Player/Player";
+import {AmmunitionStatus} from "../../GameManagement/AmmunitionStatus";
 
 // containers 17,19 21,17, 25,15, 29,13
 
@@ -229,6 +230,18 @@ export class Tower extends Entity
                     else
                     {
                         Log.error("Tried to replenish the ammo cartridge but no animator was found");
+                    }
+                }
+
+                // Update the scoreboard.
+                const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
+                if (ammunitionStatusDisplay)
+                {
+                    const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
+                    if (ammunitionStatus)
+                    {
+                        ammunitionStatus.currentAmmo = playerAmmo.getCurrentAmmo();
+                        ammunitionStatus.maxAmmo = playerAmmo.maxAmmo;
                     }
                 }
             }

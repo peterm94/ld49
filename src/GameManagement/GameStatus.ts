@@ -55,7 +55,7 @@ export class BossHealthUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: Entity, hpBits: HpBits) => {
-            const hpPercentage = hpBits.bossHp.getHealth() / hpBits.bossHp.getMaxHealth();
+            const hpPercentage = hpBits.bossHp.getCurrentHealth() / hpBits.bossHp.getMaxHealth();
 
             // Max bar size is 160px.
             const stretch = hpPercentage * 159;

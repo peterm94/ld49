@@ -18,7 +18,6 @@ import {Layers} from "../Layers";
 import {AmmunitionPickup} from "../Pickups/AmmunitionPickup";
 import {Ammunition} from "../Common/Ammunition";
 import {PickupCount} from "../Pickups/Pickup";
-import {GameStatus} from "../GameManagement/GameStatus";
 import beeSprite from '../Art/bee.png';
 import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
@@ -26,6 +25,8 @@ import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
 import {screenHeight} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
+import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
+import {HealthStatus} from "../GameManagement/HealthStatus";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -74,6 +75,29 @@ export class Player extends Entity
         const health = this.addComponent(new Health(maxHealth, maxHealth));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
 
+        // Update the scoreboard.
+        const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
+        if (ammunitionStatusDisplay)
+        {
+            const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
+            if (ammunitionStatus)
+            {
+                ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
+                ammunitionStatus.maxAmmo = ammunition.maxAmmo;
+            }
+        }
+
+        const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
+        if (healthStatusDisplay)
+        {
+            const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
+            if (healthStatus)
+            {
+                healthStatus.currentHealth = health.getCurrentHealth();
+                healthStatus.maxHealth = health.getMaxHealth();
+            }
+        }
+
         // Handle moving into things.
         const movementCollider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
@@ -120,13 +144,14 @@ export class Player extends Entity
                 other.destroy();
 
                 // Update the scoreboard.
-                const gameStatusDisplay = this.getScene().getEntityWithName("gameStatusDisplay");
-                if (gameStatusDisplay)
+                const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
+                if (ammunitionStatusDisplay)
                 {
-                    const gameStatus = gameStatusDisplay.getComponent<GameStatus>(GameStatus);
-                    if (gameStatus)
+                    const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
+                    if (ammunitionStatus)
                     {
-                        gameStatus.ammunition = ammunition.getCurrentAmmo();
+                        ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
+                        ammunitionStatus.maxAmmo = ammunition.maxAmmo;
                     }
                 }
             }
@@ -160,13 +185,14 @@ export class Player extends Entity
                 this.getScene().addEntity(new BossRocketExplosion(this.transform.x, this.transform.y));
 
                 // Update the scoreboard.
-                const gameStatusDisplay = this.getScene().getEntityWithName("gameStatusDisplay");
-                if (gameStatusDisplay)
+                const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
+                if (healthStatusDisplay)
                 {
-                    const gameStatus = gameStatusDisplay.getComponent<GameStatus>(GameStatus);
-                    if (gameStatus)
+                    const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
+                    if (healthStatus)
                     {
-                        gameStatus.playerHealth = health.getHealth();
+                        healthStatus.currentHealth = health.getCurrentHealth();
+                        healthStatus.maxHealth = health.getMaxHealth();
                     }
                 }
             }
