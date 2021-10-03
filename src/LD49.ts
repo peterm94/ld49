@@ -180,12 +180,12 @@ class MainScene extends Scene
         // Where entities are spawned on the board.
         // Each entry is the column index (left to right) and row index (top to bottom) in that column that the entity
         // should end up on.
-        const towerSpawnTiles = [[1, 6], [4, 6]];
+        const towerSpawnTiles = [[1, 11], [5, 11]];
         const playerSpawnTiles = [[3, 12]];
         const ammunitionSpawnTiles = [[3, 13], [0, 0]];
 
-        // Float the hexagon toward the bottom, buffer 7px so that we can see the edge of the bottom row.
-        const totalTileHeight = WorldGen.getBoardHeight() + 7;
+        // Float the hexagon toward the bottom, buffer -13px so that we can't see the edge of the invisible bottom row.
+        const totalTileHeight = WorldGen.getBoardHeight() - 13;
         const worldStartY = screenHeight - totalTileHeight;
         this.addEntity(new WorldGen(worldStartX, worldStartY, towerSpawnTiles, playerSpawnTiles, ammunitionSpawnTiles));
 
