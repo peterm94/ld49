@@ -30,10 +30,11 @@ export class AmmunitionPickup extends Entity
     onAdded(): void
     {
         super.onAdded();
+        const amount = 1;
 
         this.addComponent(new AnimatedSprite(Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7),
             {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP, xAnchor: 0.5, yAnchor: 0.5}));
-        this.addComponent(new PickupCount(10));
+        this.addComponent(new PickupCount(amount));
 
         this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),

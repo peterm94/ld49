@@ -1,7 +1,19 @@
-import {CollisionSystem, Entity, MathUtil, RectCollider, RenderRect, Timer} from "lagom-engine";
+import {
+    AnimatedSprite,
+    CollisionSystem,
+    Entity,
+    MathUtil,
+    RectCollider,
+    RenderRect,
+    SpriteSheet,
+    Timer
+} from "lagom-engine";
 import {Attack} from "../../Common/Attack";
 import {Layers} from "../../Layers";
 import {AttackMovement} from "../../Common/AttackMovement";
+import bearRocketSprite from "../../Art/bear-rocket.png";
+
+const rocket = new SpriteSheet(bearRocketSprite, 32, 32);
 
 export class BossRocketAttack extends Entity
 {
@@ -18,7 +30,13 @@ export class BossRocketAttack extends Entity
         const speed = 100;
         const lifeDurationSec = 3;
 
-        this.addComponent(new RenderRect(0, 0, 5, 5, 0xffffff, 0xffffff));
+        // TODO pointDirection is backwards in library
+        const targetDir = -MathUtil.pointDirection(this.transform.getGlobalPosition().x,
+            this.transform.getGlobalPosition().y,
+            this.target.transform.getGlobalPosition().x, this.target.transform.getGlobalPosition().y);
+
+        this.addComponent(new AnimatedSprite(rocket.textureSliceFromRow(0, 0, 3),
+                         {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 90, rotation: targetDir + MathUtil.degToRad(270)}));
         this.addComponent(new Attack(damage));
         this.addComponent(
             new AttackMovement(

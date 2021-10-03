@@ -26,6 +26,7 @@ import turretSpr from "../../Art/turret.png";
 // 33 - 40 drain
 // 40 empty idle
 import turretCanSpr from "../../Art/turret-canister.png";
+import {Player} from "../../Player/Player";
 
 // containers 17,19 21,17, 25,15, 29,13
 
@@ -97,25 +98,6 @@ export class Tower extends Entity
         const fireRateS = 5;
         const maxAmmo = 4;
 
-        const spr = this.addComponent(new AnimatedSpriteController(0, [
-            {
-                id: 0,
-                textures: turretSheet.textureSliceFromRow(0, 0, 0),
-                config: {
-                    animationEndAction: AnimationEnd.STOP, xScale: this.flipped ? -1 : 1,
-                    xAnchor: 0.5, yAnchor: 0.5
-                }
-            },
-            {
-                id: 1,
-                textures: turretSheet.textureSliceFromRow(0, 1, 38),
-                config: {
-                    animationEndAction: AnimationEnd.STOP, animationSpeed: 60, xScale: this.flipped ? -1 : 1,
-                    xAnchor: 0.5, yAnchor: 0.5
-                }
-            }
-        ]));
-
         let cans: CanisterArray;
         if (this.flipped)
         {
@@ -136,24 +118,47 @@ export class Tower extends Entity
             ]));
         }
 
+
+        const spr = this.addComponent(new AnimatedSpriteController(0, [
+            {
+                id: 0,
+                textures: [turretSheet.textureFromIndex(0)],
+                config: {
+                    animationEndAction: AnimationEnd.STOP, xScale: this.flipped ? -1 : 1,
+                    xAnchor: 0.5, yAnchor: 0.5
+                }
+            },
+            {
+                id: 1,
+                textures: turretSheet.textureSliceFromRow(0, 1, 38),
+                config: {
+                    animationEndAction: AnimationEnd.TRIGGER, animationSpeed: 60, xScale: this.flipped ? -1 : 1,
+                    xAnchor: 0.5, yAnchor: 0.5,
+                    animationEndEvent: () => {
+                        // this.getComponent<AnimatedSpriteController>(
+                        //     AnimatedSpriteController)?.setAnimation(0);
+                        spr.setAnimation(0, true);
+                    }
+                },
+                events: {
+                    1: () => {
+                        cans.canisters[cans.current].getComponent<AnimatedSpriteController>(
+                            AnimatedSpriteController)?.setAnimation(1);
+                        cans.current = (cans.current + 1) % 4;
+                    },
+                    29: () => {
+                        this.fireShot(cans, ammunition);
+                    }
+                }
+            }
+        ]));
+
         const health = this.addComponent(new Health(100, 100));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
 
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
         attackTimer.onTrigger.register(caller => {
             spr.setAnimation(1, true);
-            caller.getEntity().addComponent(new Timer(1 * 60, cans, false))
-                  .onTrigger.register((caller1, data) => {
-                data.canisters[data.current].getComponent<AnimatedSpriteController>(
-                    AnimatedSpriteController)!.setAnimation(1);
-                data.current = (data.current + 1) % 4;
-            });
-            caller.getEntity().addComponent(new Timer(29 * 60, null, false)).onTrigger.register(caller1 => {
-                (caller1.getEntity() as Tower).fireShot(caller1, ammunition);
-            });
-            caller.getEntity().addComponent(new Timer(39 * 60, spr)).onTrigger.register((caller1, data) => {
-                data.setAnimation(0);
-            });
         });
 
         const collider = this.addComponent(
@@ -165,6 +170,7 @@ export class Tower extends Entity
                 })
         );
 
+        collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition));
         collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
     }
 
@@ -184,6 +190,20 @@ export class Tower extends Entity
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
                     //  destroyed tower instead?
                 }
+            }
+        }
+    }
+
+    receiveAmmo(collider: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
+    {
+        const other = data.other.getEntity();
+        if (other instanceof Player)
+        {
+            const playerAmmo = other.getComponent<Ammunition>(Ammunition);
+            if (playerAmmo)
+            {
+                const ammoUsed = ammunition.addAmmo(playerAmmo.getCurrentAmmo());
+                playerAmmo.removeAmmo(ammoUsed);
             }
         }
     }
