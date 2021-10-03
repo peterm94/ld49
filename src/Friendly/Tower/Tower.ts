@@ -26,7 +26,7 @@ import turretSpr from "../../Art/turret.png";
 // 33 - 40 drain
 // 40 empty idle
 import turretCanSpr from "../../Art/turret-canister.png";
-import {Player} from "../../Player/Player";
+import {Player, PlayerFalling} from "../../Player/Player";
 
 // containers 17,19 21,17, 25,15, 29,13
 
@@ -205,6 +205,12 @@ export class Tower extends Entity
         const other = data.other.getEntity();
         if (other instanceof Player)
         {
+            if (other.getComponent(PlayerFalling))
+            {
+                // Player is falling, don't reload.
+                return;
+            }
+
             const playerAmmo = other.getComponent<Ammunition>(Ammunition);
             if (playerAmmo)
             {
