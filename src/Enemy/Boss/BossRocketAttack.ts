@@ -1,10 +1,11 @@
 import {
     AnimatedSprite,
+    AnimatedSpriteController,
+    AnimationEnd,
     CollisionSystem,
     Entity,
     MathUtil,
     RectCollider,
-    RenderRect,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -12,8 +13,10 @@ import {Attack} from "../../Common/Attack";
 import {Layers} from "../../Layers";
 import {AttackMovement} from "../../Common/AttackMovement";
 import bearRocketSprite from "../../Art/bear-rocket.png";
+import rockExplosion from "../../Art/bear-rocket-explosion.png";
 
 const rocket = new SpriteSheet(bearRocketSprite, 32, 32);
+const rocketExplosion = new SpriteSheet(rockExplosion, 32, 32);
 
 export class BossRocketAttack extends Entity
 {
@@ -57,5 +60,29 @@ export class BossRocketAttack extends Entity
         endOfLife.onTrigger.register((caller) => {
             caller.getEntity().destroy();
         });
+    }
+}
+
+export class BossRocketExplosion extends Entity
+{
+    constructor(x: number, y: number) {
+        super("rocket_explosions", x, y, Layers.bossAttack);
+    }
+
+    onAdded() {
+        super.onAdded();
+
+        this.addComponent(new AnimatedSpriteController(0, [{
+            id: 0,
+            textures:rocketExplosion.textureSliceFromRow(0, 0, 7),
+            config: {
+                xAnchor: 0.5,
+                yAnchor: 0.5,
+                yOffset: -6,
+                animationSpeed: 100,
+                animationEndAction: AnimationEnd.STOP,
+                animationEndEvent: () => this.destroy()
+            }
+        }]));
     }
 }
