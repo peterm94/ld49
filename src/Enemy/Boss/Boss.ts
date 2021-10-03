@@ -6,6 +6,7 @@ import {
     Component,
     Entity,
     Log,
+    MathUtil,
     RectCollider,
     SpriteSheet,
     Timer
@@ -59,7 +60,15 @@ export class Boss extends Entity
             }
         ]));
 
-        this.addComponent(new AnimatedSpriteController(0, [
+        const addBlinkTimer = () => {
+            this.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), eyesSpr, false)).onTrigger
+                .register((caller, data) => {
+                    data.setAnimation(1);
+                });
+        };
+
+
+        const eyesSpr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: eyeIdle.textureSliceFromSheet(),
@@ -74,26 +83,33 @@ export class Boss extends Entity
                 id: 1,
                 textures: eyeBlink.textureSliceFromSheet(),
                 config: {
-                    animationEndAction: AnimationEnd.LOOP,
-                    animationSpeed: 200,
+                    animationEndAction: AnimationEnd.TRIGGER,
+                    animationSpeed: 100,
                     yAnchor: 0.5,
-                    xAnchor: 0.5
+                    xAnchor: 0.5,
+                    animationEndEvent: () => {
+                        eyesSpr.setAnimation(0);
+                        addBlinkTimer();
+                    }
                 }
             }
         ]));
+
+        addBlinkTimer();
 
         const mouthRoarStart = mouthRoar.textureSliceFromRow(0, 0, 8);
         const mouthRoarOpen = mouthRoar.textureSliceFromRow(0, 9, 9);
         const mouthRoarEnd = mouthRoar.textureSliceFromRow(0, 10, 14);
 
-        enum RoarAnimStates {
+        enum RoarAnimStates
+        {
             IDLE,
             START_ROAR,
             OPEN_ROAR,
             END_ROAR,
         }
 
-        this.addComponent(new AnimatedSpriteController(RoarAnimStates.IDLE, [
+        const roarSpr = this.addComponent(new AnimatedSpriteController(RoarAnimStates.IDLE, [
             {
                 id: RoarAnimStates.IDLE,
                 textures: mouthIdle.textureSliceFromSheet(),
@@ -108,17 +124,26 @@ export class Boss extends Entity
                 id: RoarAnimStates.START_ROAR,
                 textures: mouthRoarStart,
                 config: {
-                    animationEndAction: AnimationEnd.STOP,
+                    animationEndAction: AnimationEnd.TRIGGER,
                     animationSpeed: 200,
                     yAnchor: 0.5,
-                    xAnchor: 0.5
+                    xAnchor: 0.5,
+                    animationEndEvent: () => {
+                        roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
+                    }
                 }
             },
             {
                 id: RoarAnimStates.OPEN_ROAR,
                 textures: mouthRoarOpen,
                 config: {
-                    animationEndAction: AnimationEnd.STOP,
+                    animationEndAction: AnimationEnd.TRIGGER,
+                    animationEndEvent: () => {
+                        this.addComponent(new Timer(3000, roarSpr)).onTrigger.register((caller, data) => {
+                            data.setAnimation(RoarAnimStates.END_ROAR);
+                        });
+                        roarSpr.applyConfig({animationEndAction: AnimationEnd.STOP});
+                    },
                     animationSpeed: 200,
                     yAnchor: 0.5,
                     xAnchor: 0.5
@@ -128,13 +153,26 @@ export class Boss extends Entity
                 id: RoarAnimStates.END_ROAR,
                 textures: mouthRoarEnd,
                 config: {
-                    animationEndAction: AnimationEnd.STOP,
+                    animationEndAction: AnimationEnd.TRIGGER,
                     animationSpeed: 200,
                     yAnchor: 0.5,
-                    xAnchor: 0.5
+                    xAnchor: 0.5,
+                    animationEndEvent: () => {
+                        roarSpr.setAnimation(RoarAnimStates.IDLE, true);
+                        addRoarTimer();
+                    }
                 }
             },
         ]));
+
+        const addRoarTimer = () => {
+            this.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), roarSpr, false)).onTrigger
+                .register((caller, data) => {
+                    data.setAnimation(1);
+                });
+        };
+
+        addRoarTimer();
 
         const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
         rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);
