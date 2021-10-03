@@ -1,4 +1,5 @@
 import {
+    AnimatedSprite,
     AudioAtlas,
     CollisionMatrix,
     Component,
@@ -13,7 +14,6 @@ import {
     LogLevel,
     Scene,
     ScreenShaker,
-    Sprite,
     SpriteSheet,
     Timer,
     TimerSystem
@@ -27,7 +27,7 @@ import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
 import {ProjectileMover} from "./Common/ProjectileMover";
 
-import titleScreenImg from "./Art/title.png";
+import titleScreenImg from "./Art/splash/start.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
 import {viewCollisionSystem} from "./index";
@@ -76,7 +76,7 @@ export class ScreenCard extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new Sprite(this.texture));
+        this.addComponent(new AnimatedSprite(this.texture, {animationSpeed: 650}));
 
         // Game reload. Skip to gameplay.
         if (!MainScene.firstLoad && this.clickAction === 0)
@@ -156,7 +156,7 @@ class MainScene extends Scene
     {
         super.onAdded();
 
-        this.addGUIEntity(new ScreenCard(titleScreen.textureFromIndex(0), 0));
+        this.addGUIEntity(new ScreenCard(titleScreen.textureSliceFromSheet(), 0));
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ClickListener());
