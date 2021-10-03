@@ -1,13 +1,13 @@
 import {
     AnimatedSpriteController,
     AnimationEnd,
+    CircleCollider,
     Collider,
     CollisionSystem,
     Component,
     Entity,
     Log,
     MathUtil,
-    RectCollider,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -192,11 +192,10 @@ export class Boss extends Entity
         const healthBar = this.addChild(new HealthBar("boss_health", 0, 0, Layers.boss, 0, 0, 55));
 
         const collider = this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    layer: Layers.boss,
-                    width: width, height: height
-                }));
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem), {
+                layer: Layers.boss,
+                radius: 20
+            }));
 
         collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health, healthBar));
     }

@@ -1,13 +1,13 @@
 import {
     AnimatedSpriteController,
     AnimationEnd,
+    CircleCollider,
     Collider,
     CollisionSystem,
     Component,
     Entity,
     Log,
     MathUtil,
-    RectCollider,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -168,13 +168,8 @@ export class Tower extends Entity
         });
 
         const collider = this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    layer: Layers.tower,
-                    height: height,
-                    width: width
-                })
-        );
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
+                {layer: Layers.tower, radius: 15}));
 
         collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition, cans));
         collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));

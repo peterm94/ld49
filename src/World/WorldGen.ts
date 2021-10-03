@@ -173,7 +173,6 @@ export class Tile extends Entity
                     if (gc !== null)
                     {
                         gc.groundCount++;
-                        Log.info("ON A TILE", gc.groundCount);
                     }
                 }
             });
@@ -185,7 +184,6 @@ export class Tile extends Entity
                     if (gc !== null)
                     {
                         gc.groundCount--;
-                        Log.info("OFF A TILE", gc.groundCount);
                     }
                 }
             });
@@ -221,8 +219,6 @@ export class NoTile extends Entity
                     const gc = data.other.getEntity().getComponent<GroundCount>(GroundCount);
                     if (gc !== null)
                     {
-                        Log.info("IN A HOLE?", gc.groundCount);
-
                         if (gc.groundCount === 0)
                         {
                             if (data.other.getEntity().getComponent<PlayerFalling>(PlayerFalling))
