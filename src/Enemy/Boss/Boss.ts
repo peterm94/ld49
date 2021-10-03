@@ -9,8 +9,9 @@ import {
     Log,
     MathUtil,
     Scene,
-    ScreenShake,
+    ScreenShake, Sprite,
     SpriteSheet,
+    System,
     Timer,
     Util
 } from "lagom-engine";
@@ -36,6 +37,28 @@ const eyeIdle = new SpriteSheet(eyeIdleSprite, 196, 128);
 const mouthIdle = new SpriteSheet(mouthIdleSprite, 196, 128);
 const mouthRoar = new SpriteSheet(mouthRoarSprite, 196, 128);
 
+class FlashWhite extends Component
+{
+}
+
+class FlashWhiteSystem extends System
+{
+    types = () => [AnimatedSpriteController, FlashWhite];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, sprite: AnimatedSpriteController, flashWhite: FlashWhite) => {
+
+            sprite.applyConfig({filters: [Sprite.whiteFilter()]});
+            entity.addComponent(new Timer(100, sprite, false)).onTrigger.register((caller, data) => {
+                data.applyConfig({filters: []});
+            });
+
+            flashWhite.destroy();
+        });
+    }
+}
+
 export class Boss extends Entity
 {
     private firstRoar: boolean;
@@ -53,6 +76,7 @@ export class Boss extends Entity
         const bossPhase = this.addComponent(new BossPhase(BossPhases.PHASE_1));
 
         const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
+
         const earsSpr = ears.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -275,6 +299,7 @@ export class Boss extends Entity
         this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
         this.getScene().addSystem(new FadeInSystem());
         this.getScene().addSystem(new FadeOutSystem());
+        this.getScene().addSystem(new FlashWhiteSystem());
     }
 
     instantiateRocketAttack(caller: Component, clawSide: boolean)
@@ -300,6 +325,10 @@ export class Boss extends Entity
         const other = data.other.getEntity();
         if (other instanceof TowerBeeAttack)
         {
+            caller.getEntity().findChildWithName("ears")?.addComponent(new FlashWhite());
+            caller.getEntity().findChildWithName("eyes")?.addComponent(new FlashWhite());
+            caller.getEntity().findChildWithName("mouth")?.addComponent(new FlashWhite());
+
             const attackDetails = other.getComponent<Attack>(Attack);
             if (attackDetails)
             {
