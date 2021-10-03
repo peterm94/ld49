@@ -31,8 +31,8 @@ import titleScreenImg from "./Art/splash/start.png";
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
 import {viewCollisionSystem} from "./index";
-import {AmmunitionStatusDisplay, AmmunitionStatusUpdater} from "./GameManagement/AmmunitionStatus";
-import {HealthStatusDisplay, HealthStatusUpdater} from "./GameManagement/HealthStatus";
+import {AmmunitionStatusDisplay} from "./GameManagement/AmmunitionStatus";
+import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 
 import bearRoarWav from "./Sound/roar.wav";
 
@@ -64,6 +64,7 @@ export class LD49 extends Game
         Log.logLevel = LogLevel.INFO;
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.5);
+        LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
 
         this.setScene(new MainScene(this));
     }
@@ -243,8 +244,6 @@ class MainScene extends Scene
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());
-        this.addSystem(new AmmunitionStatusUpdater());
-        this.addSystem(new HealthStatusUpdater());
 
         // Enemies.
         this.addEntity(new Boss(this.camera.width / 2, 55));

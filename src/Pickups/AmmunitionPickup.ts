@@ -43,8 +43,8 @@ export class AmmunitionPickup extends Entity
 
         this.addComponent(new Timer(deleteTimeSeconds * 1000, null, false))
             .onTrigger.register((caller, data) => {
-                caller.parent.destroy();
-            });
+            caller.parent.destroy();
+        });
     }
 }
 
@@ -59,7 +59,7 @@ export class AmmunitionSpawner extends Entity
     onAdded(): void
     {
         super.onAdded();
-        const ammoSpawnFrequencySeconds = 10;
+        const ammoSpawnFrequencySeconds = 3;
 
         const timer = new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
         timer.onTrigger.register((caller) => {

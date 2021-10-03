@@ -7,6 +7,7 @@ import {
     Component,
     Entity,
     MathUtil,
+   Scene,
     ScreenShake,
     SpriteSheet,
     Timer,
@@ -22,9 +23,11 @@ import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
 import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
 import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
-import {BearStatus} from "../../GameManagement/GameStatus";
+import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
+import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
 import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
+import {LD49} from "../../LD49";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -34,9 +37,12 @@ const mouthRoar = new SpriteSheet(mouthRoarSprite, 196, 128);
 
 export class Boss extends Entity
 {
+    private firstRoar: boolean;
+
     constructor(x: number, y: number)
     {
         super("boss", x, y, Layers.boss);
+        this.firstRoar = true;
     }
 
     onAdded()
@@ -115,9 +121,9 @@ export class Boss extends Entity
         const mouth = this.addChild(new Entity("mouth", 0, 0, Layers.boss));
 
         const addRoarTimer = () => {
-            mouth.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), roarSpr, false)).onTrigger
+            mouth.addComponent(new Timer(MathUtil.randomRange(2_000, 10_000), roarSpr, false)).onTrigger
                  .register((caller, data) => {
-                     data.setAnimation(1);
+                     data.setAnimation(RoarAnimStates.START_ROAR);
                  });
         };
 
@@ -146,7 +152,15 @@ export class Boss extends Entity
                         earsSpr.nextTriggerTime += 3000;
                         roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
-                        (this.scene.getEntityWithName("audio") as SoundManager).playSound("bearRoar");
+
+                        (this.scene.getEntityWithName("audio") as SoundManager)
+                            .playSound((this.firstRoar) ? "bearRoar" : "bearRoarQuiet");
+
+                        if (this.firstRoar) {
+                            this.firstRoar = false;
+                        }
+
+                        this.dropTiles(2000, this.getScene());
                     }
                 }
             },
@@ -201,7 +215,7 @@ export class Boss extends Entity
 
         collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
 
-        this.getScene().addGUIEntity(new BearStatus(0, 30, health));
+        this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
         this.getScene().addSystem(new FadeInSystem());
         this.getScene().addSystem(new FadeOutSystem());
     }
@@ -241,6 +255,21 @@ export class Boss extends Entity
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a
                     //  destroyed tower instead?
                 }
+            }
+        }
+    }
+
+    dropTiles(timeWindowMs: number, scene: Scene)
+    {
+        const tileManager = scene.getEntityWithName("tilemgr");
+
+        if (tileManager)
+        {
+            const thig = tileManager.getComponent<TileDestroyer>(TileDestroyer);
+
+            if (thig)
+            {
+                thig.removeRandomTilesOverTime(scene, timeWindowMs, 15);
             }
         }
     }

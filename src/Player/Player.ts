@@ -23,7 +23,7 @@ import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
-import {ScreenCard, screenHeight, screenWidth} from "../LD49";
+import {screenHeight, screenWidth} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
 import {HealthStatus} from "../GameManagement/HealthStatus";
@@ -76,29 +76,8 @@ export class Player extends Entity
 
         const health = this.addComponent(new Health(maxHealth, maxHealth));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
-
-        // Update the scoreboard.
-        const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
-        if (ammunitionStatusDisplay)
-        {
-            const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
-            if (ammunitionStatus)
-            {
-                ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
-                ammunitionStatus.maxAmmo = ammunition.maxAmmo;
-            }
-        }
-
-        const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
-        if (healthStatusDisplay)
-        {
-            const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
-            if (healthStatus)
-            {
-                healthStatus.currentHealth = health.getCurrentHealth();
-                healthStatus.maxHealth = health.getMaxHealth();
-            }
-        }
+        this.updatePlayerAmmoGUI(ammunition);
+        this.updatePlayerHealthGUI(health);
 
         // Handle moving into things.
         const movementCollider = this.addComponent(
@@ -142,20 +121,8 @@ export class Player extends Entity
             const pickupDetails = other.getComponent<PickupCount>(PickupCount);
             if (pickupDetails)
             {
-                ammunition.addAmmo(pickupDetails.amount);
                 other.destroy();
-
-                // Update the scoreboard.
-                const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
-                if (ammunitionStatusDisplay)
-                {
-                    const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
-                    if (ammunitionStatus)
-                    {
-                        ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
-                        ammunitionStatus.maxAmmo = ammunition.maxAmmo;
-                    }
-                }
+                this.addAmmo(pickupDetails.amount, ammunition);
             }
         }
     }
@@ -182,26 +149,68 @@ export class Player extends Entity
             const attackDetails = other.getComponent<Attack>(Attack);
             if (attackDetails)
             {
-                health.removeHealth(attackDetails.getDamage());
                 other.destroy();
                 this.getScene().addEntity(new BossRocketExplosion(this.transform.x, this.transform.y));
 
-                // Update the scoreboard.
-                const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
-                if (healthStatusDisplay)
-                {
-                    const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
-                    if (healthStatus)
-                    {
-                        healthStatus.currentHealth = health.getCurrentHealth();
-                        healthStatus.maxHealth = health.getMaxHealth();
-                    }
-                }
+                this.receiveDamage(attackDetails.getDamage(), health);
+            }
+        }
+    }
 
-                if (health.getCurrentHealth() == 0) {
-                    Log.error("DEAD");
-                    // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
-                }
+    receiveDamage(amount: number, health: Health)
+    {
+        health.removeHealth(amount);
+
+        // Update the scoreboard.
+        this.updatePlayerHealthGUI(health);
+
+        if (health.getCurrentHealth() == 0)
+        {
+            Log.error("DEAD");
+            // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
+        }
+    }
+
+    removeAmmo(amount: number, ammunition: Ammunition)
+    {
+        ammunition.removeAmmo(amount);
+
+        // Update the scoreboard.
+        this.updatePlayerAmmoGUI(ammunition);
+    }
+
+    addAmmo(amount: number, ammunition: Ammunition)
+    {
+        ammunition.addAmmo(amount);
+
+        // Update the scoreboard.
+        this.updatePlayerAmmoGUI(ammunition);
+    }
+
+    updatePlayerHealthGUI(health: Health)
+    {
+        const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
+        if (healthStatusDisplay)
+        {
+            const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
+            if (healthStatus)
+            {
+                healthStatus.currentHealth = health.getCurrentHealth();
+                healthStatus.maxHealth = health.getMaxHealth();
+            }
+        }
+    }
+
+    updatePlayerAmmoGUI(ammunition: Ammunition)
+    {
+        const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
+        if (ammunitionStatusDisplay)
+        {
+            const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
+            if (ammunitionStatus)
+            {
+                ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
+                ammunitionStatus.maxAmmo = ammunition.maxAmmo;
             }
         }
     }
@@ -311,6 +320,7 @@ export class PlayerResetter extends System
             if (falling)
             {
                 entity.removeComponent(falling, true);
+                entity.depth = Layers.player;
                 entity.addComponent(new PlayerController());
                 const playerSpawns = entity.getScene().entities.filter(entity => entity.name === "player_spawn");
                 if (playerSpawns.length)
