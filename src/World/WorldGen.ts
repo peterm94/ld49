@@ -15,8 +15,12 @@ import {PlayerFalling} from "../Player/Player";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
+export const tileSurfaceHeight = 15;
 
 const tile = new SpriteSheet(tileImg, tileSpriteWidth, tileSpriteHeight);
+
+// How far to move each staggered hexagon to the right in order for it to slot nicely into the previous tile.
+const tileStaggeredOffsetX = 24;
 
 export class WorldGen extends Entity
 {
@@ -47,7 +51,8 @@ export class WorldGen extends Entity
         [0, 1, 1, 1, 1, 0,],
     ];
 
-    constructor(x: number, y: number)
+    constructor(x: number, y: number, readonly towerTilePos: number[][], readonly playerSpawnTilePos: number[][],
+                readonly ammunitionSpawnTiles: number[][])
     {
         super("worldgen", x, y, Layers.hexagons);
     }
@@ -58,7 +63,7 @@ export class WorldGen extends Entity
      * Due to the offset, the smooshed sprite width is 25px * 2 = 50px.
      * We use 24px as the offset elsewhere because we want the edge pixels to overlap as it's smoother.
      */
-    static getBoardWidth()
+    static getBoardWidth(): number
     {
         return 50 * WorldGen.board[0].length;
     }
@@ -69,7 +74,7 @@ export class WorldGen extends Entity
      * Since each group of hexagons is actually two columns, and we stagger each hexagon on the x, the actual
      * distance on the y per hexagon is half of the hexagon face height.
      */
-    static getBoardHeight()
+    static getBoardHeight(): number
     {
         return 7.5 * WorldGen.board.length;
     }
@@ -78,14 +83,11 @@ export class WorldGen extends Entity
     {
         super.onAdded();
 
-        // How far to move each staggered hexagon to the right in order for it to slot nicely into the previous tile.
-        const tileStaggeredOffsetX = 24;
-
         // Stagger each row of the board.
         WorldGen.board.forEach((row, rowIndex) => {
 
             // Every second row should be shifted to the right so that the hexagons slot together.
-            const xOffset = rowIndex % 2 == 0 ? 0 : tileStaggeredOffsetX;
+            const xOffset = rowIndex % 2 === 0 ? 0 : tileStaggeredOffsetX;
             row.forEach((col, colIndex) => {
 
                 // Each row should be shifted down by half the height of the hexagon.
@@ -97,11 +99,38 @@ export class WorldGen extends Entity
                 const xPos = xOffset + colIndex * 48;
                 if (col === 1)
                 {
-                    // Decide whether to elevate, raise, or lower the hexagon.
-                    const heightOffset = MathUtil.randomRange(-1, 2);
-                    // Bit dodgy, but we don't want the tile that our gun is on to ever be destroyed randomly.
-                    const isTowerHexagon = (rowIndex === 6 && colIndex === 1) || (rowIndex === 6 && colIndex === 4);
-                    this.addChild(new Tile(xPos, yPos + heightOffset, isTowerHexagon));
+                    // Decide whether to elevate, lower, or do nothing to the hexagon.
+                    let heightOffset = MathUtil.randomRange(-1, 2);
+
+                    // We don't want the tile that our gun is on to ever be destroyed randomly.
+                    let title = "tile";
+                    const isTowerHex = this.towerTilePos.some(
+                        ([col, row]) => colIndex === col && rowIndex === row
+                    );
+
+                    const isPlayerSpawn = this.playerSpawnTilePos.some(
+                        ([col, row]) => colIndex === col && rowIndex === row
+                    );
+
+                    const isAmmunitionSpawn = this.ammunitionSpawnTiles.some(
+                        ([col, row]) => colIndex === col && rowIndex === row
+                    );
+
+                    if (isTowerHex)
+                    {
+                        title = "tile_tower_spawn";
+                        heightOffset = 1;
+                    }
+                    else if (isPlayerSpawn)
+                    {
+                        title = "tile_player_spawn";
+                    }
+                    else if (isAmmunitionSpawn)
+                    {
+                        title = "tile_ammunition_spawn";
+                    }
+
+                    this.addChild(new Tile(title, xPos, yPos - heightOffset));
                 }
                 else
                 {
@@ -115,9 +144,9 @@ export class WorldGen extends Entity
 
 export class Tile extends Entity
 {
-    constructor(x: number, y: number, private readonly indestructible = false)
+    constructor(name: string, x: number, y: number)
     {
-        super("tile" + (indestructible ? "_indestructible" : ""), x, y, y);
+        super(name, x, y, y);
     }
 
     onAdded()
@@ -174,7 +203,7 @@ export class NoTile extends Entity
                 const parent = caller.getEntity().parent;
                 if (parent)
                 {
-                    worldgen.addChild(new Tile(this.transform.x, this.transform.y));
+                    worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y));
                     caller.getEntity().destroy();
                 }
             });
