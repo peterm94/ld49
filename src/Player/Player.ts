@@ -76,29 +76,8 @@ export class Player extends Entity
 
         const health = this.addComponent(new Health(maxHealth, maxHealth));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
-
-        // Update the scoreboard.
-        const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
-        if (ammunitionStatusDisplay)
-        {
-            const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
-            if (ammunitionStatus)
-            {
-                ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
-                ammunitionStatus.maxAmmo = ammunition.maxAmmo;
-            }
-        }
-
-        const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
-        if (healthStatusDisplay)
-        {
-            const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
-            if (healthStatus)
-            {
-                healthStatus.currentHealth = health.getCurrentHealth();
-                healthStatus.maxHealth = health.getMaxHealth();
-            }
-        }
+        this.updatePlayerAmmoGUI(ammunition);
+        this.updatePlayerHealthGUI(health);
 
         // Handle moving into things.
         const movementCollider = this.addComponent(
@@ -142,20 +121,8 @@ export class Player extends Entity
             const pickupDetails = other.getComponent<PickupCount>(PickupCount);
             if (pickupDetails)
             {
-                ammunition.addAmmo(pickupDetails.amount);
                 other.destroy();
-
-                // Update the scoreboard.
-                const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
-                if (ammunitionStatusDisplay)
-                {
-                    const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
-                    if (ammunitionStatus)
-                    {
-                        ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
-                        ammunitionStatus.maxAmmo = ammunition.maxAmmo;
-                    }
-                }
+                this.addAmmo(pickupDetails.amount, ammunition);
             }
         }
     }
@@ -190,11 +157,38 @@ export class Player extends Entity
         }
     }
 
-    public receiveDamage(damage: number, health: Health)
+    receiveDamage(amount: number, health: Health)
     {
-        health.removeHealth(damage);
+        health.removeHealth(amount);
 
         // Update the scoreboard.
+        this.updatePlayerHealthGUI(health);
+
+        if (health.getCurrentHealth() == 0)
+        {
+            Log.error("DEAD");
+            // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
+        }
+    }
+
+    removeAmmo(amount: number, ammunition: Ammunition)
+    {
+        ammunition.removeAmmo(amount);
+
+        // Update the scoreboard.
+        this.updatePlayerAmmoGUI(ammunition);
+    }
+
+    addAmmo(amount: number, ammunition: Ammunition)
+    {
+        ammunition.addAmmo(amount);
+
+        // Update the scoreboard.
+        this.updatePlayerAmmoGUI(ammunition);
+    }
+
+    updatePlayerHealthGUI(health: Health)
+    {
         const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
         if (healthStatusDisplay)
         {
@@ -205,11 +199,19 @@ export class Player extends Entity
                 healthStatus.maxHealth = health.getMaxHealth();
             }
         }
+    }
 
-        if (health.getCurrentHealth() == 0)
+    updatePlayerAmmoGUI(ammunition: Ammunition)
+    {
+        const ammunitionStatusDisplay = this.getScene().getEntityWithName("ammunitionStatusDisplay");
+        if (ammunitionStatusDisplay)
         {
-            Log.error("DEAD");
-            // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
+            const ammunitionStatus = ammunitionStatusDisplay.getComponent<AmmunitionStatus>(AmmunitionStatus);
+            if (ammunitionStatus)
+            {
+                ammunitionStatus.currentAmmo = ammunition.getCurrentAmmo();
+                ammunitionStatus.maxAmmo = ammunition.maxAmmo;
+            }
         }
     }
 }

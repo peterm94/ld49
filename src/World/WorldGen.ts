@@ -3,6 +3,7 @@ import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
 import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
 import {Health} from "../Common/Health";
+import {Ammunition} from "../Common/Ammunition";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -210,6 +211,11 @@ export class Tile extends Entity
             if (playerHealth)
             {
                 player.receiveDamage(1, playerHealth);
+            }
+            const playerAmmo = player.getComponent<Ammunition>(Ammunition);
+            if (playerAmmo)
+            {
+                player.removeAmmo(playerAmmo.getCurrentAmmo(), playerAmmo);
             }
         });
     }
