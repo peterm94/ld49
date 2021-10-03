@@ -6,18 +6,17 @@ import {
     CollisionSystem,
     Component,
     Entity,
-    Log,
     MathUtil,
-    Scene,
+   Scene,
     ScreenShake,
     SpriteSheet,
-    Timer
+    Timer,
+    Util
 } from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {Layers} from "../../Layers";
 import {TowerBeeAttack} from "../../Friendly/Tower/TowerBeeAttack";
 import {Attack} from "../../Common/Attack";
-import {BossRocketAttack} from "./BossRocketAttack";
 
 import earIdleSprite from "../../Art/bear-sheets/ear-idle.png";
 import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
@@ -27,6 +26,7 @@ import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
 import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
 import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
+import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
 import {BossPhase, BossPhases} from "./BossPhase";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
@@ -227,21 +227,27 @@ export class Boss extends Entity
         collider.onTriggerEnter.register((c, d) => this.receiveAttack(c, d, health, bossPhase));
 
         this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
+        this.getScene().addSystem(new FadeInSystem());
+        this.getScene().addSystem(new FadeOutSystem());
     }
 
     instantiateRocketAttack(caller: Component)
     {
-        const x = caller.getEntity().transform.position.x;
-        const y = caller.getEntity().transform.position.y;
-
-        const target = caller.getScene().getEntityWithName("player");
-        if (!target)
+        const clawSide = Util.choose(true, false);
+        if (clawSide)
         {
-            Log.error("Tried to target the Player for a Boss attack, but nothing could be found.");
-            return;
+            const x = MathUtil.randomRange(66, 122);
+            const y = MathUtil.randomRange(17, 34);
+            const tilt = ((x-66) / (122 - 66)) * 0.45;
+            caller.getScene().addEntity(new BearHand(x, y, false, tilt));
         }
-
-        caller.getScene().addEntity(new BossRocketAttack(x, y, Layers.bossAttack, target));
+        else
+        {
+            const x = MathUtil.randomRange(296, 360);
+            const y = MathUtil.randomRange(22, 28);
+            const tilt = ((x-296) / (360 - 296)) * 0.45;
+            caller.getScene().addEntity(new BearHand(x, y, true, -tilt));
+        }
     }
 
     receiveAttack(caller: Collider, data: { other: Collider; result: unknown }, health: Health, bossPhase: BossPhase)
