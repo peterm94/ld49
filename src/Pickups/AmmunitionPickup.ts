@@ -40,10 +40,10 @@ export class AmmunitionPickup extends Entity
 
         this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {layer: Layers.pickup, radius: 8}));
+                {layer: Layers.pickup, radius: 12}));
 
         this.addComponent(new Timer(deleteTimeSeconds * 1000, null, false))
-            .onTrigger.register((caller, data) => {
+            .onTrigger.register((caller) => {
             caller.parent.destroy();
         });
     }

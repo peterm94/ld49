@@ -72,7 +72,7 @@ export class Boss extends Entity
     onAdded()
     {
         super.onAdded();
-        const health = this.addComponent(new Health(100, 100));
+        const health = this.addComponent(new Health(80, 80));
         const bossPhase = this.addComponent(new BossPhase(BossPhases.PHASE_1));
 
         const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
@@ -157,7 +157,7 @@ export class Boss extends Entity
             {
                 timeBetweenAttacks = MathUtil.randomRange(2_000, 8_000);
             }
-            else if (bossPhase.currentPhase === BossPhases.PHASE_4)
+            else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
             {
                 timeBetweenAttacks = MathUtil.randomRange(4_000, 8_000);
             }
@@ -195,22 +195,21 @@ export class Boss extends Entity
                     yAnchor: 0.5,
                     xAnchor: 0.5,
                     animationEndEvent: () => {
+                        // Big difficulty shift for the final phase.
+                        const bigRoar = bossPhase.currentPhase === BossPhases.FINAL_PHASE;
+                        const roarLengthMs = bigRoar ? 4000 : 3000;
+                        const roarIntensity = bigRoar ? 0.5 : 0.3;
+                        const numberOfTiles = bigRoar ? 40 : 15;
+
                         // Pause the ears for the roar duration.
                         earsSpr.nextTriggerTime += 3000;
-                        roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
+                        roarSpr.getEntity().addComponent(new ScreenShake(roarIntensity, roarLengthMs));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
 
                         (this.scene.getEntityWithName("audio") as SoundManager)
-                            .playSound((this.firstRoar) ? "bearRoar" : "bearRoarQuiet");
+                            .playSound((bigRoar) ? "bearRoar" : "bearRoarQuiet");
 
-                        if (this.firstRoar)
-                        {
-                            this.firstRoar = false;
-                        }
-
-                        // Big difficulty shift for the final phase.
-                        const numberOfTiles = bossPhase.currentPhase === BossPhases.PHASE_4 ? 40 : 15;
-                        this.dropTiles(2000, numberOfTiles, this.getScene());
+                        this.dropTiles(roarLengthMs, numberOfTiles, this.getScene());
                     }
                 }
             },
@@ -262,7 +261,7 @@ export class Boss extends Entity
             {
                 timeBetweenAttacks = 3;
             }
-            else if (bossPhase.currentPhase === BossPhases.PHASE_4)
+            else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
             {
                 timeBetweenAttacks = 2;
             }
@@ -270,7 +269,7 @@ export class Boss extends Entity
                 if (bossPhase.currentPhase <= BossPhases.PHASE_1 && bossPhase.currentPhase !== BossPhases.DEAD)
                 {
                     // Amp up the difficulty when the boss's hp is low, double rockets!
-                    if (bossPhase.currentPhase === BossPhases.PHASE_4)
+                    if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
                     {
                         this.instantiateRocketAttack(caller, true);
                         this.instantiateRocketAttack(caller, false);
