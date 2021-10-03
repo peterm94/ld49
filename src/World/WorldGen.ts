@@ -1,17 +1,8 @@
-import {
-    CollisionSystem,
-    Component,
-    Entity,
-    MathUtil,
-    PolyCollider,
-    Sprite,
-    SpriteSheet,
-    System,
-    Timer
-} from "lagom-engine";
+import {CollisionSystem, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, Timer} from "lagom-engine";
 import tileImg from '../Art/coloured-hex.png';
 import {Layers} from "../Layers";
-import {GroundCount, PlayerController, PlayerFalling} from "../Player/Player";
+import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
+import {Health} from "../Common/Health";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -151,58 +142,76 @@ export class Tile extends Entity
     {
         super.onAdded();
         this.addComponent(new Sprite(tile.textureFromIndex(0)));
-        this.addComponent(new TileComponent());
 
         const global = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
-        if (global instanceof CollisionSystem)
+        if (!(global instanceof CollisionSystem))
         {
-            const coll = this.addComponent(new PolyCollider(global, {
-                layer: Layers.hexagons,
-                // points: [[7, 1], [24, 1], [30, 7], [24, 13], [7, 13], [1, 7]],
-                points: [[4, -2], [27, -2], [33, 7], [27, 16], [4, 16], [-2, 7]],
-                yOff: this.tileOffset
-                // points: [[11, 4], [19, 4], [22, 7], [19, 10], [11, 10], [8, 7]]
-            }));
-
-            coll.onTriggerEnter.register((caller, data) => {
-                // TODO In the hole
-                if (data.other.layer === Layers.playerGround)
-                {
-                    const gc = data.other.getEntity().getComponent<GroundCount>(GroundCount);
-                    if (gc !== null)
-                    {
-                        gc.groundCount++;
-                    }
-                }
-            });
-
-            coll.onTriggerExit.register((caller, other) => {
-                if (other.layer === Layers.playerGround)
-                {
-                    const gc = other.getEntity().getComponent<GroundCount>(GroundCount);
-                    if (gc !== null)
-                    {
-                        gc.groundCount--;
-
-                        if (gc.groundCount === 0)
-                        {
-                            if (other.getEntity().getComponent<PlayerFalling>(PlayerFalling))
-                            {
-                                // Already falling
-                                return;
-                            }
-                            other.getEntity().addComponent(new PlayerFalling(this.depth));
-                            other.getEntity().depth = Layers.playerFalling;
-                            const controller = other.getEntity().getComponent(PlayerController);
-                            if (controller)
-                            {
-                                other.getEntity().removeComponent(controller, true);
-                            }
-                        }
-                    }
-                }
-            });
+            return;
         }
+
+        const collider = this.addComponent(new PolyCollider(global, {
+            layer: Layers.hexagons,
+            // points: [[7, 1], [24, 1], [30, 7], [24, 13], [7, 13], [1, 7]],
+            points: [[4, -2], [27, -2], [33, 7], [27, 16], [4, 16], [-2, 7]],
+            yOff: this.tileOffset
+            // points: [[11, 4], [19, 4], [22, 7], [19, 10], [11, 10], [8, 7]]
+        }));
+
+        collider.onTriggerEnter.register((caller, data) => {
+            if (data.other.layer !== Layers.playerGround)
+            {
+                return;
+            }
+
+            const gc = data.other.getEntity().getComponent<GroundCount>(GroundCount);
+            if (gc !== null)
+            {
+                gc.groundCount++;
+            }
+        });
+
+        collider.onTriggerExit.register((caller, other) => {
+            if (other.layer !== Layers.playerGround)
+            {
+                return;
+            }
+            const player = other.getEntity();
+
+            if (!(player instanceof Player))
+            {
+                return;
+            }
+
+            const gc = player.getComponent<GroundCount>(GroundCount);
+            if (gc === null)
+            {
+                return;
+            }
+
+            gc.groundCount--;
+            if (gc.groundCount !== 0)
+            {
+                return;
+            }
+            if (player.getComponent<PlayerFalling>(PlayerFalling))
+            {
+                // Already falling
+                return;
+            }
+
+            player.addComponent(new PlayerFalling(this.depth));
+            player.depth = Layers.playerFalling;
+            const controller = player.getComponent(PlayerController);
+            if (controller)
+            {
+                player.removeComponent(controller, true);
+            }
+            const playerHealth = player.getComponent<Health>(Health);
+            if (playerHealth)
+            {
+                player.receiveDamage(1, playerHealth);
+            }
+        });
     }
 }
 
@@ -218,45 +227,27 @@ export class NoTile extends Entity
     {
         super.onAdded();
 
-        if (this.regenerateTile)
+        if (!this.regenerateTile)
         {
-            this.addComponent(new Timer(this.secondsBeforeRegen * 1000, null, false))
-                .onTrigger.register(caller => {
-                const worldgen = caller.getScene().getEntityWithName("worldgen");
-                if (!worldgen)
-                {
-                    return;
-                }
-                const parent = caller.getEntity().parent;
-                if (parent)
-                {
-                    const offset = MathUtil.randomRange(-1, 2);
-                    worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y - offset, offset));
-                    caller.getEntity().destroy();
-                }
-            });
+            return;
         }
-    }
-}
 
-export class TileComponent extends Component
-{
-}
+        this.addComponent(new Timer(this.secondsBeforeRegen * 1000, null, false))
+            .onTrigger.register(caller => {
+            const worldgen = caller.getScene().getEntityWithName("worldgen");
+            if (!worldgen)
+            {
+                return;
+            }
+            const parent = caller.getEntity().parent;
+            if (!parent)
+            {
+                return;
+            }
 
-export class RemoveTile extends Component
-{
-}
-
-
-export class TileRemover extends System
-{
-    types = () => [Sprite, RemoveTile];
-
-    update(delta: number): void
-    {
-        this.runOnEntities((entity: Entity, sprite: Sprite, rem: RemoveTile) => {
-            sprite.applyConfig({alpha: 0.5});
-            rem.destroy();
+            const offset = MathUtil.randomRange(-1, 2);
+            worldgen.addChild(new Tile("tile", this.transform.x, this.transform.y - offset, offset));
+            caller.getEntity().destroy();
         });
     }
 }

@@ -23,7 +23,7 @@ import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
-import {ScreenCard, screenHeight, screenWidth} from "../LD49";
+import {screenHeight, screenWidth} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
 import {HealthStatus} from "../GameManagement/HealthStatus";
@@ -182,27 +182,34 @@ export class Player extends Entity
             const attackDetails = other.getComponent<Attack>(Attack);
             if (attackDetails)
             {
-                health.removeHealth(attackDetails.getDamage());
                 other.destroy();
                 this.getScene().addEntity(new BossRocketExplosion(this.transform.x, this.transform.y));
 
-                // Update the scoreboard.
-                const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
-                if (healthStatusDisplay)
-                {
-                    const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
-                    if (healthStatus)
-                    {
-                        healthStatus.currentHealth = health.getCurrentHealth();
-                        healthStatus.maxHealth = health.getMaxHealth();
-                    }
-                }
-
-                if (health.getCurrentHealth() == 0) {
-                    Log.error("DEAD");
-                    // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
-                }
+                this.receiveDamage(attackDetails.getDamage(), health);
             }
+        }
+    }
+
+    public receiveDamage(damage: number, health: Health)
+    {
+        health.removeHealth(damage);
+
+        // Update the scoreboard.
+        const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
+        if (healthStatusDisplay)
+        {
+            const healthStatus = healthStatusDisplay.getComponent<HealthStatus>(HealthStatus);
+            if (healthStatus)
+            {
+                healthStatus.currentHealth = health.getCurrentHealth();
+                healthStatus.maxHealth = health.getMaxHealth();
+            }
+        }
+
+        if (health.getCurrentHealth() == 0)
+        {
+            Log.error("DEAD");
+            // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
         }
     }
 }
@@ -311,6 +318,7 @@ export class PlayerResetter extends System
             if (falling)
             {
                 entity.removeComponent(falling, true);
+                entity.depth = Layers.player;
                 entity.addComponent(new PlayerController());
                 const playerSpawns = entity.getScene().entities.filter(entity => entity.name === "player_spawn");
                 if (playerSpawns.length)
