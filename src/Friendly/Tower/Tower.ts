@@ -118,7 +118,6 @@ export class Tower extends Entity
             ]));
         }
 
-
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -132,11 +131,9 @@ export class Tower extends Entity
                 id: 1,
                 textures: turretSheet.textureSliceFromRow(0, 1, 38),
                 config: {
-                    animationEndAction: AnimationEnd.TRIGGER, animationSpeed: 60, xScale: this.flipped ? -1 : 1,
+                    animationEndAction: AnimationEnd.STOP, animationSpeed: 60, xScale: this.flipped ? -1 : 1,
                     xAnchor: 0.5, yAnchor: 0.5,
                     animationEndEvent: () => {
-                        // this.getComponent<AnimatedSpriteController>(
-                        //     AnimatedSpriteController)?.setAnimation(0);
                         spr.setAnimation(0, true);
                     }
                 },

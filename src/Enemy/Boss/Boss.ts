@@ -45,9 +45,9 @@ export class Boss extends Entity
         const height = 128;
 
         const sheet = earIdle.textureSliceFromSheet();
-        Log.info(sheet);
+        // Log.info(sheet);
 
-        this.addComponent(new AnimatedSpriteController(0, [
+        const earsSpr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: earIdle.textureSliceFromSheet(),
@@ -83,7 +83,7 @@ export class Boss extends Entity
                 id: 1,
                 textures: eyeBlink.textureSliceFromSheet(),
                 config: {
-                    animationEndAction: AnimationEnd.TRIGGER,
+                    animationEndAction: AnimationEnd.STOP,
                     animationSpeed: 100,
                     yAnchor: 0.5,
                     xAnchor: 0.5,
@@ -124,11 +124,13 @@ export class Boss extends Entity
                 id: RoarAnimStates.START_ROAR,
                 textures: mouthRoarStart,
                 config: {
-                    animationEndAction: AnimationEnd.TRIGGER,
+                    animationEndAction: AnimationEnd.STOP,
                     animationSpeed: 200,
                     yAnchor: 0.5,
                     xAnchor: 0.5,
                     animationEndEvent: () => {
+                        // Pause the ears for the roar duration.
+                        earsSpr.nextTriggerTime += 3000;
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
                     }
                 }
@@ -137,12 +139,15 @@ export class Boss extends Entity
                 id: RoarAnimStates.OPEN_ROAR,
                 textures: mouthRoarOpen,
                 config: {
-                    animationEndAction: AnimationEnd.TRIGGER,
+                    animationEndAction: AnimationEnd.STOP,
                     animationEndEvent: () => {
                         this.addComponent(new Timer(3000, roarSpr)).onTrigger.register((caller, data) => {
                             data.setAnimation(RoarAnimStates.END_ROAR);
                         });
-                        roarSpr.applyConfig({animationEndAction: AnimationEnd.STOP});
+                        // TODO why can't I trigger it from END_ROAR? it gets stuck and has to catch up?
+                        this.addComponent(new Timer(4000, roarSpr)).onTrigger.register((caller, data) => {
+                            data.setAnimation(RoarAnimStates.IDLE);
+                        });
                     },
                     animationSpeed: 200,
                     yAnchor: 0.5,
@@ -153,16 +158,16 @@ export class Boss extends Entity
                 id: RoarAnimStates.END_ROAR,
                 textures: mouthRoarEnd,
                 config: {
-                    animationEndAction: AnimationEnd.TRIGGER,
+                    animationEndAction: AnimationEnd.STOP,
                     animationSpeed: 200,
                     yAnchor: 0.5,
-                    xAnchor: 0.5,
-                    animationEndEvent: () => {
-                        roarSpr.setAnimation(RoarAnimStates.IDLE, true);
-                        addRoarTimer();
-                    }
+                    xAnchor: 0.5
+                    // animationEndEvent: () => {
+                    //     roarSpr.setAnimation(RoarAnimStates.IDLE, true);
+                    //     addRoarTimer();
+                    // }
                 }
-            },
+            }
         ]));
 
         const addRoarTimer = () => {
