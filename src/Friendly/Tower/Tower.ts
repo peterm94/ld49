@@ -142,9 +142,14 @@ export class Tower extends Entity
                 },
                 events: {
                     1: () => {
-                        cans.canisters[cans.current].getComponent<AnimatedSpriteController>(
-                            AnimatedSpriteController)?.setAnimation(1);
-                        cans.current = (cans.current + 1) % 4;
+                        const can = cans.canisters[cans.current];
+                        if (!can)
+                        {
+                            Log.error("Tried to drain a tower canister but none were remaining.");
+                            return;
+                        }
+                        can.getComponent<AnimatedSpriteController>(AnimatedSpriteController)?.setAnimation(1);
+                        cans.current = (cans.current + 1);
                     },
                     29: () => {
                         this.fireShot(cans, ammunition);
@@ -157,8 +162,11 @@ export class Tower extends Entity
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
 
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
-        attackTimer.onTrigger.register(caller => {
-            spr.setAnimation(1, true);
+        attackTimer.onTrigger.register(_ => {
+            if (ammunition.getCurrentAmmo() > 0)
+            {
+                spr.setAnimation(1, true);
+            }
         });
 
         const collider = this.addComponent(
@@ -170,7 +178,7 @@ export class Tower extends Entity
                 })
         );
 
-        collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition));
+        collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition, cans));
         collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
     }
 
@@ -194,7 +202,8 @@ export class Tower extends Entity
         }
     }
 
-    receiveAmmo(collider: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
+    receiveAmmo(collider: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition,
+                cans: CanisterArray)
     {
         const other = data.other.getEntity();
         if (other instanceof Player)
@@ -203,7 +212,26 @@ export class Tower extends Entity
             if (playerAmmo)
             {
                 const ammoUsed = ammunition.addAmmo(playerAmmo.getCurrentAmmo());
+                if (!ammoUsed)
+                {
+                    return;
+                }
+
                 playerAmmo.removeAmmo(ammoUsed);
+                for (let i = 0; i < ammoUsed; i++)
+                {
+                    cans.current = (cans.current - 1);
+                    const canAnimation = cans.canisters[cans.current]
+                        .getComponent<AnimatedSpriteController>(AnimatedSpriteController);
+                    if (canAnimation)
+                    {
+                        canAnimation.setAnimation(0);
+                    }
+                    else
+                    {
+                        Log.error("Tried to replenish the ammo cartridge but no animator was found");
+                    }
+                }
             }
         }
     }

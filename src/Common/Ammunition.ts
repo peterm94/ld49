@@ -11,13 +11,14 @@ export class Ammunition extends Component
 
     addAmmo(amount: number): number
     {
-        const usedAmmo = this.maxAmmo - this.currentAmmo;
+        const prevAmmo = this.currentAmmo;
         this.currentAmmo += amount;
         if (this.currentAmmo > this.maxAmmo)
         {
             this.currentAmmo = this.maxAmmo;
         }
-        return usedAmmo;
+
+        return this.currentAmmo - prevAmmo;
     }
 
     removeAmmo(amount: number): void
