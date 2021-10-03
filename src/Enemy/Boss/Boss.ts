@@ -1,10 +1,33 @@
-import {Collider, CollisionSystem, Component, Entity, Log, RectCollider, RenderRect, Timer} from "lagom-engine";
+import {
+    AnimatedSpriteController,
+    AnimationEnd,
+    Collider,
+    CollisionSystem,
+    Component,
+    Entity,
+    Log,
+    RectCollider,
+    SpriteSheet,
+    Timer
+} from "lagom-engine";
 import {Health} from "../../Common/Health";
 import {HealthBar} from "../../Common/HealthBar";
 import {Layers} from "../../Layers";
 import {TowerBeeAttack} from "../../Friendly/Tower/TowerBeeAttack";
 import {Attack} from "../../Common/Attack";
 import {BossRocketAttack} from "./BossRocketAttack";
+
+import earIdleSprite from "../../Art/bear-sheets/ear-idle.png";
+import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
+import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
+import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
+import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
+
+const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
+const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
+const eyeIdle = new SpriteSheet(eyeIdleSprite, 196, 128);
+const mouthIdle = new SpriteSheet(mouthIdleSprite, 196, 128);
+const mouthRoar = new SpriteSheet(mouthRoarSprite, 196, 128);
 
 export class Boss extends Entity
 {
@@ -17,11 +40,101 @@ export class Boss extends Entity
     {
         super.onAdded();
 
-        const width = 50;
-        const height = 50;
+        const width = 196;
+        const height = 128;
 
-        this.addComponent(new RenderRect(0, 0, width, height, 0x0700ff, 0xff0000));
-        this.addComponent(new RenderRect(5, 5, 40, 40, 0x00ff00, 0xff0000));
+        const sheet = earIdle.textureSliceFromSheet();
+        Log.info(sheet);
+
+        this.addComponent(new AnimatedSpriteController(0, [
+            {
+                id: 0,
+                textures: earIdle.textureSliceFromSheet(),
+                config: {
+                    animationEndAction: AnimationEnd.LOOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            }
+        ]));
+
+        this.addComponent(new AnimatedSpriteController(0, [
+            {
+                id: 0,
+                textures: eyeIdle.textureSliceFromSheet(),
+                config: {
+                    animationEndAction: AnimationEnd.LOOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            },
+            {
+                id: 1,
+                textures: eyeBlink.textureSliceFromSheet(),
+                config: {
+                    animationEndAction: AnimationEnd.LOOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            }
+        ]));
+
+        const mouthRoarStart = mouthRoar.textureSliceFromRow(0, 0, 8);
+        const mouthRoarOpen = mouthRoar.textureSliceFromRow(0, 9, 9);
+        const mouthRoarEnd = mouthRoar.textureSliceFromRow(0, 10, 14);
+
+        enum RoarAnimStates {
+            IDLE,
+            START_ROAR,
+            OPEN_ROAR,
+            END_ROAR,
+        }
+
+        this.addComponent(new AnimatedSpriteController(RoarAnimStates.IDLE, [
+            {
+                id: RoarAnimStates.IDLE,
+                textures: mouthIdle.textureSliceFromSheet(),
+                config: {
+                    animationEndAction: AnimationEnd.LOOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            },
+            {
+                id: RoarAnimStates.START_ROAR,
+                textures: mouthRoarStart,
+                config: {
+                    animationEndAction: AnimationEnd.STOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            },
+            {
+                id: RoarAnimStates.OPEN_ROAR,
+                textures: mouthRoarOpen,
+                config: {
+                    animationEndAction: AnimationEnd.STOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            },
+            {
+                id: RoarAnimStates.END_ROAR,
+                textures: mouthRoarEnd,
+                config: {
+                    animationEndAction: AnimationEnd.STOP,
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                }
+            },
+        ]));
 
         const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
         rocketAttackTimer.onTrigger.register(this.instantiateRocketAttack);

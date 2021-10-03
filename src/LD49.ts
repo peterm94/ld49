@@ -237,6 +237,6 @@ class MainScene extends Scene
         this.addSystem(new GameStatusUpdater());
 
         // Enemies.
-        this.addEntity(new Boss(this.camera.width - 150, 20));
+        this.addEntity(new Boss(this.camera.width / 2, 55));
     }
 }
