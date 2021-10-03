@@ -20,7 +20,7 @@ import {Ammunition} from "../Common/Ammunition";
 import {PickupCount} from "../Pickups/Pickup";
 import {GameStatus} from "../GameManagement/GameStatus";
 import beeSprite from '../Art/bee.png';
-import beeMoveSprite from '../Art/bee-move.png';
+import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";

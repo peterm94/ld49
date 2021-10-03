@@ -21,7 +21,7 @@ import {Boss} from "./Enemy/Boss/Boss";
 import {tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
 import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
-import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
+import {BossHealthUpdater, GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
 import {AmmunitionSpawner} from "./Pickups/AmmunitionPickup";
 import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
@@ -166,7 +166,8 @@ class MainScene extends Scene
 
         // Global entities.
         this.addGUIEntity(new Diagnostics("white", 5, true));
-        this.addGUIEntity(new GameStatusDisplay(320, 190));
+        // this.addGUIEntity(new GameStatusDisplay(320, 190));
+        this.addGUIEntity(new GameStatusDisplay(10,30 ));
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         if (viewCollisionSystem)
@@ -236,6 +237,7 @@ class MainScene extends Scene
         this.addSystem(new PlayerDropper());
         this.addSystem(new PlayerResetter());
         this.addSystem(new GameStatusUpdater());
+        this.addSystem(new BossHealthUpdater());
 
         // Enemies.
         this.addEntity(new Boss(this.camera.width / 2, 55));

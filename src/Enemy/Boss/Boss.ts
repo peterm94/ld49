@@ -101,6 +101,9 @@ export class Boss extends Entity
         const mouthRoarOpen = mouthRoar.textureSliceFromRow(0, 9, 9);
         const mouthRoarEnd = mouthRoar.textureSliceFromRow(0, 10, 14);
 
+        // Smoother end roar, this should probably be done in Aseprite but oh well.
+        mouthRoarEnd.unshift(mouthRoarStart[mouthRoarStart.length - 1]);
+
         enum RoarAnimStates
         {
             IDLE,
@@ -147,6 +150,7 @@ export class Boss extends Entity
                         // TODO why can't I trigger it from END_ROAR? it gets stuck and has to catch up?
                         this.addComponent(new Timer(4000, roarSpr)).onTrigger.register((caller, data) => {
                             data.setAnimation(RoarAnimStates.IDLE);
+                            addRoarTimer();
                         });
                     },
                     animationSpeed: 200,
