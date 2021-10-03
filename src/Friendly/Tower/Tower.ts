@@ -8,7 +8,6 @@ import {
     Log,
     MathUtil,
     RectCollider,
-    RenderRect,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -220,30 +219,4 @@ export class Tower extends Entity
         }
         ammunition.removeAmmo(1);
     }
-}
-
-
-export class DestroyedTower extends Entity
-{
-    constructor(x: number, y: number)
-    {
-        super("destroyedTower", x, y);
-    }
-
-    onAdded()
-    {
-        super.onAdded();
-
-        const width = 10;
-        const height = 25;
-        this.addComponent(new RenderRect(0, 0, width, height, 0xadadad, 0xadadad));
-
-        this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    layer: Layers.tower,
-                    height: height, width: width
-                }));
-    }
-
 }
