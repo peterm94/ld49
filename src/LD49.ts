@@ -21,7 +21,7 @@ import {tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
 import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
 import {GameStatusDisplay, GameStatusUpdater} from "./GameManagement/GameStatus";
-import {AmmunitionPickup} from "./Pickups/AmmunitionPickup";
+import {AmmunitionPickup, AmmunitionSpawner} from "./Pickups/AmmunitionPickup";
 import {TileManager} from "./World/TileManager";
 import {Tower} from "./Friendly/Tower/Tower";
 import {ProjectileMover} from "./Common/ProjectileMover";
@@ -216,7 +216,7 @@ class MainScene extends Scene
         this.addEntity(new Player(30, 30));
 
         // Pickups.
-        this.addEntity(new AmmunitionPickup(400, 200));
+        this.addEntity(new AmmunitionSpawner());
 
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
