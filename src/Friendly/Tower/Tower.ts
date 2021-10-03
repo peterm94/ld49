@@ -1,13 +1,13 @@
 import {
     AnimatedSpriteController,
     AnimationEnd,
+    CircleCollider,
     Collider,
     CollisionSystem,
     Component,
     Entity,
     Log,
     MathUtil,
-    RectCollider,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -26,7 +26,7 @@ import turretSpr from "../../Art/turret.png";
 // 33 - 40 drain
 // 40 empty idle
 import turretCanSpr from "../../Art/turret-canister.png";
-import {Player} from "../../Player/Player";
+import {Player, PlayerFalling} from "../../Player/Player";
 import {AmmunitionStatus} from "../../GameManagement/AmmunitionStatus";
 
 // containers 17,19 21,17, 25,15, 29,13
@@ -99,26 +99,6 @@ export class Tower extends Entity
         const fireRateS = 5;
         const maxAmmo = 4;
 
-        let cans: CanisterArray;
-        if (this.flipped)
-        {
-            cans = this.addComponent(new CanisterArray([
-                this.addChild(new Can(28, 13, this.flipped)),
-                this.addChild(new Can(32, 15, this.flipped)),
-                this.addChild(new Can(36, 17, this.flipped)),
-                this.addChild(new Can(40, 19, this.flipped))
-            ]));
-        }
-        else
-        {
-            cans = this.addComponent(new CanisterArray([
-                this.addChild(new Can(29, 13, this.flipped)),
-                this.addChild(new Can(25, 15, this.flipped)),
-                this.addChild(new Can(21, 17, this.flipped)),
-                this.addChild(new Can(17, 19, this.flipped))
-            ]));
-        }
-
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -156,6 +136,27 @@ export class Tower extends Entity
             }
         ]));
 
+        let cans: CanisterArray;
+        if (this.flipped)
+        {
+            cans = this.addComponent(new CanisterArray([
+                this.addChild(new Can(28, 13, this.flipped)),
+                this.addChild(new Can(32, 15, this.flipped)),
+                this.addChild(new Can(36, 17, this.flipped)),
+                this.addChild(new Can(40, 19, this.flipped))
+            ]));
+        }
+        else
+        {
+            cans = this.addComponent(new CanisterArray([
+                this.addChild(new Can(29, 13, this.flipped)),
+                this.addChild(new Can(25, 15, this.flipped)),
+                this.addChild(new Can(21, 17, this.flipped)),
+                this.addChild(new Can(17, 19, this.flipped))
+            ]));
+        }
+
+
         const health = this.addComponent(new Health(100, 100));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
 
@@ -168,13 +169,8 @@ export class Tower extends Entity
         });
 
         const collider = this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    layer: Layers.tower,
-                    height: height,
-                    width: width
-                })
-        );
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
+                {layer: Layers.tower, radius: 15}));
 
         collider.onTriggerEnter.register((c, d) => this.receiveAmmo(c, d, ammunition, cans));
         collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
@@ -206,6 +202,12 @@ export class Tower extends Entity
         const other = data.other.getEntity();
         if (other instanceof Player)
         {
+            if (other.getComponent(PlayerFalling))
+            {
+                // Player is falling, don't reload.
+                return;
+            }
+
             const playerAmmo = other.getComponent<Ammunition>(Ammunition);
             if (playerAmmo)
             {

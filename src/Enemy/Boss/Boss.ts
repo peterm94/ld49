@@ -1,18 +1,17 @@
 import {
     AnimatedSpriteController,
     AnimationEnd,
+    CircleCollider,
     Collider,
     CollisionSystem,
     Component,
     Entity,
     Log,
-    MathUtil,
-    RectCollider,
+    MathUtil, ScreenShake,
     SpriteSheet,
     Timer
 } from "lagom-engine";
 import {Health} from "../../Common/Health";
-import {HealthBar} from "../../Common/HealthBar";
 import {Layers} from "../../Layers";
 import {TowerBeeAttack} from "../../Friendly/Tower/TowerBeeAttack";
 import {Attack} from "../../Common/Attack";
@@ -23,6 +22,7 @@ import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
 import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
 import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
 import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
+import {BearStatus} from "../../GameManagement/GameStatus";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -41,13 +41,8 @@ export class Boss extends Entity
     {
         super.onAdded();
 
-        const width = 196;
-        const height = 128;
-
-        const sheet = earIdle.textureSliceFromSheet();
-        // Log.info(sheet);
-
-        const earsSpr = this.addComponent(new AnimatedSpriteController(0, [
+        const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
+        const earsSpr = ears.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: earIdle.textureSliceFromSheet(),
@@ -60,15 +55,18 @@ export class Boss extends Entity
             }
         ]));
 
+
+        const eyes = this.addChild(new Entity("eyes", 0, 0, Layers.boss));
+
         const addBlinkTimer = () => {
-            this.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), eyesSpr, false)).onTrigger
+            eyes.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), eyesSpr, false)).onTrigger
                 .register((caller, data) => {
                     data.setAnimation(1);
+                    data.reset();
                 });
         };
 
-
-        const eyesSpr = this.addComponent(new AnimatedSpriteController(0, [
+        const eyesSpr = eyes.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: eyeIdle.textureSliceFromSheet(),
@@ -112,7 +110,17 @@ export class Boss extends Entity
             END_ROAR,
         }
 
-        const roarSpr = this.addComponent(new AnimatedSpriteController(RoarAnimStates.IDLE, [
+        const mouth = this.addChild(new Entity("mouth", 0, 0, Layers.boss));
+
+        const addRoarTimer = () => {
+            mouth.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), roarSpr, false)).onTrigger
+                 .register((caller, data) => {
+                     data.setAnimation(1);
+                 });
+        };
+
+
+        const roarSpr = mouth.addComponent(new AnimatedSpriteController(RoarAnimStates.IDLE, [
             {
                 id: RoarAnimStates.IDLE,
                 textures: mouthIdle.textureSliceFromSheet(),
@@ -134,6 +142,7 @@ export class Boss extends Entity
                     animationEndEvent: () => {
                         // Pause the ears for the roar duration.
                         earsSpr.nextTriggerTime += 3000;
+                        roarSpr.getEntity().addComponent(new ScreenShake(0.3, 3000));
                         roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
                     }
                 }
@@ -144,11 +153,11 @@ export class Boss extends Entity
                 config: {
                     animationEndAction: AnimationEnd.STOP,
                     animationEndEvent: () => {
-                        this.addComponent(new Timer(3000, roarSpr)).onTrigger.register((caller, data) => {
+                        mouth.addComponent(new Timer(3000, roarSpr)).onTrigger.register((caller, data) => {
                             data.setAnimation(RoarAnimStates.END_ROAR);
                         });
                         // TODO why can't I trigger it from END_ROAR? it gets stuck and has to catch up?
-                        this.addComponent(new Timer(4000, roarSpr)).onTrigger.register((caller, data) => {
+                        mouth.addComponent(new Timer(4000, roarSpr)).onTrigger.register((caller, data) => {
                             data.setAnimation(RoarAnimStates.IDLE);
                             addRoarTimer();
                         });
@@ -174,13 +183,6 @@ export class Boss extends Entity
             }
         ]));
 
-        const addRoarTimer = () => {
-            this.addComponent(new Timer(MathUtil.randomRange(2000, 10_000), roarSpr, false)).onTrigger
-                .register((caller, data) => {
-                    data.setAnimation(1);
-                });
-        };
-
         addRoarTimer();
 
         const rocketAttackTimer = this.addComponent(new Timer(5 * 1000, null, true));
@@ -188,17 +190,15 @@ export class Boss extends Entity
 
         const health = this.addComponent(new Health(1000, 1000));
 
-        // TODO Big health bar at the top of the screen instead?
-        const healthBar = this.addChild(new HealthBar("boss_health", 0, 0, Layers.boss, 0, 0, 55));
-
         const collider = this.addComponent(
-            new RectCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {
-                    layer: Layers.boss,
-                    width: width, height: height
-                }));
+            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem), {
+                layer: Layers.boss,
+                radius: 20
+            }));
 
-        collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health, healthBar));
+        collider.onTriggerEnter.register((c, d) => this.getAttacked(c, d, health));
+
+        this.getScene().addGUIEntity(new BearStatus(10, 30, health));
     }
 
     instantiateRocketAttack(caller: Component)
@@ -216,7 +216,7 @@ export class Boss extends Entity
         caller.getScene().addEntity(new BossRocketAttack(x, y, Layers.bossAttack, target));
     }
 
-    getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health, healthBar: HealthBar)
+    getAttacked(caller: Collider, data: { other: Collider; result: unknown }, health: Health)
     {
         const other = data.other.getEntity();
         if (other instanceof TowerBeeAttack)
@@ -227,7 +227,6 @@ export class Boss extends Entity
                 health.removeHealth(attackDetails.getDamage());
                 other.destroy();
 
-                healthBar.remainingHealthPercentage = health.getPercentageRemaining();
                 if (health.isEmpty())
                 {
                     // TODO Destroy the tower? Maybe a system listener instead since we need to replace with a

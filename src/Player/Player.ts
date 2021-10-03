@@ -22,7 +22,7 @@ import beeSprite from '../Art/bee.png';
 import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
-import {BossRocketAttack} from "../Enemy/Boss/BossRocketAttack";
+import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
 import {screenHeight} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
@@ -30,6 +30,14 @@ import {HealthStatus} from "../GameManagement/HealthStatus";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
+
+export class GroundCount extends Component
+{
+    constructor(public groundCount: number)
+    {
+        super();
+    }
+}
 
 export class Player extends Entity
 {
@@ -49,6 +57,7 @@ export class Player extends Entity
         const maxHealth = 3;
         const maxAmmo = 2;
 
+        this.addComponent(new GroundCount(0));
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -61,7 +70,7 @@ export class Player extends Entity
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
             }
         ]));
-        this.addComponent(new PlayerController(Key.KeyW, Key.KeyS, Key.KeyA, Key.KeyD));
+        this.addComponent(new PlayerController());
 
         const health = this.addComponent(new Health(maxHealth, maxHealth));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
@@ -120,6 +129,11 @@ export class Player extends Entity
 
     registerPickup(caller: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
     {
+        if (caller.getEntity().getComponent(PlayerFalling))
+        {
+            // Player is falling, no honey
+            return;
+        }
         const other = data.other.getEntity();
         if (other instanceof AmmunitionPickup)
         {
@@ -168,6 +182,7 @@ export class Player extends Entity
             {
                 health.removeHealth(attackDetails.getDamage());
                 other.destroy();
+                this.getScene().addEntity(new BossRocketExplosion(this.transform.x, this.transform.y));
 
                 // Update the scoreboard.
                 const healthStatusDisplay = this.getScene().getEntityWithName("healthStatusDisplay");
@@ -187,10 +202,10 @@ export class Player extends Entity
 
 export class PlayerController extends Component
 {
-    constructor(public upKey: Key, public downKey: Key, public leftKey: Key, public rightKey: Key)
-    {
-        super();
-    }
+    public upKey = Key.KeyW;
+    public downKey = Key.KeyS;
+    public leftKey = Key.KeyA;
+    public rightKey = Key.KeyD;
 }
 
 export class PlayerMover extends System
@@ -289,6 +304,7 @@ export class PlayerResetter extends System
             if (falling)
             {
                 entity.removeComponent(falling, true);
+                entity.addComponent(new PlayerController());
                 const playerSpawns = entity.getScene().entities.filter(entity => entity.name === "player_spawn");
                 if (playerSpawns.length)
                 {
