@@ -112,12 +112,18 @@ export class Player extends Entity
     {
         if (caller.getEntity().getComponent(PlayerFalling))
         {
-            // Player is falling, no honey
+            // Player is falling, no honey.
             return;
         }
         const other = data.other.getEntity();
         if (other instanceof AmmunitionPickup)
         {
+            if (ammunition.getCurrentAmmo() === ammunition.maxAmmo)
+            {
+                // Can't pick up ammo if we're already full.
+                return;
+            }
+
             const pickupDetails = other.getComponent<PickupCount>(PickupCount);
             if (pickupDetails)
             {
