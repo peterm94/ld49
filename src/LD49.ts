@@ -34,7 +34,7 @@ import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 import bearRoarWav from "./Sound/roar.wav";
 import explosionWav from "./Sound/explosion.wav";
 import rocketNoiseWav from "./Sound/rocket_noise.wav";
-import crackWav from "./Sound/crack.wav";
+import crackWav from "./Sound/crack2.wav";
 import voopWav from "./Sound/voop.wav";
 import refill1 from "./Sound/refill_1.wav";
 import refill2 from "./Sound/refill_2.wav";
