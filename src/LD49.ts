@@ -48,6 +48,7 @@ import winSpr from "./Art/splash/victory.png";
 import beeShootWav from "./Sound/bee_shot.wav";
 import pawEffect from "./Sound/paw_effect.wav";
 import {HealthSpawner} from "./Pickups/HealthPickup";
+import grooveMusic from "./Sound/music.mp3";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -78,7 +79,7 @@ export class LD49 extends Game
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.6);
         LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
-        LD49.audioAtlas.load("rocketExplosion", explosionWav).volume(0.3);
+        LD49.audioAtlas.load("rocketExplosion", explosionWav).volume(0.15);
         LD49.audioAtlas.load("fallThroughFloor", rocketNoiseWav).volume(0.1);
         LD49.audioAtlas.load("crack", crackWav).volume(0.15);
         LD49.audioAtlas.load("voop", voopWav).volume(0.1);
@@ -87,8 +88,12 @@ export class LD49 extends Game
         LD49.audioAtlas.load("refill_2", refill2).volume(0.5);
         LD49.audioAtlas.load("refill_3", refill3).volume(0.5);
         LD49.audioAtlas.load("refill_4", refill4).volume(0.5);
-        LD49.audioAtlas.load("beeShoot", beeShootWav).volume(0.1);
+        LD49.audioAtlas.load("beeShoot", beeShootWav).volume(0.08);
         LD49.audioAtlas.load("pawEffect", pawEffect).volume(0.1);
+
+        const music = LD49.audioAtlas.load("music", grooveMusic);
+        music.loop(true);
+        music.volume(0.25);
 
         this.setScene(new MainScene(this));
     }
