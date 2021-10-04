@@ -28,7 +28,7 @@ import {ProjectileMover} from "./Common/ProjectileMover";
 
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
-import {titleScreen, viewCollisionSystem} from "./index";
+import {pressedKeys, titleScreen, viewCollisionSystem} from "./index";
 import {AmmunitionStatusDisplay} from "./GameManagement/AmmunitionStatus";
 import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 
@@ -169,7 +169,7 @@ class ClickListener extends GlobalSystem
     {
         this.runOnComponents((clickActions: ClickAction[]) => {
 
-            if (Game.mouse.isButtonPressed(0))
+            if (Game.mouse.isButtonPressed(0) || pressedKeys.size > 0)
             {
                 for (const action of clickActions)
                 {
