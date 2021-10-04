@@ -149,7 +149,7 @@ export class Boss extends Entity
             let timeBetweenAttacks = 2_000;
             if (bossPhase.currentPhase === BossPhases.PHASE_2)
             {
-                timeBetweenAttacks = MathUtil.randomRange(2_000, 10_000);
+                timeBetweenAttacks = MathUtil.randomRange(2_000, 8_000);
             }
             else if (bossPhase.currentPhase === BossPhases.PHASE_3)
             {
@@ -157,7 +157,7 @@ export class Boss extends Entity
             }
             else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
             {
-                timeBetweenAttacks = MathUtil.randomRange(4_000, 8_000);
+                timeBetweenAttacks = MathUtil.randomRange(3_000, 8_000);
             }
             mouth.addComponent(new Timer(timeBetweenAttacks, roarSpr, false)).onTrigger
                  .register((caller, data) => {
@@ -197,7 +197,7 @@ export class Boss extends Entity
                         const bigRoar = bossPhase.currentPhase === BossPhases.FINAL_PHASE;
                         const roarLengthMs = bigRoar ? 4000 : 3000;
                         const roarIntensity = bigRoar ? 0.5 : 0.3;
-                        let numberOfTiles = 15;// = bigRoar ? 40 : 15;
+                        let numberOfTiles = 20;// = bigRoar ? 40 : 15;
 
                         // Big difficulty shift for the final phase.
                         switch (bossPhase.currentPhase) {
@@ -205,7 +205,7 @@ export class Boss extends Entity
                                 numberOfTiles = 40;
                                 break;
                             case BossPhases.PHASE_3:
-                                numberOfTiles = 25;
+                                numberOfTiles = 30;
                                 break;
                         }
 
