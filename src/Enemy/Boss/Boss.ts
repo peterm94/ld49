@@ -70,7 +70,7 @@ export class Boss extends Entity
     onAdded()
     {
         super.onAdded();
-        const health = this.addComponent(new Health(80, 80));
+        const health = this.addComponent(new Health(50, 50));
         const bossPhase = this.addComponent(new BossPhase(BossPhases.PHASE_1));
 
         const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
@@ -193,11 +193,22 @@ export class Boss extends Entity
                     yAnchor: 0.5,
                     xAnchor: 0.5,
                     animationEndEvent: () => {
-                        // Big difficulty shift for the final phase.
+
                         const bigRoar = bossPhase.currentPhase === BossPhases.FINAL_PHASE;
                         const roarLengthMs = bigRoar ? 4000 : 3000;
                         const roarIntensity = bigRoar ? 0.5 : 0.3;
-                        const numberOfTiles = bigRoar ? 40 : 15;
+                        let numberOfTiles = 15;// = bigRoar ? 40 : 15;
+
+                        // Big difficulty shift for the final phase.
+                        switch (bossPhase.currentPhase) {
+                            case BossPhases.FINAL_PHASE:
+                                numberOfTiles = 40;
+                                break;
+                            case BossPhases.PHASE_3:
+                                numberOfTiles = 25;
+                                break;
+                        }
+
 
                         // Pause the ears for the roar duration.
                         earsSpr.nextTriggerTime += 3000;
@@ -253,15 +264,15 @@ export class Boss extends Entity
             let timeBetweenAttacks = 5;
             if (bossPhase.currentPhase === BossPhases.PHASE_2)
             {
-                timeBetweenAttacks = 4;
+                timeBetweenAttacks = 3;
             }
             else if (bossPhase.currentPhase === BossPhases.PHASE_3)
             {
-                timeBetweenAttacks = 3;
+                timeBetweenAttacks = 2;
             }
             else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
             {
-                timeBetweenAttacks = 2;
+                timeBetweenAttacks = 3;
             }
             this.addComponent(new Timer(timeBetweenAttacks * 1000, null)).onTrigger.register((caller) => {
                 if (bossPhase.currentPhase <= BossPhases.PHASE_1 && bossPhase.currentPhase !== BossPhases.DEAD)
