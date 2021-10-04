@@ -31,6 +31,7 @@ import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
 import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
 import {BossPhase, BossPhases} from "./BossPhase";
+import {EndScreen} from "../../LD49";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -200,7 +201,8 @@ export class Boss extends Entity
                         let numberOfTiles = 20;// = bigRoar ? 40 : 15;
 
                         // Big difficulty shift for the final phase.
-                        switch (bossPhase.currentPhase) {
+                        switch (bossPhase.currentPhase)
+                        {
                             case BossPhases.FINAL_PHASE:
                                 numberOfTiles = 40;
                                 break;
@@ -347,8 +349,13 @@ export class Boss extends Entity
                 bossPhase.updatePhase(health.getPercentageRemaining());
                 if (bossPhase.currentPhase === BossPhases.DEAD)
                 {
-                    // TODO Destroy the Boss? Death animation? Win screen?
-                    Log.error("Boss is dead!");
+                    // TODO Destroy the Boss? Death animation?
+                    Log.info("Boss is dead!");
+                    const game = this.getScene().getGame();
+                    this.getScene().entities.forEach(x => x.destroy());
+                    this.getScene().systems.forEach(x => x.destroy());
+                    this.getScene().globalSystems.forEach(x => x.destroy());
+                    game.setScene(new EndScreen(game, true));
                 }
             }
         }

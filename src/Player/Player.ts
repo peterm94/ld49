@@ -8,7 +8,7 @@ import {
     Game,
     Key,
     Log,
-    RectCollider, RenderCircle,
+    RectCollider,
     SpriteSheet,
     System,
     Util,
@@ -23,16 +23,14 @@ import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
-import {LD49, screenHeight, screenWidth} from "../LD49";
+import {EndScreen, LD49, screenHeight} from "../LD49";
 import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
 import {HealthStatus} from "../GameManagement/HealthStatus";
-import endScreenImg from "../Art/splash/game-over.png";
 import {SoundManager} from "../SoundManager/SoundManager";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
-const endScreen = new SpriteSheet(endScreenImg, screenWidth, screenHeight);
 
 export class GroundCount extends Component
 {
@@ -175,8 +173,13 @@ export class Player extends Entity
 
         if (health.getCurrentHealth() == 0)
         {
-            Log.error("DEAD");
-            // this.getScene().addGUIEntity(new ScreenCard(endScreen,1));
+            // TODO explode into bees? Paused for effect?
+            Log.info("DEAD");
+            const game = this.getScene().getGame();
+            this.getScene().entities.forEach(x => x.destroy());
+            this.getScene().systems.forEach(x => x.destroy());
+            this.getScene().globalSystems.forEach(x => x.destroy());
+            game.setScene(new EndScreen(game, false));
         }
     }
 
