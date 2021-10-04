@@ -2,6 +2,7 @@ import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, SpriteSh
 import handSprite from "../../Art/bear-paw.png";
 import {BossRocketAttack} from "./BossRocketAttack";
 import {Layers} from "../../Layers";
+import {SoundManager} from "../../SoundManager/SoundManager";
 
 const bearHands = new SpriteSheet(handSprite, 64, 64);
 
@@ -47,6 +48,7 @@ export class BearHand extends Entity
             }]));
 
         this.addComponent(new FadeIn(1, 1));
+        (this.scene.getEntityWithName("audio") as SoundManager).playSound("pawEffect");
     }
 }
 
