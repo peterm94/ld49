@@ -13,6 +13,7 @@ import {
     LogLevel,
     Scene,
     ScreenShaker,
+    SpriteSheet,
     Timer,
     TimerSystem
 } from "lagom-engine";
@@ -42,12 +43,17 @@ import refill3 from "./Sound/refill_3.wav";
 import refill4 from "./Sound/refill_4.wav";
 import squelch from "./Sound/squelch.wav";
 import {BackgroundBees} from "./World/WorkerBees";
+import loseSpr from "./Art/splash/game-over.png";
+import winSpr from "./Art/splash/victory.png";
 import beeShootWav from "./Sound/bee_shot.wav";
 import pawEffect from "./Sound/paw_effect.wav";
 import {HealthSpawner} from "./Pickups/HealthPickup";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
+
+const youLoseScreen = new SpriteSheet(loseSpr, screenWidth, screenHeight);
+const youWinScreen = new SpriteSheet(winSpr, screenWidth, screenHeight);
 
 const matrix = new CollisionMatrix();
 matrix.addCollision(Layers.playerGround, Layers.hexagons);
@@ -170,6 +176,29 @@ class ClickListener extends GlobalSystem
     }
 }
 
+export class EndScreen extends Scene
+{
+    constructor(game: Game, readonly win: boolean)
+    {
+        super(game);
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addGUIEntity(new ScreenCard(this.win ? youWinScreen.textureSliceFromSheet()
+                                                  : youLoseScreen.textureSliceFromSheet(), 1));
+        if (this.win)
+        {
+            MainScene.firstLoad = true;
+        }
+
+        this.addGlobalSystem(new FrameTriggerSystem());
+        this.addGlobalSystem(new TimerSystem());
+        this.addGlobalSystem(new ClickListener());
+        // this.addGUIEntity(new SoundManager());
+    }
+}
 
 class MainScene extends Scene
 {
@@ -189,7 +218,6 @@ class MainScene extends Scene
 
     startGame()
     {
-
         // Global entities.
         // this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addGUIEntity(new AmmunitionStatusDisplay(screenWidth - 20, screenHeight - 20));
