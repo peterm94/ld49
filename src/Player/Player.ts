@@ -75,7 +75,7 @@ class AmIInTheAir extends System
 
     update(delta: number): void
     {
-
+        // not empty
     }
 
     fall(player: Player, gc: GroundCount)
