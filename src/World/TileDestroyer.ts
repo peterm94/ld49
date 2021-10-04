@@ -1,6 +1,21 @@
-import {Component, Entity, Log, MathUtil, Scene, Sprite, Timer, Util} from "lagom-engine";
+import {
+    AnimatedSprite,
+    AnimationEnd,
+    Component,
+    Entity,
+    Log,
+    MathUtil,
+    Scene,
+    Sprite,
+    SpriteSheet,
+    Timer,
+    Util
+} from "lagom-engine";
 import {NoTile} from "./WorldGen";
 import {SoundManager} from "../SoundManager/SoundManager";
+import tileCrackSprite from "../Art/coloured-hex-craking.png";
+
+const tileCrack = new SpriteSheet(tileCrackSprite, 32, 20);
 
 export class TileDestroyer extends Component
 {
@@ -34,7 +49,7 @@ export class TileDestroyer extends Component
             }
 
             tilesToDelete.forEach((tile) => {
-                const startTimeBufferMs = timeFrameMs * (MathUtil.randomRange(0, 25) / 100);
+                const startTimeBufferMs = timeFrameMs * (MathUtil.randomRange(0, 35) / 100);
 
                 // Tile goes seethru before it disappears.
                 const tileSprite = tile.getComponent<Sprite>(Sprite);
@@ -50,6 +65,10 @@ export class TileDestroyer extends Component
                 tile.addComponent(new Timer(startTimeBufferMs, null, false))
                     .onTrigger.register((_) => {
                     tileSprite.applyConfig({alpha: seethroughTileAlpha});
+                    tile.removeComponent(tileSprite, true);
+                    tile.addComponent(new AnimatedSprite(tileCrack.textureSliceFromSheet(),
+                                      {animationSpeed: 100, animationEndAction: AnimationEnd.STOP}));
+
                     (this.getScene().getEntityWithName("audio") as SoundManager).playSound("crack");
 
                     tile.addComponent(new Timer(seethroughDurationMs, null, false))
