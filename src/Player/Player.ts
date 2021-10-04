@@ -5,7 +5,6 @@ import {
     CollisionSystem,
     Component,
     Entity,
-    Game,
     Key,
     Log,
     RectCollider,
@@ -36,9 +35,56 @@ const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
 
 export class GroundCount extends Component
 {
-    constructor(public groundCount: number)
+    frames = 0;
+
+    constructor(public groundCount: number, public layer: number, public grounds: Entity[] = [])
     {
         super();
+    }
+}
+
+class AmIInTheAir extends System
+{
+    types = () => [GroundCount, PlayerController];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, gc: GroundCount) => {
+            if (gc.grounds.length > 0)
+            {
+                gc.frames = 0;
+                return;
+            }
+            gc.frames++;
+
+            if (gc.frames > 1)
+            {
+                gc.frames = 0;
+                this.fall(entity as Player, gc);
+            }
+        });
+    }
+
+    fall(player: Player, gc: GroundCount)
+    {
+        (this.scene.getEntityWithName("audio") as SoundManager).playSound("fallThroughFloor");
+        player.addComponent(new PlayerFalling(gc.layer));
+        player.depth = Layers.playerFalling;
+        const controller = player.getComponent(PlayerController);
+        if (controller)
+        {
+            player.removeComponent(controller, true);
+        }
+        const playerHealth = player.getComponent<Health>(Health);
+        if (playerHealth)
+        {
+            player.receiveDamage(1, playerHealth);
+        }
+        const playerAmmo = player.getComponent<Ammunition>(Ammunition);
+        if (playerAmmo)
+        {
+            player.removeAmmo(playerAmmo.getCurrentAmmo(), playerAmmo);
+        }
     }
 }
 
@@ -60,7 +106,7 @@ export class Player extends Entity
         const maxHealth = 3;
         const maxAmmo = 3;
 
-        this.addComponent(new GroundCount(0));
+        this.addComponent(new GroundCount(0, 0));
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -79,6 +125,7 @@ export class Player extends Entity
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
         this.updatePlayerAmmoGUI(ammunition);
         this.updatePlayerHealthGUI(health);
+        this.getScene().addSystem(new AmIInTheAir());
         // this.addComponent(new RenderCircle(0, 4, 1, 0xFF0000));
 
         // Handle moving into things.
