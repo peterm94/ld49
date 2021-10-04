@@ -367,11 +367,11 @@ export class Boss extends Entity
 
         if (tileManager)
         {
-            const thig = tileManager.getComponent<TileDestroyer>(TileDestroyer);
+            const thingDestroyer = tileManager.getComponent<TileDestroyer>(TileDestroyer);
 
-            if (thig)
+            if (thingDestroyer)
             {
-                thig.removeRandomTilesOverTime(scene, timeWindowMs, numberOfTiles);
+                thingDestroyer.removeRandomTilesOverTime(scene, timeWindowMs, numberOfTiles);
             }
         }
     }

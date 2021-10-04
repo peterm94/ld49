@@ -129,6 +129,7 @@ export class Tower extends Entity
                     },
                     29: () => {
                         this.fireShot(cans, ammunition);
+                        (this.scene.getEntityWithName("audio") as SoundManager).playSound("beeShoot");
                     }
                 }
             }
@@ -158,10 +159,9 @@ export class Tower extends Entity
 
         this.addComponent(new Timer(initialDelay, null)).onTrigger.register((_ => {
             this.addComponent(new Timer(fireRateS * 1000, null, true)).onTrigger.register(_ => {
-                if (ammunition.getCurrentAmmo() > 0)
+                if (!ammunition.isEmpty())
                 {
                     spr.setAnimation(1, true);
-                    (this.scene.getEntityWithName("audio") as SoundManager).playSound("towerShoot");
                 }
             });
         }));
@@ -237,7 +237,7 @@ export class Tower extends Entity
 
     fireShot(caller: Component, ammunition: Ammunition)
     {
-        if (ammunition.getCurrentAmmo() <= 0)
+        if (ammunition.isEmpty())
         {
             return;
         }

@@ -17,7 +17,7 @@ import {
 import {Layers} from "../Layers";
 import {AmmunitionPickup} from "../Pickups/AmmunitionPickup";
 import {Ammunition} from "../Common/Ammunition";
-import {PickupCount} from "../Pickups/Pickup";
+import {PickupCount} from "../Pickups/PickupCount";
 import beeSprite from '../Art/bee.png';
 import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
@@ -28,6 +28,7 @@ import {Tower} from "../Friendly/Tower/Tower";
 import {AmmunitionStatus} from "../GameManagement/AmmunitionStatus";
 import {HealthStatus} from "../GameManagement/HealthStatus";
 import {SoundManager} from "../SoundManager/SoundManager";
+import {HealthPickup} from "../Pickups/HealthPickup";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -88,7 +89,7 @@ export class Player extends Entity
                     yOff: 4
                 }));
 
-        movementCollider.onTriggerEnter.register((c, d) => this.registerPickup(c, d, ammunition));
+        movementCollider.onTriggerEnter.register((c, d) => this.registerPickup(c, d, ammunition, health));
 
         // Handle getting hit.
         const spriteWidth = 10;
@@ -107,29 +108,44 @@ export class Player extends Entity
         hitCollider.onTriggerEnter.register((c, d) => this.registerHit(c, d, health));
     }
 
-    registerPickup(caller: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition)
+    registerPickup(caller: Collider, data: { other: Collider, result: unknown }, ammunition: Ammunition, health: Health)
     {
         if (caller.getEntity().getComponent(PlayerFalling))
         {
-            // Player is falling, no honey.
+            // Player is falling, pickups disabled.
             return;
         }
         const other = data.other.getEntity();
+        const pickupDetails = other.getComponent<PickupCount>(PickupCount);
+        if (!pickupDetails)
+        {
+            // No details about the pickup, can't do anything.
+            return;
+        }
+
         if (other instanceof AmmunitionPickup)
         {
-            if (ammunition.getCurrentAmmo() === ammunition.maxAmmo)
+            if (ammunition.isFull())
             {
                 // Can't pick up ammo if we're already full.
                 return;
             }
 
-            const pickupDetails = other.getComponent<PickupCount>(PickupCount);
-            if (pickupDetails)
+            other.destroy();
+            (this.scene.getEntityWithName("audio") as SoundManager).playSound("pickup");
+            this.addAmmo(pickupDetails.amount, ammunition);
+        }
+        else if (other instanceof HealthPickup)
+        {
+            if (health.isFull())
             {
-                other.destroy();
-                (this.scene.getEntityWithName("audio") as SoundManager).playSound("pickup");
-                this.addAmmo(pickupDetails.amount, ammunition);
+                // Can't get more health if it's already full.
+                return;
             }
+
+            other.destroy();
+            (this.scene.getEntityWithName("audio") as SoundManager).playSound("pickup");
+            this.addHealth(pickupDetails.amount, health);
         }
     }
 
@@ -197,6 +213,14 @@ export class Player extends Entity
 
         // Update the scoreboard.
         this.updatePlayerAmmoGUI(ammunition);
+    }
+
+    addHealth(amount: number, health: Health)
+    {
+        health.addHealth(amount);
+
+        // Update the scoreboard.
+        this.updatePlayerHealthGUI(health);
     }
 
     updatePlayerHealthGUI(health: Health)

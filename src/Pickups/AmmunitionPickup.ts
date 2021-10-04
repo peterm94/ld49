@@ -1,94 +1,45 @@
-import {
-    AnimatedSprite,
-    AnimationEnd,
-    CircleCollider,
-    CollisionSystem,
-    Entity,
-    SpriteSheet,
-    Timer,
-    Util
-} from "lagom-engine";
-import {Layers} from "../Layers";
-import {PickupCount} from "./Pickup";
+import {SpriteSheet, Timer, Util} from "lagom-engine";
 
 import honeySprite1 from '../Art/honey1.png';
 import honeySprite2 from '../Art/honey2.png';
 import honeySprite3 from '../Art/honey3.png';
-import {tileSpriteWidth, tileSurfaceHeight} from "../World/WorldGen";
+import {Pickup} from "./Pickup";
+import {PickupSpawner} from "./PickupSpawner";
 
 const honey1 = new SpriteSheet(honeySprite1, 18, 16);
 const honey2 = new SpriteSheet(honeySprite2, 18, 16);
 const honey3 = new SpriteSheet(honeySprite3, 18, 16);
 
 
-export class AmmunitionPickup extends Entity
+export class AmmunitionPickup extends Pickup
 {
     constructor(x: number, y: number)
     {
-        super("ammunitionPickup", x, y, Layers.pickup);
+        super("ammunitionPickup", x, y,
+            1, 3, 2,
+            Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7), 12);
     }
 
     onAdded(): void
     {
         super.onAdded();
-        const amount = 1;
-        const flashTimer = 3;
-        const deleteTimeSeconds = flashTimer + 2;
-
-        const sprite = this.addComponent(
-            new AnimatedSprite(Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7),
-                {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP, xAnchor: 0.5, yAnchor: 0.5}));
-        this.addComponent(new PickupCount(amount));
-
-        this.addComponent(
-            new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
-                {layer: Layers.pickup, radius: 12}));
-
-        this.addComponent(new Timer(flashTimer * 1000, null, false))
-            .onTrigger.register((caller) => {
-            sprite.applyConfig({alpha: 0.6});
-        });
-
-        this.addComponent(new Timer(deleteTimeSeconds * 1000, null, false))
-            .onTrigger.register((caller) => {
-            caller.parent.destroy();
-        });
     }
 }
 
 
-export class AmmunitionSpawner extends Entity
+export class AmmunitionSpawner extends PickupSpawner
 {
     constructor()
     {
-        super("ammunitionSpawner", 0, 0);
+        super("ammunitionSpawner", 0, 0, 2.5);
     }
 
     onAdded(): void
     {
         super.onAdded();
-        const ammoSpawnFrequencySeconds = 2.5;
 
-        const timer = new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
-        timer.onTrigger.register((caller) => {
-            const scene = caller.getScene();
-            const worldgen = scene.getEntityWithName("worldgen");
-            if (!worldgen)
-            {
-                return;
-            }
-            const allTiles = worldgen.children.filter(entity => entity.name == "tile");
-            const entity = Util.choose(...allTiles);
-
-            const tileGlobalPos = entity.transform.getGlobalPosition(undefined, true);
-            const offsetFromTop = Math.floor(tileSurfaceHeight / 2) - 2;
-            const offsetFromLeft = tileSpriteWidth / 2;
-
-            const tileCenterX = tileGlobalPos.x + offsetFromLeft;
-            const tileCenterY = tileGlobalPos.y + offsetFromTop;
-
-            scene.addEntity(new AmmunitionPickup(tileCenterX, tileCenterY));
-        });
+        const timer = new Timer(this.spawnFrequencySec * 1000, null, true);
+        timer.onTrigger.register((caller) => this.spawnPickupOnRandomTile(caller, new AmmunitionPickup(0, 0)));
         this.addComponent(timer);
     }
 }

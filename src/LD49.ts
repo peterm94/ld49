@@ -35,7 +35,7 @@ import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 import bearRoarWav from "./Sound/roar.wav";
 import explosionWav from "./Sound/explosion.wav";
 import rocketNoiseWav from "./Sound/rocket_noise.wav";
-import crackWav from "./Sound/crack.wav";
+import crackWav from "./Sound/crack2.wav";
 import voopWav from "./Sound/voop.wav";
 import refill1 from "./Sound/refill_1.wav";
 import refill2 from "./Sound/refill_2.wav";
@@ -43,9 +43,11 @@ import refill3 from "./Sound/refill_3.wav";
 import refill4 from "./Sound/refill_4.wav";
 import squelch from "./Sound/squelch.wav";
 import {BackgroundBees} from "./World/WorkerBees";
-import towerShootWav from "./Sound/towerShoot.wav";
 import loseSpr from "./Art/splash/game-over.png";
 import winSpr from "./Art/splash/victory.png";
+import beeShootWav from "./Sound/bee_shot.wav";
+import pawEffect from "./Sound/paw_effect.wav";
+import {HealthSpawner} from "./Pickups/HealthPickup";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -79,14 +81,15 @@ export class LD49 extends Game
         LD49.audioAtlas.load("rocketExplosion", explosionWav).volume(0.3);
         LD49.audioAtlas.load("rocketNoise", rocketNoiseWav).volume(0.1);
         LD49.audioAtlas.load("fallThroughFloor", rocketNoiseWav).volume(0.1);
-        LD49.audioAtlas.load("crack", crackWav).volume(0.3);
+        LD49.audioAtlas.load("crack", crackWav).volume(0.15);
         LD49.audioAtlas.load("voop", voopWav).volume(0.1);
         LD49.audioAtlas.load("pickup", squelch).volume(0.3);
         LD49.audioAtlas.load("refill_1", refill1).volume(0.5);
         LD49.audioAtlas.load("refill_2", refill2).volume(0.5);
         LD49.audioAtlas.load("refill_3", refill3).volume(0.5);
         LD49.audioAtlas.load("refill_4", refill4).volume(0.5);
-        LD49.audioAtlas.load("towerShoot", towerShootWav).volume(0.1);
+        LD49.audioAtlas.load("beeShoot", beeShootWav).volume(0.1);
+        LD49.audioAtlas.load("pawEffect", pawEffect).volume(0.1);
 
         this.setScene(new MainScene(this));
     }
@@ -284,6 +287,7 @@ class MainScene extends Scene
 
         // Pickups.
         this.addEntity(new AmmunitionSpawner());
+        this.addEntity(new HealthSpawner());
         this.addEntity(new BackgroundBees());
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
