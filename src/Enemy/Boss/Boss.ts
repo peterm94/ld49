@@ -80,7 +80,7 @@ export class Boss extends Entity
     onAdded()
     {
         super.onAdded();
-        const health = this.addComponent(new Health(50, 50));
+        const health = this.addComponent(new Health(35, 35));
         const bossPhase = this.addComponent(new BossPhase(BossPhases.PHASE_1));
 
         const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
