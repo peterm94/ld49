@@ -220,10 +220,6 @@ export class Player extends Entity
 
 export class PlayerController extends Component
 {
-    public upKey = Key.KeyW;
-    public downKey = Key.KeyS;
-    public leftKey = Key.KeyA;
-    public rightKey = Key.KeyD;
 }
 
 export class PlayerMover extends System
@@ -237,20 +233,20 @@ export class PlayerMover extends System
     {
         this.runOnEntities((entity: Entity, playerController: PlayerController, spr: AnimatedSpriteController) => {
             const newPosition = new Vector(0, 0);
-            if (Game.keyboard.isKeyDown(playerController.upKey))
+            if (Game.keyboard.isKeyDown(Key.ArrowUp) || Game.keyboard.isKeyDown(Key.KeyW))
             {
                 newPosition.y -= this.hexagonHeightRatio;
             }
-            if (Game.keyboard.isKeyDown(playerController.downKey))
+            if (Game.keyboard.isKeyDown(Key.ArrowDown) || Game.keyboard.isKeyDown(Key.KeyS))
             {
                 newPosition.y += this.hexagonHeightRatio;
             }
 
-            if (Game.keyboard.isKeyDown(playerController.leftKey))
+            if (Game.keyboard.isKeyDown(Key.ArrowLeft) || Game.keyboard.isKeyDown(Key.KeyA))
             {
                 newPosition.x -= 1;
             }
-            if (Game.keyboard.isKeyDown(playerController.rightKey))
+            if (Game.keyboard.isKeyDown(Key.ArrowRight) || Game.keyboard.isKeyDown(Key.KeyD))
             {
                 newPosition.x += 1;
             }
@@ -262,7 +258,6 @@ export class PlayerMover extends System
 
             if (newPosition.x != 0 || newPosition.y != 0)
             {
-
                 spr.setAnimation(1);
             }
             else
