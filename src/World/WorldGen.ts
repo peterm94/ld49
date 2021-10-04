@@ -1,10 +1,10 @@
 import {
-    AnimatedSprite, AnimatedSpriteController, AnimationEnd,
+    AnimatedSpriteController,
+    AnimationEnd,
     CollisionSystem,
     Entity,
     MathUtil,
     PolyCollider,
-    Sprite,
     SpriteSheet,
     Timer
 } from "lagom-engine";
@@ -161,7 +161,7 @@ export class Tile extends Entity
             },
             {
                 id: 1,
-                textures: tileCrack.textureSliceFromRow(0, 0, 5),
+                textures: tileCrack.textureSliceFromSheet(),
                 config: {animationSpeed: 100, animationEndAction: AnimationEnd.STOP},
             },
         ]));
