@@ -1,19 +1,21 @@
-import killerBeeSpr from "../Art/killer-bee.png";
+import killerBeeSpr from "../Art/bg-bee.png";
 import {AnimatedSprite, Component, Entity, MathUtil, SpriteSheet, System, Timer, Util} from "lagom-engine";
+import { Layers } from "../Layers";
 
-const killerBee = new SpriteSheet(killerBeeSpr, 5, 5);
+const bgBee = new SpriteSheet(killerBeeSpr, 5, 5);
 
 export class BackgroundBees extends Entity
 {
     spawnBee()
     {
-        this.addComponent(new Timer(MathUtil.randomRange(5000, 4000), null, false)).onTrigger
+        this.addComponent(new Timer(MathUtil.randomRange(100, 400), null, false)).onTrigger
             .register((caller, data) => {
-                const bee = this.addChild(new Entity("bgbeeee", Util.choose(-20, 450), MathUtil.randomRange(88, 240)));
-                bee.addComponent(new AnimatedSprite(killerBee.textureSliceFromRow(0, 0, 1),
+                const bee = this.addChild(new Entity("bgbeeee", Util.choose(-20, 450), MathUtil.randomRange(0, 240)));
+                bee.addComponent(new AnimatedSprite(bgBee.textureSliceFromRow(0, 0, 1),
                     {
                         yAnchor: 0.5, xAnchor: 0.5, animationSpeed: 50,
-                        rotation: bee.transform.position.x > 0 ? MathUtil.degToRad(270) : MathUtil.degToRad(90)
+                        yScale: bee.transform.position.x > 0 ? -1 : 1,
+                        rotation: MathUtil.degToRad(90)
                     }));
                 bee.addComponent(new BgBee(bee.transform.position.x > 0 ? -1 : 1, MathUtil.randomRange(50, 200)));
                 this.spawnBee();
@@ -22,7 +24,7 @@ export class BackgroundBees extends Entity
 
     constructor()
     {
-        super("bgbee", 0, 0, -99999999);
+        super("bgbee", 0, 0, Layers.bgbees);
     }
 
     onAdded()

@@ -1,6 +1,7 @@
 export enum Layers
 {
     boss,
+    bgbees,
     playerFalling,
     hexagons,
     pickup,
