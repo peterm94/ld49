@@ -9,7 +9,12 @@ export class Health extends Component
 
     isEmpty()
     {
-        return this.currentHealth <= this.maxHealth;
+        return this.currentHealth <= 0;
+    }
+
+    isFull()
+    {
+        return this.currentHealth >= this.maxHealth;
     }
 
     getCurrentHealth()

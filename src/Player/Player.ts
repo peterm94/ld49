@@ -8,7 +8,7 @@ import {
     Game,
     Key,
     Log,
-    RectCollider, RenderCircle,
+    RectCollider,
     SpriteSheet,
     System,
     Util,
@@ -127,7 +127,7 @@ export class Player extends Entity
 
         if (other instanceof AmmunitionPickup)
         {
-            if (ammunition.getCurrentAmmo() === ammunition.maxAmmo)
+            if (ammunition.isFull())
             {
                 // Can't pick up ammo if we're already full.
                 return;
@@ -139,7 +139,7 @@ export class Player extends Entity
         }
         else if (other instanceof HealthPickup)
         {
-            if (health.getCurrentHealth() === health.getMaxHealth())
+            if (health.isFull())
             {
                 // Can't get more health if it's already full.
                 return;
