@@ -8,7 +8,7 @@ import {
     Entity,
     FrameTriggerSystem,
     Game,
-    GlobalSystem,
+    GlobalSystem, Key,
     Log,
     LogLevel,
     Scene,
@@ -172,7 +172,7 @@ class ClickListener extends GlobalSystem
     {
         this.runOnComponents((clickActions: ClickAction[]) => {
 
-            if (Game.mouse.isButtonPressed(0) || pressedKeys.size > 0)
+            if (Game.mouse.isButtonPressed(0) || pressedKeys.has(" ") || pressedKeys.has(Key.Enter))
             {
                 for (const action of clickActions)
                 {
