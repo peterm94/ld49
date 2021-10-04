@@ -6,13 +6,12 @@ import {
     MathUtil,
     PolyCollider,
     SpriteSheet,
-    Timer
+    Timer,
+    Util
 } from "lagom-engine";
 import {Layers} from "../Layers";
 import {SoundManager} from "../SoundManager/SoundManager";
-import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
-import {Health} from "../Common/Health";
-import {Ammunition} from "../Common/Ammunition";
+import {GroundCount, Player} from "../Player/Player";
 import tileCrackSprite from "../Art/coloured-hex-craking.png";
 
 export const tileSpriteWidth = 32;
@@ -149,6 +148,17 @@ export class Tile extends Entity
         super(name, x, y, y);
     }
 
+    onRemoved()
+    {
+        const gc = this.getScene().getEntityWithName("player")?.getComponent<GroundCount>(GroundCount);
+        if (gc)
+        {
+            Util.remove(gc.grounds, this);
+        }
+
+        super.onRemoved();
+    }
+
     onAdded()
     {
         super.onAdded();
@@ -189,6 +199,8 @@ export class Tile extends Entity
             const gc = data.other.getEntity().getComponent<GroundCount>(GroundCount);
             if (gc !== null)
             {
+                gc.grounds.push(caller.getEntity());
+                gc.layer = caller.getEntity().layer;
                 gc.groundCount++;
             }
         });
@@ -210,35 +222,13 @@ export class Tile extends Entity
             {
                 return;
             }
-
+            Util.remove(gc.grounds, caller.getEntity());
+            gc.layer = caller.getEntity().layer;
             gc.groundCount--;
+
             if (gc.groundCount !== 0)
             {
                 return;
-            }
-            if (player.getComponent<PlayerFalling>(PlayerFalling))
-            {
-                // Already falling
-                return;
-            }
-
-            (this.scene.getEntityWithName("audio") as SoundManager).playSound("fallThroughFloor");
-            player.addComponent(new PlayerFalling(this.depth));
-            player.depth = Layers.playerFalling;
-            const controller = player.getComponent(PlayerController);
-            if (controller)
-            {
-                player.removeComponent(controller, true);
-            }
-            const playerHealth = player.getComponent<Health>(Health);
-            if (playerHealth)
-            {
-                player.receiveDamage(1, playerHealth);
-            }
-            const playerAmmo = player.getComponent<Ammunition>(Ammunition);
-            if (playerAmmo)
-            {
-                player.removeAmmo(playerAmmo.getCurrentAmmo(), playerAmmo);
             }
         });
     }

@@ -62,6 +62,14 @@ class FlashWhiteSystem extends System
     }
 }
 
+export enum RoarAnimStates
+{
+    IDLE,
+    START_ROAR,
+    OPEN_ROAR,
+    END_ROAR,
+}
+
 export class Boss extends Entity
 {
     constructor(x: number, y: number)
@@ -136,14 +144,6 @@ export class Boss extends Entity
 
         // Smoother end roar, this should probably be done in Aseprite but oh well.
         mouthRoarEnd.unshift(mouthRoarStart[mouthRoarStart.length - 1]);
-
-        enum RoarAnimStates
-        {
-            IDLE,
-            START_ROAR,
-            OPEN_ROAR,
-            END_ROAR,
-        }
 
         const mouth = this.addChild(new Entity("mouth", 0, 0, Layers.boss));
 
