@@ -5,7 +5,7 @@ import './App.css';
 import {LagomGameComponent, SpriteSheet} from "lagom-engine";
 import {LD49, screenHeight, screenWidth} from "./LD49";
 import start from "./Art/splash/start.png";
-export const viewCollisionSystem = false;
+export const viewCollisionSystem = true;
 
 export const titleScreen = new SpriteSheet(start, screenWidth, screenHeight);
 titleScreen.load().then(() => {

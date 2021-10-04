@@ -9,8 +9,7 @@ import {
     Log,
     MathUtil,
     Scene,
-    ScreenShake,
-    Sprite,
+    ScreenShake, Sprite,
     SpriteSheet,
     System,
     Timer,
@@ -73,7 +72,7 @@ export class Boss extends Entity
     onAdded()
     {
         super.onAdded();
-        const health = this.addComponent(new Health(65, 65));
+        const health = this.addComponent(new Health(80, 80));
         const bossPhase = this.addComponent(new BossPhase(BossPhases.PHASE_1));
 
         const ears = this.addChild(new Entity("ears", 0, 0, Layers.boss));
@@ -152,13 +151,11 @@ export class Boss extends Entity
             let timeBetweenAttacks = 2_000;
             if (bossPhase.currentPhase === BossPhases.PHASE_2)
             {
-                // TODO these we minimum 2000 before
-                timeBetweenAttacks = MathUtil.randomRange(4_000, 10_000);
+                timeBetweenAttacks = MathUtil.randomRange(2_000, 10_000);
             }
             else if (bossPhase.currentPhase === BossPhases.PHASE_3)
             {
-                // TODO put these we minimum 2000 before
-                timeBetweenAttacks = MathUtil.randomRange(4_000, 8_000);
+                timeBetweenAttacks = MathUtil.randomRange(2_000, 8_000);
             }
             else if (bossPhase.currentPhase === BossPhases.FINAL_PHASE)
             {
@@ -168,7 +165,7 @@ export class Boss extends Entity
                  .register((caller, data) => {
                      if (bossPhase.currentPhase <= BossPhases.PHASE_2 && bossPhase.currentPhase !== BossPhases.DEAD)
                      {
-                         data.setAnimation(RoarAnimStates.START_ROAR, true);
+                         data.setAnimation(RoarAnimStates.START_ROAR);
                      }
                      else
                      {
@@ -196,11 +193,8 @@ export class Boss extends Entity
                     animationEndAction: AnimationEnd.STOP,
                     animationSpeed: 200,
                     yAnchor: 0.5,
-                    xAnchor: 0.5
-                },
-                // TODO this needs to be the end event
-                events:{
-                    7: () => {
+                    xAnchor: 0.5,
+                    animationEndEvent: () => {
                         // Big difficulty shift for the final phase.
                         const bigRoar = bossPhase.currentPhase === BossPhases.FINAL_PHASE;
                         const roarLengthMs = bigRoar ? 4000 : 3000;
@@ -208,9 +202,9 @@ export class Boss extends Entity
                         const numberOfTiles = bigRoar ? 40 : 15;
 
                         // Pause the ears for the roar duration.
-                        earsSpr.nextTriggerTime += roarLengthMs;
+                        earsSpr.nextTriggerTime += 3000;
                         roarSpr.getEntity().addComponent(new ScreenShake(roarIntensity, roarLengthMs));
-                        roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR, true);
+                        roarSpr.setAnimation(RoarAnimStates.OPEN_ROAR);
 
                         (this.scene.getEntityWithName("audio") as SoundManager)
                             .playSound((bigRoar) ? "bearRoar" : "bearRoarQuiet");
@@ -224,22 +218,19 @@ export class Boss extends Entity
                 textures: mouthRoarOpen,
                 config: {
                     animationEndAction: AnimationEnd.STOP,
-                    animationSpeed: 200,
-                    yAnchor: 0.5,
-                    xAnchor: 0.5
-                },
-                // TODO this needs to be the end event
-                events: {
-                    0: () => {
+                    animationEndEvent: () => {
                         mouth.addComponent(new Timer(3000, roarSpr)).onTrigger.register((caller, data) => {
-                            data.setAnimation(RoarAnimStates.END_ROAR, true);
+                            data.setAnimation(RoarAnimStates.END_ROAR);
                         });
                         // TODO why can't I trigger it from END_ROAR? it gets stuck and has to catch up?
                         mouth.addComponent(new Timer(4000, roarSpr)).onTrigger.register((caller, data) => {
-                            data.setAnimation(RoarAnimStates.IDLE, true);
+                            data.setAnimation(RoarAnimStates.IDLE);
                             addRoarTimer();
                         });
-                    }
+                    },
+                    animationSpeed: 200,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
                 }
             },
             {
