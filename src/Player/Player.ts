@@ -55,7 +55,7 @@ class AmIInTheAir extends System
 {
     types = () => [GroundCount, PlayerController];
 
-    update(delta: number): void
+    fixedUpdate(delta: number)
     {
         this.runOnEntities((entity: Entity, gc: GroundCount) => {
             if (gc.grounds.length > 0)
@@ -65,12 +65,17 @@ class AmIInTheAir extends System
             }
             gc.frames++;
 
-            if (gc.frames > 1)
+            if (gc.frames > 2)
             {
                 gc.frames = 0;
                 this.fall(entity as Player, gc);
             }
         });
+    }
+
+    update(delta: number): void
+    {
+
     }
 
     fall(player: Player, gc: GroundCount)
