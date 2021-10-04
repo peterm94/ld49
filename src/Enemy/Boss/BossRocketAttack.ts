@@ -55,8 +55,6 @@ export class BossRocketAttack extends Entity
 
         const endOfLife = this.addComponent(new Timer(lifeDurationSec * 1000, null));
 
-        (this.scene.getEntityWithName("audio") as SoundManager).playSound("rocketNoise");
-
         endOfLife.onTrigger.register((caller) => {
             caller.getEntity().destroy();
         });
