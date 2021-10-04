@@ -9,7 +9,8 @@ import {
     Log,
     MathUtil,
     Scene,
-    ScreenShake, Sprite,
+    ScreenShake,
+    Sprite,
     SpriteSheet,
     System,
     Timer,
@@ -61,12 +62,9 @@ class FlashWhiteSystem extends System
 
 export class Boss extends Entity
 {
-    private firstRoar: boolean;
-
     constructor(x: number, y: number)
     {
         super("boss", x, y, Layers.boss);
-        this.firstRoar = true;
     }
 
     onAdded()
@@ -299,7 +297,7 @@ export class Boss extends Entity
         this.getScene().addGUIEntity(new BossStatusDisplay(0, 30, health));
         this.getScene().addSystem(new FadeInSystem());
         this.getScene().addSystem(new FadeOutSystem());
-        this.getScene().addSystem(new FlashWhiteSystem());
+        // this.getScene().addSystem(new FlashWhiteSystem());
     }
 
     instantiateRocketAttack(caller: Component, clawSide: boolean)

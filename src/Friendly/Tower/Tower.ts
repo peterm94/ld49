@@ -95,7 +95,7 @@ export class Tower extends Entity
         super.onAdded();
 
         const fireRateS = 5;
-        const maxAmmo = 4;
+        const maxAmmo = 3;
 
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
@@ -138,7 +138,6 @@ export class Tower extends Entity
         if (this.flipped)
         {
             cans = this.addComponent(new CanisterArray([
-                this.addChild(new Can(28, 13, this.flipped)),
                 this.addChild(new Can(32, 15, this.flipped)),
                 this.addChild(new Can(36, 17, this.flipped)),
                 this.addChild(new Can(40, 19, this.flipped))
@@ -147,7 +146,6 @@ export class Tower extends Entity
         else
         {
             cans = this.addComponent(new CanisterArray([
-                this.addChild(new Can(29, 13, this.flipped)),
                 this.addChild(new Can(25, 15, this.flipped)),
                 this.addChild(new Can(21, 17, this.flipped)),
                 this.addChild(new Can(17, 19, this.flipped))
@@ -155,7 +153,7 @@ export class Tower extends Entity
         }
 
 
-        const health = this.addComponent(new Health(100, 100));
+        // const health = this.addComponent(new Health(100, 100));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
 
         const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
@@ -172,7 +170,7 @@ export class Tower extends Entity
                 {layer: Layers.tower, radius: 10}));
 
         collider.onTrigger.register((c, d) => this.receiveAmmo(c, d, ammunition, cans));
-        collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
+        // collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
     }
 
     receiveDamage(caller: Collider, data: { other: Collider, result: unknown }, health: Health)
@@ -230,9 +228,9 @@ export class Tower extends Entity
                     {
                         Log.error("Tried to replenish the ammo cartridge but no animator was found");
                     }
-
-                    (this.scene.getEntityWithName("audio") as SoundManager).playSound("refill_" + ammoUsed);
                 }
+
+                (this.scene.getEntityWithName("audio") as SoundManager).playSound("refill_" + ammoUsed);
             }
         }
     }

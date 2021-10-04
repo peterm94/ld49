@@ -32,15 +32,22 @@ export class AmmunitionPickup extends Entity
     {
         super.onAdded();
         const amount = 1;
-        const deleteTimeSeconds = 5;
+        const flashTimer = 3;
+        const deleteTimeSeconds = flashTimer + 2;
 
-        this.addComponent(new AnimatedSprite(Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7),
-            {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP, xAnchor: 0.5, yAnchor: 0.5}));
+        const sprite = this.addComponent(
+            new AnimatedSprite(Util.choose(honey1, honey2, honey3).textureSliceFromRow(0, 0, 7),
+                {animationSpeed: 100, animationEndAction: AnimationEnd.LOOP, xAnchor: 0.5, yAnchor: 0.5}));
         this.addComponent(new PickupCount(amount));
 
         this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {layer: Layers.pickup, radius: 12}));
+
+        this.addComponent(new Timer(flashTimer * 1000, null, false))
+            .onTrigger.register((caller) => {
+            sprite.applyConfig({alpha: 0.6});
+        });
 
         this.addComponent(new Timer(deleteTimeSeconds * 1000, null, false))
             .onTrigger.register((caller) => {
@@ -60,7 +67,7 @@ export class AmmunitionSpawner extends Entity
     onAdded(): void
     {
         super.onAdded();
-        const ammoSpawnFrequencySeconds = 3;
+        const ammoSpawnFrequencySeconds = 2.5;
 
         const timer = new Timer(ammoSpawnFrequencySeconds * 1000, null, true);
         timer.onTrigger.register((caller) => {

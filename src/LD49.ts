@@ -80,7 +80,7 @@ export class LD49 extends Game
         LD49.audioAtlas.load("refill_2", refill2).volume(0.5);
         LD49.audioAtlas.load("refill_3", refill3).volume(0.5);
         LD49.audioAtlas.load("refill_4", refill4).volume(0.5);
-        LD49.audioAtlas.load("towerShoot", towerShootWav).volume(0.3);
+        LD49.audioAtlas.load("towerShoot", towerShootWav).volume(0.1);
 
         this.setScene(new MainScene(this));
     }

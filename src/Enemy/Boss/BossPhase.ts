@@ -3,8 +3,8 @@ import {Component} from "lagom-engine";
 export enum BossPhases
 {
     PHASE_1 = 100,
-    PHASE_2 = 75,
-    PHASE_3 = 50,
+    PHASE_2 = 65,
+    PHASE_3 = 30,
     FINAL_PHASE = 15,
     DEAD = 0,
 }
