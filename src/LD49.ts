@@ -84,10 +84,10 @@ export class LD49 extends Game
         LD49.audioAtlas.load("crack", crackWav).volume(0.15);
         LD49.audioAtlas.load("voop", voopWav).volume(0.1);
         LD49.audioAtlas.load("pickup", squelch).volume(0.3);
-        LD49.audioAtlas.load("refill_1", refill1).volume(0.5);
-        LD49.audioAtlas.load("refill_2", refill2).volume(0.5);
-        LD49.audioAtlas.load("refill_3", refill3).volume(0.5);
-        LD49.audioAtlas.load("refill_4", refill4).volume(0.5);
+        LD49.audioAtlas.load("refill_1", refill1).volume(2);
+        LD49.audioAtlas.load("refill_2", refill2).volume(2);
+        LD49.audioAtlas.load("refill_3", refill3).volume(2);
+        LD49.audioAtlas.load("refill_4", refill4).volume(2);
         LD49.audioAtlas.load("beeShoot", beeShootWav).volume(0.08);
         LD49.audioAtlas.load("pawEffect", pawEffect).volume(0.1);
 
