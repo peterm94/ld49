@@ -26,7 +26,7 @@ export class HealthSpawner extends PickupSpawner
 {
     constructor()
     {
-        super("healthSpawner", 0, 0, 20);
+        super("healthSpawner", 0, 0, 15);
     }
 
     onAdded(): void

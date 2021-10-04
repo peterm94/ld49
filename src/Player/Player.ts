@@ -241,8 +241,27 @@ export class Player extends Entity
         }
     }
 
+    // Adds invincibility Frame.
+    addIFrame() {
+        this.addComponent(new Invincible());
+        Log.error("invincible");
+        this.addComponent(new Timer(2000, this, false))
+            .onTrigger.register((caller, player:Entity) => {
+            Log.error("vulnerable");
+            const iFrame = player.getComponent(Invincible);
+            if (iFrame != null) {
+                player.removeComponent(iFrame, true);
+            }
+        });
+    }
+
     receiveDamage(amount: number, health: Health)
     {
+        if (this.getComponent(Invincible) != null)
+        {
+            return;
+        }
+
         health.removeHealth(amount);
 
         // Update the scoreboard.
@@ -281,6 +300,10 @@ export class Player extends Entity
                 game.setScene(new EndScreen(game, false));
             });
             this.destroy();
+        }
+        else
+        {
+            this.addIFrame();
         }
     }
 
@@ -339,6 +362,11 @@ export class Player extends Entity
 
 export class PlayerController extends Component
 {
+}
+
+export class Invincible extends Component
+{
+
 }
 
 export class PlayerMover extends System
