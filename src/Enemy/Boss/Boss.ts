@@ -72,6 +72,8 @@ export enum RoarAnimStates
 
 export class Boss extends Entity
 {
+    bearWinner = false;
+
     constructor(x: number, y: number)
     {
         super("boss", x, y, Layers.boss);
@@ -334,6 +336,12 @@ export class Boss extends Entity
 
     receiveAttack(caller: Collider, data: { other: Collider; result: unknown }, health: Health, bossPhase: BossPhase)
     {
+        // No damage if bear wins and is taunting you.
+        if (this.bearWinner)
+        {
+            return;
+        }
+
         const other = data.other.getEntity();
         if (other instanceof TowerBeeAttack)
         {

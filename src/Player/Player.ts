@@ -35,7 +35,7 @@ import {HealthPickup} from "../Pickups/HealthPickup";
 import {pressedKeys} from "../index";
 import {AttackMovement} from "../Common/AttackMovement";
 import killerBeeSpr from "../Art/killer-bee.png";
-import {RoarAnimStates} from "../Enemy/Boss/Boss";
+import {Boss, RoarAnimStates} from "../Enemy/Boss/Boss";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -241,8 +241,27 @@ export class Player extends Entity
         }
     }
 
+    // Adds invincibility Frame.
+    addIFrame() {
+        this.addComponent(new Invincible());
+        Log.error("invincible");
+        this.addComponent(new Timer(2000, this, false))
+            .onTrigger.register((caller, player:Entity) => {
+            Log.error("vulnerable");
+            const iFrame = player.getComponent(Invincible);
+            if (iFrame != null) {
+                player.removeComponent(iFrame, true);
+            }
+        });
+    }
+
     receiveDamage(amount: number, health: Health)
     {
+        if (this.getComponent(Invincible) != null)
+        {
+            return;
+        }
+
         health.removeHealth(amount);
 
         // Update the scoreboard.
@@ -253,7 +272,9 @@ export class Player extends Entity
             const e = this.getScene().addEntity(new Entity("BZZZZ", this.transform.position.x,
                 this.transform.position.y, 10000));
             e.addComponent(new ScreenShake(2, 4000));
-            const mouth = e.getScene().getEntityWithName("boss")?.findChildWithName("mouth");
+            const boss = e.getScene().getEntityWithName("boss");
+            (boss as Boss).bearWinner = true;
+            const mouth = boss?.findChildWithName("mouth");
             mouth?.getComponentsOfType<Timer<AnimatedSpriteController>>(Timer)?.forEach(value => value.destroy());
             mouth?.getComponent<AnimatedSpriteController>(AnimatedSpriteController)
                  ?.setAnimation(RoarAnimStates.START_ROAR);
@@ -279,6 +300,10 @@ export class Player extends Entity
                 game.setScene(new EndScreen(game, false));
             });
             this.destroy();
+        }
+        else
+        {
+            this.addIFrame();
         }
     }
 
@@ -337,6 +362,11 @@ export class Player extends Entity
 
 export class PlayerController extends Component
 {
+}
+
+export class Invincible extends Component
+{
+
 }
 
 export class PlayerMover extends System
