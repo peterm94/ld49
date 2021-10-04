@@ -32,12 +32,8 @@ export class PickupSpawner extends Entity
 
         const chosenTile = Util.choose(...allEmptyTiles);
 
-        const tileGlobalPos = chosenTile.transform.position;
         const offsetFromTop = Math.floor(tileSurfaceHeight / 2) - 2;
         const offsetFromLeft = tileSpriteWidth / 2;
-
-        const tileCenterX = tileGlobalPos.x + offsetFromLeft;
-        const tileCenterY = tileGlobalPos.y + offsetFromTop;
 
         pickup.transform.position.x = offsetFromLeft;
         pickup.transform.position.y = offsetFromTop;
