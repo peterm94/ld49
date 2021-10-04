@@ -152,25 +152,25 @@ export class Tower extends Entity
             ]));
         }
 
-
-        // const health = this.addComponent(new Health(100, 100));
         const ammunition = this.addComponent(new Ammunition(maxAmmo, maxAmmo));
 
-        const attackTimer = this.addComponent(new Timer(fireRateS * 1000, null, true));
-        attackTimer.onTrigger.register(_ => {
-            if (ammunition.getCurrentAmmo() > 0)
-            {
-                spr.setAnimation(1, true);
-                (this.scene.getEntityWithName("audio") as SoundManager).playSound("towerShoot");
-            }
-        });
+        const initialDelay = this.flipped ? fireRateS / 2.0 * 1000 + 1 : 1;
+
+        this.addComponent(new Timer(initialDelay, null)).onTrigger.register((_ => {
+            this.addComponent(new Timer(fireRateS * 1000, null, true)).onTrigger.register(_ => {
+                if (ammunition.getCurrentAmmo() > 0)
+                {
+                    spr.setAnimation(1, true);
+                    (this.scene.getEntityWithName("audio") as SoundManager).playSound("towerShoot");
+                }
+            });
+        }));
 
         const collider = this.addComponent(
             new CircleCollider(<CollisionSystem>this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem),
                 {layer: Layers.tower, radius: 10}));
 
         collider.onTrigger.register((c, d) => this.receiveAmmo(c, d, ammunition, cans));
-        // collider.onTriggerEnter.register((c, d) => this.receiveDamage(c, d, health));
     }
 
     receiveDamage(caller: Collider, data: { other: Collider, result: unknown }, health: Health)

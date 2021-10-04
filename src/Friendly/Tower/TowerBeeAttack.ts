@@ -18,7 +18,7 @@ export class TowerBeeAttack extends Entity
         super.onAdded();
 
         const damage = 1;
-        const speed = 200;
+        const speed = 100;
         const lifeDurationSec = 10;
 
         // TODO pointDirection is backwards in library

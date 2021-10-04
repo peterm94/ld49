@@ -43,6 +43,7 @@ import refill4 from "./Sound/refill_4.wav";
 import squelch from "./Sound/squelch.wav";
 import {BackgroundBees} from "./World/WorkerBees";
 import towerShootWav from "./Sound/towerShoot.wav";
+import {HealthSpawner} from "./Pickups/HealthPickup";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -65,8 +66,8 @@ export class LD49 extends Game
         super({width: screenWidth, height: screenHeight, resolution: 3, backgroundColor: 0x0d2b45});
 
         // TODO enable this before deploy
-        // Log.logLevel = LogLevel.ERROR;
-        Log.logLevel = LogLevel.INFO;
+        Log.logLevel = LogLevel.ERROR;
+        // Log.logLevel = LogLevel.INFO;
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.6);
         LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
@@ -256,6 +257,7 @@ class MainScene extends Scene
 
         // Pickups.
         this.addEntity(new AmmunitionSpawner());
+        this.addEntity(new HealthSpawner());
         this.addEntity(new BackgroundBees());
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
