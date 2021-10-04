@@ -1,4 +1,5 @@
 import {
+    AnimatedSprite,
     AnimatedSpriteController,
     CircleCollider,
     Collider,
@@ -7,9 +8,12 @@ import {
     Entity,
     Key,
     Log,
+    MathUtil,
     RectCollider,
+    ScreenShake,
     SpriteSheet,
     System,
+    Timer,
     Util,
     Vector
 } from "lagom-engine";
@@ -29,9 +33,13 @@ import {HealthStatus} from "../GameManagement/HealthStatus";
 import {SoundManager} from "../SoundManager/SoundManager";
 import {HealthPickup} from "../Pickups/HealthPickup";
 import {pressedKeys} from "../index";
+import {AttackMovement} from "../Common/AttackMovement";
+import killerBeeSpr from "../Art/killer-bee.png";
+import {RoarAnimStates} from "../Enemy/Boss/Boss";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
+const killaBee = new SpriteSheet(killerBeeSpr, 5, 5);
 
 export class GroundCount extends Component
 {
@@ -237,13 +245,35 @@ export class Player extends Entity
 
         if (health.getCurrentHealth() == 0)
         {
-            // TODO explode into bees? Paused for effect?
-            Log.info("DEAD");
-            const game = this.getScene().getGame();
-            this.getScene().entities.forEach(x => x.destroy());
-            this.getScene().systems.forEach(x => x.destroy());
-            this.getScene().globalSystems.forEach(x => x.destroy());
-            game.setScene(new EndScreen(game, false));
+            const e = this.getScene().addEntity(new Entity("BZZZZ", this.transform.position.x,
+                this.transform.position.y, 10000));
+            e.addComponent(new ScreenShake(2, 4000));
+            const mouth = e.getScene().getEntityWithName("boss")?.findChildWithName("mouth");
+            mouth?.getComponentsOfType<Timer<AnimatedSpriteController>>(Timer)?.forEach(value => value.destroy());
+            mouth?.getComponent<AnimatedSpriteController>(AnimatedSpriteController)
+                 ?.setAnimation(RoarAnimStates.START_ROAR);
+
+            for (let i = 0; i < 200; i++)
+            {
+                const bee = e.addChild(new Entity("deadBee", 0, 0));
+                const mov = bee.addComponent(new AttackMovement(MathUtil.degToRad(MathUtil.randomRange(0, 360)),
+                    MathUtil.randomRange(50, 150)));
+                bee.addComponent(new AnimatedSprite(killaBee.textureSliceFromRow(0, 0, 1),
+                    {
+                        yAnchor: 0.5, xAnchor: 0.5, animationSpeed: 50,
+                        // yScale: bee.transform.position.x > 0 ? -1 : 1,
+                        rotation: MathUtil.degToRad(90) + mov.targetAngle
+                    }));
+            }
+            e.addComponent(new Timer(7000, null, false)).onTrigger.register((caller, data) => {
+                Log.info("DEAD");
+                const game = this.getScene().getGame();
+                this.getScene().entities.forEach(x => x.destroy());
+                this.getScene().systems.forEach(x => x.destroy());
+                this.getScene().globalSystems.forEach(x => x.destroy());
+                game.setScene(new EndScreen(game, false));
+            });
+            this.destroy();
         }
     }
 
