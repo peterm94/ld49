@@ -30,6 +30,7 @@ import {HealthStatus} from "../GameManagement/HealthStatus";
 import endScreenImg from "../Art/splash/game-over.png";
 import {SoundManager} from "../SoundManager/SoundManager";
 import {HealthPickup} from "../Pickups/HealthPickup";
+import {pressedKeys} from "../index";
 
 const bee = new SpriteSheet(beeSprite, 64, 64);
 const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
@@ -264,20 +265,20 @@ export class PlayerMover extends System
     {
         this.runOnEntities((entity: Entity, playerController: PlayerController, spr: AnimatedSpriteController) => {
             const newPosition = new Vector(0, 0);
-            if (Game.keyboard.isKeyDown(Key.ArrowUp) || Game.keyboard.isKeyDown(Key.KeyW))
+
+            if (pressedKeys.has(Key.ArrowUp) || pressedKeys.has("w"))
             {
                 newPosition.y -= this.hexagonHeightRatio;
             }
-            if (Game.keyboard.isKeyDown(Key.ArrowDown) || Game.keyboard.isKeyDown(Key.KeyS))
+            if (pressedKeys.has(Key.ArrowDown) || pressedKeys.has("s"))
             {
                 newPosition.y += this.hexagonHeightRatio;
             }
-
-            if (Game.keyboard.isKeyDown(Key.ArrowLeft) || Game.keyboard.isKeyDown(Key.KeyA))
+            if (pressedKeys.has(Key.ArrowLeft) || pressedKeys.has("a"))
             {
                 newPosition.x -= 1;
             }
-            if (Game.keyboard.isKeyDown(Key.ArrowRight) || Game.keyboard.isKeyDown(Key.KeyD))
+            if (pressedKeys.has(Key.ArrowRight) || pressedKeys.has("d"))
             {
                 newPosition.x += 1;
             }
