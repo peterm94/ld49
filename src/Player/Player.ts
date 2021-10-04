@@ -8,7 +8,7 @@ import {
     Game,
     Key,
     Log,
-    RectCollider,
+    RectCollider, RenderCircle,
     SpriteSheet,
     System,
     Util,
@@ -80,6 +80,7 @@ export class Player extends Entity
         const ammunition = this.addComponent(new Ammunition(maxAmmo, 0));
         this.updatePlayerAmmoGUI(ammunition);
         this.updatePlayerHealthGUI(health);
+        // this.addComponent(new RenderCircle(0, 4, 1, 0xFF0000));
 
         // Handle moving into things.
         const movementCollider = this.addComponent(
@@ -87,7 +88,7 @@ export class Player extends Entity
                 {
                     layer: Layers.playerGround,
                     radius: 1,
-                    yOff: 5
+                    yOff: 4
                 }));
 
         movementCollider.onTriggerEnter.register((c, d) => this.registerPickup(c, d, ammunition, health));

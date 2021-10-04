@@ -66,8 +66,8 @@ export class LD49 extends Game
         super({width: screenWidth, height: screenHeight, resolution: 3, backgroundColor: 0x0d2b45});
 
         // TODO enable this before deploy
-        // Log.logLevel = LogLevel.ERROR;
-        Log.logLevel = LogLevel.INFO;
+        Log.logLevel = LogLevel.ERROR;
+        // Log.logLevel = LogLevel.INFO;
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.6);
         LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
