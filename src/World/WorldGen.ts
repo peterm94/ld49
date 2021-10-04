@@ -1,16 +1,25 @@
-import {CollisionSystem, Entity, MathUtil, PolyCollider, Sprite, SpriteSheet, Timer} from "lagom-engine";
-import tileImg from '../Art/coloured-hex.png';
+import {
+    AnimatedSprite, AnimatedSpriteController, AnimationEnd,
+    CollisionSystem,
+    Entity,
+    MathUtil,
+    PolyCollider,
+    Sprite,
+    SpriteSheet,
+    Timer
+} from "lagom-engine";
 import {Layers} from "../Layers";
 import {SoundManager} from "../SoundManager/SoundManager";
 import {GroundCount, Player, PlayerController, PlayerFalling} from "../Player/Player";
 import {Health} from "../Common/Health";
 import {Ammunition} from "../Common/Ammunition";
+import tileCrackSprite from "../Art/coloured-hex-craking.png";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
 export const tileSurfaceHeight = 15;
 
-const tile = new SpriteSheet(tileImg, tileSpriteWidth, tileSpriteHeight);
+const tileCrack = new SpriteSheet(tileCrackSprite, tileSpriteWidth, tileSpriteHeight);
 
 // How far to move each staggered hexagon to the right in order for it to slot nicely into the previous tile.
 const tileStaggeredOffsetX = 24;
@@ -143,7 +152,19 @@ export class Tile extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Sprite(tile.textureFromIndex(0)));
+        this.addComponent(new AnimatedSpriteController(0, [
+            {
+                id: 0,
+                // First frame has no cracks.
+                textures: [tileCrack.textureFromIndex(0)],
+                config: {animationSpeed: 100, animationEndAction: AnimationEnd.STOP},
+            },
+            {
+                id: 1,
+                textures: tileCrack.textureSliceFromRow(0, 0, 5),
+                config: {animationSpeed: 100, animationEndAction: AnimationEnd.STOP},
+            },
+        ]));
 
         const global = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
         if (!(global instanceof CollisionSystem))

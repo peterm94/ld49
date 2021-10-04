@@ -34,7 +34,7 @@ import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 import bearRoarWav from "./Sound/roar.wav";
 import explosionWav from "./Sound/explosion.wav";
 import rocketNoiseWav from "./Sound/rocket_noise.wav";
-import crackWav from "./Sound/crack.wav";
+import crackWav from "./Sound/crack2.wav";
 import voopWav from "./Sound/voop.wav";
 import refill1 from "./Sound/refill_1.wav";
 import refill2 from "./Sound/refill_2.wav";
@@ -75,7 +75,7 @@ export class LD49 extends Game
         LD49.audioAtlas.load("rocketExplosion", explosionWav).volume(0.3);
         LD49.audioAtlas.load("rocketNoise", rocketNoiseWav).volume(0.1);
         LD49.audioAtlas.load("fallThroughFloor", rocketNoiseWav).volume(0.1);
-        LD49.audioAtlas.load("crack", crackWav).volume(0.3);
+        LD49.audioAtlas.load("crack", crackWav).volume(0.15);
         LD49.audioAtlas.load("voop", voopWav).volume(0.1);
         LD49.audioAtlas.load("pickup", squelch).volume(0.3);
         LD49.audioAtlas.load("refill_1", refill1).volume(0.5);
