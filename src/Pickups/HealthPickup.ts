@@ -33,7 +33,7 @@ export class HealthSpawner extends PickupSpawner
     {
         super.onAdded();
 
-        const timer = new Timer(this.spawnFrequencySec * 1000, null, true);
+        const timer = new Timer(this.timeBetweenSpawnsSec * 1000, null, true);
         timer.onTrigger.register((caller) => {
             const player = caller.getScene().getEntityWithName("player");
             if (!player)
