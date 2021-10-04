@@ -31,7 +31,7 @@ import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
 import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
 import {BossPhase, BossPhases} from "./BossPhase";
-import {EndScreen} from "../../LD49";
+import {EndScreen, LD49} from "../../LD49";
 import {BossRocketExplosion} from "./BossRocketAttack";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
@@ -364,6 +364,7 @@ export class Boss extends Entity
                 bossPhase.updatePhase(health.getPercentageRemaining());
                 if (bossPhase.currentPhase === BossPhases.DEAD)
                 {
+                    LD49.beeOver = true;
                     this.playerWinner = true;
                     // Stop in progress attacks
                     this.getComponentsOfType<Timer<null>>(Timer)?.forEach(x => x.destroy());

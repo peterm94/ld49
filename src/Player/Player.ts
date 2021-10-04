@@ -274,6 +274,7 @@ export class Player extends Entity
             e.addComponent(new ScreenShake(2, 4000));
             const boss = e.getScene().getEntityWithName("boss");
             (boss as Boss).bearWinner = true;
+            LD49.beeOver = true;
             const mouth = boss?.findChildWithName("mouth");
             mouth?.getComponentsOfType<Timer<AnimatedSpriteController>>(Timer)?.forEach(value => value.destroy());
             mouth?.getComponent<AnimatedSpriteController>(AnimatedSpriteController)

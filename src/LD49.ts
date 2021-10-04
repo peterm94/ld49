@@ -14,6 +14,7 @@ import {
     Scene,
     ScreenShaker,
     SpriteSheet,
+    TextDisp,
     Timer,
     TimerSystem
 } from "lagom-engine";
@@ -65,6 +66,8 @@ matrix.addCollision(Layers.towerAttack, Layers.boss);
 
 export class LD49 extends Game
 {
+    static gameTime = 0;
+    static beeOver = false;
     static muted = false;
     static musicPlaying = false;
     static audioAtlas: AudioAtlas = new AudioAtlas();
@@ -192,7 +195,9 @@ export class EndScreen extends Scene
     {
         super.onAdded();
         this.addGUIEntity(new ScreenCard(this.win ? youWinScreen.textureSliceFromSheet()
-                                                  : youLoseScreen.textureSliceFromSheet(), 1));
+                                                  : youLoseScreen.textureSliceFromSheet(), 1))
+            .addComponent(new TextDisp(screenWidth - 70, 30, `Time: ${LD49.gameTime}`,
+                {fill: this.win ? 0x203c56 : 0xd08159, fontSize: 10}));
         if (this.win)
         {
             MainScene.firstLoad = true;
@@ -201,6 +206,8 @@ export class EndScreen extends Scene
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ClickListener());
+
+
         // this.addGUIEntity(new SoundManager());
     }
 }
@@ -223,10 +230,27 @@ class MainScene extends Scene
 
     startGame()
     {
+        LD49.beeOver = false;
+        LD49.gameTime = 0;
+
         // Global entities.
         // this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addGUIEntity(new AmmunitionStatusDisplay(screenWidth - 20, screenHeight - 20));
         this.addGUIEntity(new HealthStatusDisplay(screenWidth - 20, 20));
+
+        const gtimer = this.addGUIEntity(new Entity("gametimer", 10, screenHeight - 20));
+        const txt = gtimer.addComponent(new TextDisp(0, 0, "Time: 0", {fill: 0xd08159, fontSize: 10}));
+        gtimer.addComponent(new Timer(1000, txt, true)).onTrigger.register((caller, data) => {
+            if (LD49.beeOver)
+            {
+                caller.destroy();
+            }
+            else
+            {
+                LD49.gameTime += 1;
+                data.pixiObj.text = `Time: ${LD49.gameTime}`;
+            }
+        });
 
         const collSystem = this.addGlobalSystem(new DiscreteCollisionSystem(matrix));
         if (viewCollisionSystem)
