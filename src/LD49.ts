@@ -44,6 +44,7 @@ import squelch from "./Sound/squelch.wav";
 import {BackgroundBees} from "./World/WorkerBees";
 import beeShootWav from "./Sound/bee_shot.wav";
 import pawEffect from "./Sound/paw_effect.wav";
+import {HealthSpawner} from "./Pickups/HealthPickup";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -258,6 +259,7 @@ class MainScene extends Scene
 
         // Pickups.
         this.addEntity(new AmmunitionSpawner());
+        this.addEntity(new HealthSpawner());
         this.addEntity(new BackgroundBees());
         this.addEntity(new TileManager());
         this.addSystem(new PlayerDropper());
