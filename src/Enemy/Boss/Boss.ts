@@ -73,6 +73,7 @@ export enum RoarAnimStates
 export class Boss extends Entity
 {
     bearWinner = false;
+    playerWinner = false;
 
     constructor(x: number, y: number)
     {
@@ -223,7 +224,10 @@ export class Boss extends Entity
                         (this.scene.getEntityWithName("audio") as SoundManager)
                             .playSound((bigRoar) ? "bearRoar" : "bearRoarQuiet");
 
-                        this.dropTiles(roarLengthMs, numberOfTiles, this.getScene());
+                        if (!this.playerWinner)
+                        {
+                            this.dropTiles(roarLengthMs, numberOfTiles, this.getScene());
+                        }
                     }
                 }
             },
@@ -337,7 +341,7 @@ export class Boss extends Entity
     receiveAttack(caller: Collider, data: { other: Collider; result: unknown }, health: Health, bossPhase: BossPhase)
     {
         // No damage if bear wins and is taunting you.
-        if (this.bearWinner)
+        if (this.bearWinner || this.playerWinner)
         {
             return;
         }
@@ -360,13 +364,37 @@ export class Boss extends Entity
                 bossPhase.updatePhase(health.getPercentageRemaining());
                 if (bossPhase.currentPhase === BossPhases.DEAD)
                 {
-                    // TODO Destroy the Boss? Death animation?
-                    Log.info("Boss is dead!");
-                    const game = this.getScene().getGame();
-                    this.getScene().entities.forEach(x => x.destroy());
-                    this.getScene().systems.forEach(x => x.destroy());
-                    this.getScene().globalSystems.forEach(x => x.destroy());
-                    game.setScene(new EndScreen(game, true));
+                    this.playerWinner = true;
+                    // Stop in progress attacks
+                    this.getComponentsOfType<Timer<null>>(Timer)?.forEach(x => x.destroy());
+
+                    const mouth = this.findChildWithName("mouth");
+                    mouth?.getComponentsOfType<Timer<AnimatedSpriteController>>(Timer)
+                         ?.forEach(value => value.destroy());
+                    mouth?.getComponent<AnimatedSpriteController>(AnimatedSpriteController)
+                         ?.setAnimation(RoarAnimStates.START_ROAR);
+
+                    const reduceAlpha = () => {
+                        this.addComponent(new Timer(100, this)).onTrigger.register((caller1, data1) => {
+                            data1.transform.alpha -= 0.03;
+                            data1.transform.position.y += 0.7;
+                            if (data1.transform.alpha < -0.5)
+                            {
+                                // TODO Destroy the Boss? Death animation?
+                                Log.info("Boss is dead!");
+                                const game = this.getScene().getGame();
+                                this.getScene().entities.forEach(x => x.destroy());
+                                this.getScene().systems.forEach(x => x.destroy());
+                                this.getScene().globalSystems.forEach(x => x.destroy());
+                                game.setScene(new EndScreen(game, true));
+                            }
+                            else
+                            {
+                                reduceAlpha();
+                            }
+                        });
+                    };
+                    reduceAlpha();
                 }
             }
         }
