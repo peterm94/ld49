@@ -13,6 +13,7 @@ import {Layers} from "../Layers";
 import {SoundManager} from "../SoundManager/SoundManager";
 import {GroundCount, Player} from "../Player/Player";
 import tileCrackSprite from "../Art/coloured-hex-craking.png";
+import {Pickup} from "../Pickups/Pickup";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
@@ -137,6 +138,20 @@ export class WorldGen extends Entity
                     this.addChild(new NoTile(xPos, yPos, false));
                 }
             });
+        });
+    }
+
+    getAllEmptyTiles()
+    {
+        return this.children.filter(entity => {
+            const isTile = entity.name === "tile";
+            if (!isTile)
+            {
+                return false;
+            }
+
+            // Don't spawn on tiles that already have a pickup on them.
+            return !entity.children.some(child => child instanceof Pickup);
         });
     }
 }
