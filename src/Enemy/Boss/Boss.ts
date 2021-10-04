@@ -32,6 +32,7 @@ import {SoundManager} from "../../SoundManager/SoundManager";
 import {BearHand, FadeInSystem, FadeOutSystem} from "./BossHands";
 import {BossPhase, BossPhases} from "./BossPhase";
 import {EndScreen} from "../../LD49";
+import {BossRocketExplosion} from "./BossRocketAttack";
 
 const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
 const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
@@ -339,6 +340,8 @@ export class Boss extends Entity
             caller.getEntity().findChildWithName("ears")?.addComponent(new FlashWhite());
             caller.getEntity().findChildWithName("eyes")?.addComponent(new FlashWhite());
             caller.getEntity().findChildWithName("mouth")?.addComponent(new FlashWhite());
+
+            this.getScene().addEntity(new BossRocketExplosion(other.transform.x, other.transform.y));
 
             const attackDetails = other.getComponent<Attack>(Attack);
             if (attackDetails)
