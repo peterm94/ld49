@@ -243,6 +243,7 @@ export class Player extends Entity
 
     // Adds invincibility Frame.
     addIFrame() {
+        this.transform.alpha = 0.5;
         this.addComponent(new Invincible());
         Log.error("invincible");
         this.addComponent(new Timer(2000, this, false))
@@ -251,6 +252,7 @@ export class Player extends Entity
             const iFrame = player.getComponent(Invincible);
             if (iFrame != null) {
                 player.removeComponent(iFrame, true);
+                this.transform.alpha = 1;
             }
         });
     }
