@@ -3,6 +3,7 @@ import handSprite from "../../Art/bear-paw.png";
 import {BossRocketAttack} from "./BossRocketAttack";
 import {Layers} from "../../Layers";
 import {SoundManager} from "../../SoundManager/SoundManager";
+import {LagomType} from "../../../../lagom-engine/src";
 
 const bearHands = new SpriteSheet(handSprite, 64, 64);
 
@@ -71,7 +72,7 @@ class FadeOut extends Component
 }
 
 
-export class FadeInSystem extends System
+export class FadeInSystem extends System<[FadeIn, AnimatedSpriteController]>
 {
     types = () => [FadeIn, AnimatedSpriteController];
 
@@ -90,7 +91,7 @@ export class FadeInSystem extends System
     }
 }
 
-export class FadeOutSystem extends System
+export class FadeOutSystem extends System<[FadeOut, AnimatedSpriteController]>
 {
     types = () => [FadeOut, AnimatedSpriteController];
 

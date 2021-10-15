@@ -1,13 +1,8 @@
 import {Entity, MathUtil, System} from "lagom-engine";
 import {AttackMovement} from "./AttackMovement";
 
-export class ProjectileMover extends System
+export class ProjectileMover extends System<[AttackMovement]>
 {
-    constructor()
-    {
-        super();
-    }
-
     update(delta: number)
     {
         this.runOnEntities((entity: Entity,

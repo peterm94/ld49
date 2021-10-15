@@ -44,7 +44,7 @@ class FlashWhite extends Component
 {
 }
 
-class FlashWhiteSystem extends System
+class FlashWhiteSystem extends System<[AnimatedSpriteController, FlashWhite]>
 {
     types = () => [AnimatedSpriteController, FlashWhite];
 

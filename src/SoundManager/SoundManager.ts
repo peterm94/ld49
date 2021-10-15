@@ -10,7 +10,7 @@ class MuteComp extends Component
 {
 }
 
-class MuteListener extends System
+class MuteListener extends System<[AnimatedSpriteController, MuteComp]>
 {
     types = () => [AnimatedSpriteController, MuteComp];
 

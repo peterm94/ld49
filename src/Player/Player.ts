@@ -51,7 +51,7 @@ export class GroundCount extends Component
     }
 }
 
-class AmIInTheAir extends System
+class AmIInTheAir extends System<[GroundCount, PlayerController]>
 {
     types = () => [GroundCount, PlayerController];
 
@@ -370,7 +370,7 @@ export class Invincible extends Component
 
 }
 
-export class PlayerMover extends System
+export class PlayerMover extends System<[PlayerController, AnimatedSpriteController]>
 {
     private readonly moveSpeed = 70;
     private readonly hexagonHeightRatio = 25 / 32;
@@ -432,7 +432,7 @@ export class PlayerFalling extends Component
     }
 }
 
-export class PlayerDropper extends System
+export class PlayerDropper extends System<[PlayerFalling]>
 {
     types = () => [PlayerFalling];
 
@@ -447,7 +447,7 @@ export class PlayerDropper extends System
     }
 }
 
-export class PlayerResetter extends System
+export class PlayerResetter extends System<[PlayerFalling]>
 {
     types = () => [PlayerFalling];
 
