@@ -45,7 +45,7 @@ class BgBee extends Component
     }
 }
 
-class BeeMover extends System
+class BeeMover extends System<[BgBee]>
 {
     types = () => [BgBee];
 

@@ -66,7 +66,7 @@ export class AmmunitionStatus extends Component
     }
 }
 
-export class AmmunitionStatusUpdater extends System
+export class AmmunitionStatusUpdater extends System<[AmmunitionStatus]>
 {
     update(delta: number): void
     {

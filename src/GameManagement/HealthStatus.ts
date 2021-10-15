@@ -66,7 +66,7 @@ export class HealthStatus extends Component
     }
 }
 
-class HealthStatusUpdater extends System
+class HealthStatusUpdater extends System<[HealthStatus]>
 {
     update(delta: number): void
     {

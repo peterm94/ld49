@@ -41,7 +41,7 @@ class HpBits extends Component
     }
 }
 
-class BossHealthUpdater extends System
+class BossHealthUpdater extends System<[HpBits]>
 {
     update(delta: number): void
     {
