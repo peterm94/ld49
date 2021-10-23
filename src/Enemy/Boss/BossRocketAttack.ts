@@ -6,18 +6,13 @@ import {
     CollisionSystem,
     Entity,
     MathUtil,
-    SpriteSheet,
     Timer
 } from "lagom-engine";
 import {Attack} from "../../Common/Attack";
 import {Layers} from "../../Layers";
 import {AttackMovement} from "../../Common/AttackMovement";
-import bearRocketSprite from "../../Art/bear-rocket.png";
-import rockExplosion from "../../Art/bear-rocket-explosion.png";
 import {SoundManager} from "../../SoundManager/SoundManager";
 
-const rocket = new SpriteSheet(bearRocketSprite, 32, 32);
-const rocketExplosion = new SpriteSheet(rockExplosion, 32, 32);
 
 export class BossRocketAttack extends Entity
 {
@@ -39,7 +34,7 @@ export class BossRocketAttack extends Entity
             this.transform.getGlobalPosition().y,
             this.target.transform.getGlobalPosition().x, this.target.transform.getGlobalPosition().y);
 
-        this.addComponent(new AnimatedSprite(rocket.textureSliceFromRow(0, 0, 3),
+        this.addComponent(new AnimatedSprite(this.scene.game.getResource("rocket").textureSliceFromRow(0, 0, 3),
             {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 90, rotation: targetDir + MathUtil.degToRad(270)}));
         this.addComponent(new Attack(damage));
         this.addComponent(
@@ -74,7 +69,7 @@ export class BossRocketExplosion extends Entity
 
         this.addComponent(new AnimatedSpriteController(0, [{
             id: 0,
-            textures: rocketExplosion.textureSliceFromRow(0, 0, 7),
+            textures: this.scene.game.getResource("rocketExplosion").textureSliceFromRow(0, 0, 7),
             config: {
                 xAnchor: 0.5,
                 yAnchor: 0.5,

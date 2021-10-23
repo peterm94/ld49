@@ -11,7 +11,6 @@ import {
     MathUtil,
     RectCollider,
     ScreenShake,
-    SpriteSheet,
     System,
     Timer,
     Util,
@@ -21,8 +20,6 @@ import {Layers} from "../Layers";
 import {AmmunitionPickup} from "../Pickups/AmmunitionPickup";
 import {Ammunition} from "../Common/Ammunition";
 import {PickupCount} from "../Pickups/PickupCount";
-import beeSprite from '../Art/bee.png';
-import beeMoveSprite from '../Art/bee-movie.png';
 import {Health} from "../Common/Health";
 import {Attack} from "../Common/Attack";
 import {BossRocketAttack, BossRocketExplosion} from "../Enemy/Boss/BossRocketAttack";
@@ -34,12 +31,8 @@ import {SoundManager} from "../SoundManager/SoundManager";
 import {HealthPickup} from "../Pickups/HealthPickup";
 import {pressedKeys} from "../index";
 import {AttackMovement} from "../Common/AttackMovement";
-import killerBeeSpr from "../Art/killer-bee.png";
 import {Boss, RoarAnimStates} from "../Enemy/Boss/Boss";
 
-const bee = new SpriteSheet(beeSprite, 64, 64);
-const bee_move = new SpriteSheet(beeMoveSprite, 64, 64);
-const killaBee = new SpriteSheet(killerBeeSpr, 5, 5);
 
 export class GroundCount extends Component
 {
@@ -123,12 +116,12 @@ export class Player extends Entity
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: bee.textureSliceFromRow(0, 0, 3),
+                textures: this.scene.game.getResource("bigbee").textureSliceFromRow(0, 0, 3),
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
             },
             {
                 id: 1,
-                textures: bee_move.textureSliceFromRow(0, 0, 1),
+                textures: this.scene.game.getResource("bee_move").textureSliceFromRow(0, 0, 1),
                 config: {xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 60}
             }
         ]));
@@ -242,15 +235,17 @@ export class Player extends Entity
     }
 
     // Adds invincibility Frame.
-    addIFrame() {
+    addIFrame()
+    {
         this.transform.alpha = 0.5;
         this.addComponent(new Invincible());
         Log.error("invincible");
         this.addComponent(new Timer(2000, this, false))
-            .onTrigger.register((caller, player:Entity) => {
+            .onTrigger.register((caller, player: Entity) => {
             Log.error("vulnerable");
             const iFrame = player.getComponent(Invincible);
-            if (iFrame != null) {
+            if (iFrame != null)
+            {
                 player.removeComponent(iFrame, true);
                 this.transform.alpha = 1;
             }
@@ -287,12 +282,13 @@ export class Player extends Entity
                 const bee = e.addChild(new Entity("deadBee", 0, 0));
                 const mov = bee.addComponent(new AttackMovement(MathUtil.degToRad(MathUtil.randomRange(0, 360)),
                     MathUtil.randomRange(50, 150)));
-                bee.addComponent(new AnimatedSprite(killaBee.textureSliceFromRow(0, 0, 1),
-                    {
-                        yAnchor: 0.5, xAnchor: 0.5, animationSpeed: 50,
-                        // yScale: bee.transform.position.x > 0 ? -1 : 1,
-                        rotation: MathUtil.degToRad(90) + mov.targetAngle
-                    }));
+                bee.addComponent(
+                    new AnimatedSprite(this.scene.game.getResource("killaBee").textureSliceFromRow(0, 0, 1),
+                        {
+                            yAnchor: 0.5, xAnchor: 0.5, animationSpeed: 50,
+                            // yScale: bee.transform.position.x > 0 ? -1 : 1,
+                            rotation: MathUtil.degToRad(90) + mov.targetAngle
+                        }));
             }
             e.addComponent(new Timer(7000, null, false)).onTrigger.register((caller, data) => {
                 Log.info("DEAD");

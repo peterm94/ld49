@@ -8,7 +8,8 @@ import {
     Entity,
     FrameTriggerSystem,
     Game,
-    GlobalSystem, Key,
+    GlobalSystem,
+    Key,
     Log,
     LogLevel,
     Scene,
@@ -19,7 +20,7 @@ import {
     TimerSystem
 } from "lagom-engine";
 import {Boss} from "./Enemy/Boss/Boss";
-import {tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
+import {tileSpriteHeight, tileSpriteWidth, tileSurfaceHeight, WorldGen} from "./World/WorldGen";
 import {Player, PlayerDropper, PlayerMover, PlayerResetter} from "./Player/Player";
 import {Layers} from "./Layers";
 import {AmmunitionSpawner} from "./Pickups/AmmunitionPickup";
@@ -29,7 +30,7 @@ import {ProjectileMover} from "./Common/ProjectileMover";
 
 import {SoundManager} from "./SoundManager/SoundManager";
 import {SpawnPoint} from "./Common/SpawnPoint";
-import {pressedKeys, titleScreen, viewCollisionSystem} from "./index";
+import {pressedKeys, viewCollisionSystem} from "./index";
 import {AmmunitionStatusDisplay} from "./GameManagement/AmmunitionStatus";
 import {HealthStatusDisplay} from "./GameManagement/HealthStatus";
 
@@ -50,6 +51,33 @@ import beeShootWav from "./Sound/bee_shot.wav";
 import pawEffect from "./Sound/paw_effect.wav";
 import {HealthSpawner} from "./Pickups/HealthPickup";
 import grooveMusic from "./Sound/music.mp3";
+import start from "./Art/splash/start.png";
+import earIdleSprite from "./Art/bear-sheets/ear-idle.png";
+import eyeBlinkSprite from "./Art/bear-sheets/eye-blink.png";
+import eyeIdleSprite from "./Art/bear-sheets/eye-idle.png";
+import mouthIdleSprite from "./Art/bear-sheets/mouth-idle.png";
+import mouthRoarSprite from "./Art/bear-sheets/mouth-roar.png";
+import handSprite from "./Art/bear-paw.png";
+import bearRocketSprite from "./Art/bear-rocket.png";
+import rockExplosion from "./Art/bear-rocket-explosion.png";
+import turretSpr from "./Art/turret.png";
+import turretCanSpr from "./Art/turret-canister.png";
+import killerBeeSpr from "./Art/killer-bee.png";
+import bgBeeSpr from "./Art/bg-bee.png";
+import ammoHexEmptySprite from "./Art/ammo-hex-empty.png";
+import beeSpriteBig from './Art/bee.png';
+
+import ammoHexFullSprite from "./Art/ammo-hex.png";
+import bossHealthSpr from "./Art/bear-health.png";
+import bossHealthHeadSpr from "./Art/bear-healthbar-adornment.png";
+import beeAltSprite from "./Art/bee-alt.png";
+import honeySprite1 from "./Art/honey1.png";
+import honeySprite2 from "./Art/honey2.png";
+import honeySprite3 from "./Art/honey3.png";
+import beeSpriteSmall from "./Art/bee-alt-small.png";
+import beeMoveSprite from "./Art/bee-movie.png";
+import muteSpr from "./Art/mute.png";
+import tileCrackSprite from "./Art/coloured-hex-craking.png";
 
 export const screenWidth = 426;
 export const screenHeight = 240;
@@ -63,6 +91,7 @@ matrix.addCollision(Layers.playerGround, Layers.pickup);
 matrix.addCollision(Layers.player, Layers.bossAttack);
 matrix.addCollision(Layers.player, Layers.tower);
 matrix.addCollision(Layers.towerAttack, Layers.boss);
+
 
 export class LD49 extends Game
 {
@@ -79,6 +108,36 @@ export class LD49 extends Game
         // TODO enable this before deploy
         Log.logLevel = LogLevel.ERROR;
         // Log.logLevel = LogLevel.INFO;
+
+        this.addResource("titleScreen", new SpriteSheet(start, screenWidth, screenHeight));
+        this.addResource("youLoseScreen", youLoseScreen);
+        this.addResource("youWinScreen", youWinScreen);
+        this.addResource("earIdle", new SpriteSheet(earIdleSprite, 196, 128));
+        this.addResource("eyeBlink", new SpriteSheet(eyeBlinkSprite, 196, 128));
+        this.addResource("eyeIdle", new SpriteSheet(eyeIdleSprite, 196, 128));
+        this.addResource("mouthIdle", new SpriteSheet(mouthIdleSprite, 196, 128));
+        this.addResource("mouthRoar", new SpriteSheet(mouthRoarSprite, 196, 128));
+        this.addResource("bearHands", new SpriteSheet(handSprite, 64, 64));
+        this.addResource("rocket", new SpriteSheet(bearRocketSprite, 32, 32));
+        this.addResource("rocketExplosion", new SpriteSheet(rockExplosion, 32, 32));
+        this.addResource("turretSheet", new SpriteSheet(turretSpr, 64, 64));
+        this.addResource("turretCan", new SpriteSheet(turretCanSpr, 7, 9));
+        this.addResource("killerBee", new SpriteSheet(killerBeeSpr, 5, 5));
+        this.addResource("ammoHexEmpty", new SpriteSheet(ammoHexEmptySprite, 32, 32));
+        this.addResource("ammoHexFull", new SpriteSheet(ammoHexFullSprite, 32, 32));
+        this.addResource("bossHealth", new SpriteSheet(bossHealthSpr, 50, 200));
+        this.addResource("bossHealthHead", new SpriteSheet(bossHealthHeadSpr, 32, 32));
+        this.addResource("beeAlt", new SpriteSheet(beeAltSprite, 64, 64));
+        this.addResource("honey1", new SpriteSheet(honeySprite1, 18, 16));
+        this.addResource("honey2", new SpriteSheet(honeySprite2, 18, 16));
+        this.addResource("honey3", new SpriteSheet(honeySprite3, 18, 16));
+        this.addResource("hpbee", new SpriteSheet(beeSpriteSmall, 32, 32));
+        this.addResource("bigbee", new SpriteSheet(beeSpriteBig, 64, 64));
+        this.addResource("bee_move", new SpriteSheet(beeMoveSprite, 64, 64));
+        this.addResource("killaBee", new SpriteSheet(killerBeeSpr, 5, 5));
+        this.addResource("mute", new SpriteSheet(muteSpr, 16, 16));
+        this.addResource("bgBee", new SpriteSheet(bgBeeSpr, 5, 5));
+        this.addResource("tileCrack", new SpriteSheet(tileCrackSprite, tileSpriteWidth, tileSpriteHeight));
 
         LD49.audioAtlas.load("bearRoar", bearRoarWav).volume(0.6);
         LD49.audioAtlas.load("bearRoarQuiet", bearRoarWav).volume(0.3);
@@ -220,7 +279,7 @@ class MainScene extends Scene
     {
         super.onAdded();
 
-        this.addGUIEntity(new ScreenCard(titleScreen.textureSliceFromSheet(), 0));
+        this.addGUIEntity(new ScreenCard(this.game.getResource("titleScreen").textureSliceFromSheet(), 0));
         this.addGlobalSystem(new FrameTriggerSystem());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ClickListener());

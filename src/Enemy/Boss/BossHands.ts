@@ -1,11 +1,7 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, SpriteSheet, System} from "lagom-engine";
-import handSprite from "../../Art/bear-paw.png";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, System} from "lagom-engine";
 import {BossRocketAttack} from "./BossRocketAttack";
 import {Layers} from "../../Layers";
 import {SoundManager} from "../../SoundManager/SoundManager";
-import {LagomType} from "../../../../lagom-engine/src";
-
-const bearHands = new SpriteSheet(handSprite, 64, 64);
 
 
 export class BearHand extends Entity
@@ -22,7 +18,7 @@ export class BearHand extends Entity
         this.addComponent(new AnimatedSpriteController(1, [
             {
                 id: 1,
-                textures: bearHands.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("bearHands").textureSliceFromSheet(),
                 config: {
                     xAnchor: 0.5, yAnchor: 0.5, animationSpeed: 100, animationEndAction: AnimationEnd.STOP, alpha: 0,
                     xScale: this.flipped ? -1 : 1, rotation: -this.angle

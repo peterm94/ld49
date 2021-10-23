@@ -5,21 +5,18 @@ import {
     Entity,
     MathUtil,
     PolyCollider,
-    SpriteSheet,
     Timer,
     Util
 } from "lagom-engine";
 import {Layers} from "../Layers";
 import {SoundManager} from "../SoundManager/SoundManager";
 import {GroundCount, Player} from "../Player/Player";
-import tileCrackSprite from "../Art/coloured-hex-craking.png";
 import {Pickup} from "../Pickups/Pickup";
 
 export const tileSpriteWidth = 32;
 export const tileSpriteHeight = 20;
 export const tileSurfaceHeight = 15;
 
-const tileCrack = new SpriteSheet(tileCrackSprite, tileSpriteWidth, tileSpriteHeight);
 
 // How far to move each staggered hexagon to the right in order for it to slot nicely into the previous tile.
 const tileStaggeredOffsetX = 24;
@@ -181,12 +178,12 @@ export class Tile extends Entity
             {
                 id: 0,
                 // First frame has no cracks.
-                textures: [tileCrack.textureFromIndex(0)],
+                textures: [this.scene.game.getResource("tileCrack").textureFromIndex(0)],
                 config: {animationSpeed: 100, animationEndAction: AnimationEnd.STOP},
             },
             {
                 id: 1,
-                textures: tileCrack.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("tileCrack").textureSliceFromSheet(),
                 config: {animationSpeed: 100, animationEndAction: AnimationEnd.STOP},
             },
         ]));

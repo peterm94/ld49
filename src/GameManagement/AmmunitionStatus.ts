@@ -1,9 +1,5 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, SpriteSheet, System} from "lagom-engine";
-import ammoHexEmptySprite from "../Art/ammo-hex-empty.png";
-import ammoHexFullSprite from "../Art/ammo-hex.png";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, System} from "lagom-engine";
 
-const ammoHexEmpty = new SpriteSheet(ammoHexEmptySprite, 32, 32);
-const ammoHexFull = new SpriteSheet(ammoHexFullSprite, 32, 32);
 
 export class AmmunitionStatusDisplay extends Entity
 {
@@ -34,7 +30,7 @@ class AmmunitionGUIEntry extends Entity
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: ammoHexEmpty.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("ammoHexEmpty").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 200,
@@ -44,7 +40,7 @@ class AmmunitionGUIEntry extends Entity
             },
             {
                 id: 1,
-                textures: ammoHexFull.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("ammoHexFull").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 60,

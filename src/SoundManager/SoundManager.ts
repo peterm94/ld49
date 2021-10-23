@@ -1,10 +1,7 @@
-import {AnimatedSpriteController, Button, Component, Entity, Mouse, SpriteSheet, System, Timer} from "lagom-engine";
+import {AnimatedSpriteController, Button, Component, Entity, Mouse, System, Timer} from "lagom-engine";
 import {LD49} from "../LD49";
 import {Layers} from "../Layers";
 
-import muteSpr from "../Art/mute.png";
-
-const mute = new SpriteSheet(muteSpr, 16, 16);
 
 class MuteComp extends Component
 {
@@ -48,10 +45,10 @@ export class SoundManager extends Entity
         const spr = this.addComponent(new AnimatedSpriteController(Number(LD49.muted), [
             {
                 id: 0,
-                textures: mute.textures([[0, 0]], 16, 16)
+                textures: this.scene.game.getResource("mute").textures([[0, 0]], 16, 16)
             }, {
                 id: 1,
-                textures: mute.textures([[1, 0]], 16, 16)
+                textures: this.scene.game.getResource("mute").textures([[1, 0]], 16, 16)
             }]));
 
         this.addComponent(new Timer(50, spr, false)).onTrigger.register((caller, data) => {
