@@ -11,7 +11,6 @@ import {
     Scene,
     ScreenShake,
     Sprite,
-    SpriteSheet,
     System,
     Timer,
     Util
@@ -20,12 +19,6 @@ import {Health} from "../../Common/Health";
 import {Layers} from "../../Layers";
 import {TowerBeeAttack} from "../../Friendly/Tower/TowerBeeAttack";
 import {Attack} from "../../Common/Attack";
-
-import earIdleSprite from "../../Art/bear-sheets/ear-idle.png";
-import eyeBlinkSprite from "../../Art/bear-sheets/eye-blink.png";
-import eyeIdleSprite from "../../Art/bear-sheets/eye-idle.png";
-import mouthIdleSprite from "../../Art/bear-sheets/mouth-idle.png";
-import mouthRoarSprite from "../../Art/bear-sheets/mouth-roar.png";
 import {BossStatusDisplay} from "../../GameManagement/BossStatusDisplay";
 import {TileDestroyer} from "../../World/TileDestroyer";
 import {SoundManager} from "../../SoundManager/SoundManager";
@@ -34,11 +27,6 @@ import {BossPhase, BossPhases} from "./BossPhase";
 import {EndScreen, LD49} from "../../LD49";
 import {BossRocketExplosion} from "./BossRocketAttack";
 
-const earIdle = new SpriteSheet(earIdleSprite, 196, 128);
-const eyeBlink = new SpriteSheet(eyeBlinkSprite, 196, 128);
-const eyeIdle = new SpriteSheet(eyeIdleSprite, 196, 128);
-const mouthIdle = new SpriteSheet(mouthIdleSprite, 196, 128);
-const mouthRoar = new SpriteSheet(mouthRoarSprite, 196, 128);
 
 class FlashWhite extends Component
 {
@@ -91,7 +79,7 @@ export class Boss extends Entity
         const earsSpr = ears.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: earIdle.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("earIdle").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 200,
@@ -115,7 +103,7 @@ export class Boss extends Entity
         const eyesSpr = eyes.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: eyeIdle.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("eyeIdle").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 200,
@@ -125,7 +113,7 @@ export class Boss extends Entity
             },
             {
                 id: 1,
-                textures: eyeBlink.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("eyeBlink").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.STOP,
                     animationSpeed: 100,
@@ -141,6 +129,7 @@ export class Boss extends Entity
 
         addBlinkTimer();
 
+        const mouthRoar = this.scene.game.getResource("mouthRoar");
         const mouthRoarStart = mouthRoar.textureSliceFromRow(0, 0, 8);
         const mouthRoarOpen = mouthRoar.textureSliceFromRow(0, 9, 9);
         const mouthRoarEnd = mouthRoar.textureSliceFromRow(0, 10, 14);
@@ -181,7 +170,7 @@ export class Boss extends Entity
         const roarSpr = mouth.addComponent(new AnimatedSpriteController(RoarAnimStates.IDLE, [
             {
                 id: RoarAnimStates.IDLE,
-                textures: mouthIdle.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("mouthIdle").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 200,

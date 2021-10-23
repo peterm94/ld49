@@ -8,7 +8,6 @@ import {
     Entity,
     Log,
     MathUtil,
-    SpriteSheet,
     Timer
 } from "lagom-engine";
 import {Health} from "../../Common/Health";
@@ -17,22 +16,9 @@ import {Layers} from "../../Layers";
 import {BossRocketAttack} from "../../Enemy/Boss/BossRocketAttack";
 import {Attack} from "../../Common/Attack";
 import {TowerBeeAttack} from "./TowerBeeAttack";
-
-// 64x64
-// idle frame 0
-// 1 - 38 - shot
-import turretSpr from "../../Art/turret.png";
-// 0 - 32 idle
-// 33 - 40 drain
-// 40 empty idle
-import turretCanSpr from "../../Art/turret-canister.png";
 import {Player, PlayerFalling} from "../../Player/Player";
 import {SoundManager} from "../../SoundManager/SoundManager";
 
-// containers 17,19 21,17, 25,15, 29,13
-
-const turretSheet = new SpriteSheet(turretSpr, 64, 64);
-const turretCan = new SpriteSheet(turretCanSpr, 7, 9);
 
 class Can extends Entity
 {
@@ -55,7 +41,8 @@ class Can extends Entity
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: this.rotate(turretCan.textureSliceFromRow(0, 0, 32), MathUtil.randomRange(0, 32)),
+                textures: this.rotate(this.scene.game.getResource("turretCan").textureSliceFromRow(0, 0, 32),
+                    MathUtil.randomRange(0, 32)),
                 config: {
                     xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32,
                     animationEndAction: AnimationEnd.LOOP,
@@ -64,7 +51,7 @@ class Can extends Entity
             },
             {
                 id: 1,
-                textures: turretCan.textureSliceFromRow(0, 33, 40),
+                textures: this.scene.game.getResource("turretCan").textureSliceFromRow(0, 33, 40),
                 config: {
                     xScale: this.flipped ? -1 : 1, xAnchor: this.flipped ? 1 : 0, xOffset: -32, yOffset: -32,
                     animationEndAction: AnimationEnd.STOP,
@@ -100,7 +87,7 @@ export class Tower extends Entity
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: [turretSheet.textureFromIndex(0)],
+                textures: [this.scene.game.getResource("turretSheet").textureFromIndex(0)],
                 config: {
                     animationEndAction: AnimationEnd.STOP, xScale: this.flipped ? -1 : 1,
                     xAnchor: 0.5, yAnchor: 0.5
@@ -108,7 +95,7 @@ export class Tower extends Entity
             },
             {
                 id: 1,
-                textures: turretSheet.textureSliceFromRow(0, 1, 38),
+                textures: this.scene.game.getResource("turretSheet").textureSliceFromRow(0, 1, 38),
                 config: {
                     animationEndAction: AnimationEnd.STOP, animationSpeed: 60, xScale: this.flipped ? -1 : 1,
                     xAnchor: 0.5, yAnchor: 0.5,

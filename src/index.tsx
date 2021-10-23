@@ -1,19 +1,18 @@
 import './index.css';
 import * as React from "react";
+import {useEffect} from "react";
 import * as ReactDOM from "react-dom";
 import './App.css';
-import {LagomGameComponent, SpriteSheet} from "lagom-engine";
-import {LD49, screenHeight, screenWidth} from "./LD49";
-import start from "./Art/splash/start.png";
-import {useEffect} from "react";
+import {LagomGameComponent} from "lagom-engine";
+import {LD49} from "./LD49";
+
 export const viewCollisionSystem = false;
 export const pressedKeys: Set<string> = new Set();
 
-export const titleScreen = new SpriteSheet(start, screenWidth, screenHeight);
 
-titleScreen.load().then(() => {
+const game = new LD49();
 
-    const game = new LD49();
+game.load().then(() => {
 
     const App = () => {
 
@@ -23,7 +22,8 @@ titleScreen.load().then(() => {
             const removeKey = (e: KeyboardEvent) => pressedKeys.delete(e.key);
             const clearKeys = () => pressedKeys.clear();
             const mousedown = (e: MouseEvent) => {
-                if (e.button === 2) {
+                if (e.button === 2)
+                {
                     pressedKeys.clear();
                 }
             };
@@ -45,7 +45,8 @@ titleScreen.load().then(() => {
             <div style={{display: "flex", height: "100%", alignItems: "center", justifyContent: "center"}}>
                 <LagomGameComponent game={game}/>
                 {viewCollisionSystem &&
-                <canvas id={"detect-render"} width={"426"} height={"240"} style={{border: "black", borderStyle: "solid"}}/>}
+                <canvas id={"detect-render"} width={"426"} height={"240"}
+                        style={{border: "black", borderStyle: "solid"}}/>}
             </div>
         );
     };

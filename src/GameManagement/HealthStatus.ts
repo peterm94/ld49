@@ -1,7 +1,5 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, SpriteSheet, System} from "lagom-engine";
-import beeAltSprite from "../Art/bee-alt.png";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, System} from "lagom-engine";
 
-const bee = new SpriteSheet(beeAltSprite, 64, 64);
 
 export class HealthStatusDisplay extends Entity
 {
@@ -32,7 +30,7 @@ class HealthGUIEntry extends Entity
         const spr = this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
-                textures: bee.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("bigbee").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 200,
@@ -43,7 +41,7 @@ class HealthGUIEntry extends Entity
             },
             {
                 id: 1,
-                textures: bee.textureSliceFromSheet(),
+                textures: this.scene.game.getResource("bigbee").textureSliceFromSheet(),
                 config: {
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 60,

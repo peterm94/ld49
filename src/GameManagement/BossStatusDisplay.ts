@@ -1,11 +1,6 @@
-import {Component, Entity, Sprite, SpriteSheet, System} from "lagom-engine";
-
-import bossHealthSpr from "../Art/bear-health.png";
-import bossHealthHeadSpr from "../Art/bear-healthbar-adornment.png";
+import {Component, Entity, Sprite, System} from "lagom-engine";
 import {Health} from "../Common/Health";
 
-const bossHealth = new SpriteSheet(bossHealthSpr, 50, 200);
-const bossHealthHead = new SpriteSheet(bossHealthHeadSpr, 32, 32);
 
 export class BossStatusDisplay extends Entity
 {
@@ -18,8 +13,9 @@ export class BossStatusDisplay extends Entity
     {
         super.onAdded();
 
+        const bossHealth = this.scene.game.getResource("bossHealth");
         this.addComponent(new Sprite(bossHealth.texture(0, 0)));
-        this.addComponent(new Sprite(bossHealthHead.textureFromIndex(0),
+        this.addComponent(new Sprite(this.scene.game.getResource("bossHealthHead").textureFromIndex(0),
             {xAnchor: 0.5, yAnchor: 0.5, xOffset: 25, yOffset: 6, xScale: 0.5, yScale: 0.5}));
 
         this.addComponent(new HpBits(
